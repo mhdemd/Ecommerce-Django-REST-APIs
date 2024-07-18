@@ -1,0 +1,635 @@
+{% load i18n static %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES %}
+{% get_language_info_list for LANGUAGES as languages %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% trans "Radin Gallery" %}</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
+
+    <!-- Favicon -->
+    <link href="{% static 'assets/img/favicon.ico' %}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'assets/lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+    <!-- Topbar Start -->
+    <div class="container-fluid">
+        <div class="row bg-secondary py-1 px-xl-5">
+
+            <div class="col-lg-6 col-4 text-left">
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="d-inline-flex align-items-center h-100">
+                        <a class="text-body mr-3" href="{% url "shop:help" %}">{% trans "About" %}</a>
+                        <a class="text-body mr-3" href="{% url "shop:help" %}">{% trans "Contact" %}</a>
+                        <a class="text-body mr-3" href="{% url "shop:help" %}">{% trans "Help" %}</a>
+                        <a class="text-body mr-3" href="{% url "shop:help" %}">{% trans "FAQs" %}</a>
+                    </div>
+                </div>
+
+                <!-- wish list & cart (sm) -->
+                <div class="d-inline-flex align-items-center d-block d-lg-none justify-content-between">
+                    <!-- wish list(sm) -->
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'account:wishlist' %}" class="btn px-0 ml-2 text-left">
+                        <i class="fas fa-heart text-dark"></i>
+                        <span class="badge text-dark border border-dark rounded-circle"
+                            style="padding-bottom: 2px;">{{ wishlist_count }}</span>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'account:wishlist' %}" class="btn px-0 ml-2 text-left">
+                        <i class="fas fa-heart text-dark"></i>
+                        <span class="badge text-dark border border-dark rounded-circle"
+                            style="padding-bottom: 2px;">0</span>
+                    </a>
+                    {% endif %}
+                    <!-- end wish list(sm) -->
+
+                    <!-- cart (sm) -->
+                    {% with total_items=cart|length %}
+                    <a href="{% url 'cart:cart_detail' %}" class="btn px-0 ml-2 text-right">
+                        <i class="fas fa-shopping-cart text-dark"></i>
+                        <span class="badge text-dark border border-dark rounded-circle"
+                            style="padding-bottom: 2px;">{{ total_items }}</span>
+                    </a>
+                    {% endwith %}
+                    <!-- end cart (sm) -->
+                </div>
+                <!-- end wish list & cart (sm) -->
+            </div>
+
+            <div class="col-lg-6 col-6 text-right">
+                <!-- account & language (lg & sm) -->
+                <div class="d-inline-flex align-items-center justify-content-between">
+                    <div class="btn-group mr-1" style="height: 50px;" id="exceptionDivAccount">
+                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
+                            <div class="small text-muted" id="hellonameId">
+                                {% trans "Hello," %}
+                                {% if user.is_authenticated %}
+                                {{ user.first_name }}
+                                {% else %}
+                                {% trans "Sign in" %}
+                                {% endif %}
+                            </div>
+                            <span class="fs15 fw500">{% trans "Account & Lists" %}</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <div class="card border-0">
+                                <div class="card-body">
+                                    <h6 class="card-title">{% trans "My Account" %}</h6>
+                                    <ul class="list-group list-group-flush dropdown-account-link">
+                                        {% if user.is_authenticated %}
+                                        <a href="{% url "account:dashboard" %}"
+                                            class="text-reset small list-group-item p-0 pb-1 border-0 dropdown-account-link">
+                                            {% trans "Your Account" %}
+                                        </a>
+                                        <a href="{% url "account:logout" %}"
+                                            class="text-reset small list-group-item p-0 pb-1 border-0 dropdown-account-link">
+                                            {% trans "Logout" %}
+                                        </a>
+                                        {% else %}
+                                        <a href="{% url "account:login" %}"
+                                            class="text-reset small list-group-item p-0 pb-1 border-0 dropdown-account-link">
+                                            {% trans "Login" %}
+                                        </a>
+                                        <a href="{% url 'account:register' %}"
+                                            class="text-reset small list-group-item p-0 pb-1 border-0 dropdown-account-link">
+                                            {% trans "Sign up" %}
+                                        </a>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group" style="height: 50px;">
+                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
+                            <div class="small text-muted"> Language
+                                {% get_current_language as LANGUAGE_CODE %}
+                                {% get_language_info_list for LANGUAGES as languages %}
+                            </div>
+                            {% for language in languages %}
+                            {% if language.code == LANGUAGE_CODE %}
+                            <small class="fs15 fw500">{{ language.name_local }}</small>
+                            {% endif %}
+                            {% endfor %}
+
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            {% for language in languages %}
+                            <a class="dropdown-item" href="/{{ language.code }}/shop/"
+                                {% if language.code == LANGUAGE_CODE %} class="selected" {% endif %}>
+                                {{ language.name_local }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <!-- end account & language (lg & sm) -->
+
+            </div>
+        </div>
+    </div>
+
+    <div id="storeName" class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
+        <div class="col-lg-4">
+            <a href="{% url 'shop:home' %}" class="text-decoration-none">
+                <span class="h1 text-uppercase text-primary bg-dark px-2">{% trans "Radin" %}</span>
+                <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">{% trans "Gallery" %}</span>
+            </a>
+        </div>
+
+        <div class="col-lg-4 col-6 text-left">
+            <form id="searchForm" action="{% url 'shop:search' %}" method="GET">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="{% trans 'Search for products' %}" name="q">
+                    <div class="input-group-append">
+                        <span class="input-group-text bg-transparent text-primary" id="searchButton">
+                            <i class="fa fa-search"></i>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <script>
+            // Add a click event to the magnifying glass icon
+            document.getElementById('searchButton').addEventListener('click', function () {
+                document.getElementById('searchForm')
+                    .submit(); // ارسال فرم هنگام کلیک بر روی آیکون ذره‌بین
+            });
+        </script>
+
+        <div class="col-lg-4 col-6 text-right" id="exceptionDivCustomerService">
+            <p class="m-0">{% trans "Customer Service" %}</p>
+            <h5 class="mr-3 ">+012 3456</h5>
+        </div>
+    </div>
+    <!-- Topbar End -->
+
+
+    <!-- Navbar Start -->
+    <div class="container-fluid bg-dark mb-30">
+        <div id="navbarDiv" class="row px-xl-5">
+            <!-- category -->
+            <div id="navbar1Div" class="col-lg-3 d-none d-lg-block">
+                <a id="navbar11Div" class="btn d-flex align-items-center justify-content-between bg-primary w-100"
+                    data-toggle="collapse" href="#navbar-vertical" style="height: 65px; padding: 0 30px;">
+                    <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>{% trans 'Categories' %}</h6>
+                    <i class="fa fa-angle-down text-dark"></i>
+                </a>
+
+                <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-secondary"
+                    id="navbar-vertical" style="width: calc(100% - 30px); z-index: 999;">
+                    <div class="navbar-nav w-100">
+                        {% for category in categories %}
+                        {% if category.level == 1 %}
+                        <details>
+                            <summary id="categoryLevel1" style="background-color: rgba(0, 0, 0, 0.05);"
+                                class="nav-item nav-link d-flex justify-content-between align-items-center ml-2">
+                                <span id="span1_{{ category.id }}">{{ category.name }}</span>
+                                <i id="i1_{{ category.id }}" class="fas fa-angle-down"></i>
+                            </summary>
+                            <div>
+                                {% for subcategory in category.children.all %}
+                                <details>
+                                    {% if subcategory.children.exists %}
+                                    <summary
+                                        class="nav-item nav-link d-flex justify-content-between align-items-center ml-4"
+                                        style="background-color: rgba(0, 0, 0, 0.03);">
+                                        <span id="span2_{{ subcategory.id }}">{{ subcategory.name }}</span>
+                                        <i id="i2_{{ subcategory.id }}" class="fas fa-angle-down"></i>
+                                    </summary>
+
+                                    <div>
+                                        {% for subsubcategory in subcategory.children.all %}
+                                        <a href="{% url 'shop:product_list_by_category' subsubcategory.slug %}"
+                                            style="background-color: rgba(0, 0, 0, 0.01);"
+                                            class="nav-item nav-link d-flex justify-content-between align-items-center ml-5">
+                                            <small
+                                                id="small3_{{ subsubcategory.id }}">{{ subsubcategory.name|truncatechars:20 }}</small>
+                                            <i id="i3_{{ subsubcategory.id }}" class="fas fa-angle-down"
+                                                style="color: transparent;"></i>
+                                        </a>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <summary style="background-color: rgba(0, 0, 0, 0.03);"
+                                        class="nav-item nav-link justify-content-between align-items-center ml-4">
+                                        <button
+                                            onclick="window.location.href='{% url 'shop:product_list_by_category' subcategory.slug %}'"
+                                            style="color: gray; text-align: right; background: none; border: none;">
+                                            {{ subcategory.name }}
+                                        </button>
+                                        <i id="i4_{{ subcategory.id }}" class="fas fa-angle-down"
+                                            style="color: transparent;"></i>
+                                    </summary>
+
+                                    {% endif %}
+                                </details>
+                                {% endfor %}
+                            </div>
+                        </details>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </nav>
+            </div>
+
+            <div id="navbar2Div" class="col-lg-9">
+                <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
+                    <!-- for sm screen -->
+                    <a href="{% url 'shop:home' %}" class="text-decoration-none d-block d-lg-none">
+                        <span class="h1 text-uppercase text-dark bg-light px-2">{% trans 'Radin' %}</span>
+                        <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">{% trans 'Gallery' %}</span>
+                    </a>
+                    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar21Div">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <!-- for sm screen end -->
+
+                    <div id="navbar21Div" class="collapse navbar-collapse justify-content-between">
+                        <!-- sample category -->
+                        <div id="navbar22Div" class="navbar-nav  py-0">
+                            <a id="navbar22DivHome" href="{% url 'shop:home' %}" class="nav-item nav-link
+                                {% if request.path == '/fa/' %}active{% endif %} 
+                                {% if request.path == '/en/' %}active{% endif %}">
+                                {% trans 'Home' %}
+                            </a>
+
+                            <a href="{% url 'shop:show_categories' category_slug='kids-baby' %}" class="nav-item nav-link 
+                                {% if request.path == '/fa/show_categories/kids-baby/' %}active{% endif %} 
+                                {% if request.path == '/en/show_categories/kids-baby/' %}active{% endif %}">
+                                {% trans 'Kids & Baby' %}
+                            </a>
+
+                            <a href="{% url 'shop:show_categories' category_slug='woman' %}" class="nav-item nav-link
+                                {% if request.path == '/fa/show_categories/woman/' %}active{% endif %} 
+                                {% if request.path == '/en/show_categories/woman/' %}active{% endif %}">
+                                {% trans "Women's Fashion" %}
+                            </a>
+
+                            <a href="{% url 'shop:show_categories' category_slug='man' %}" class="nav-item nav-link 
+                                {% if request.path == '/fa/show_categories/man/' %}active{% endif %} 
+                                {% if request.path == '/en/show_categories/man/' %}active{% endif %}">
+                                {% trans "Men's Fashion" %}
+                            </a>
+
+                            <a id="navbar22DivContact" href="{% url 'shop:help' %}" class="nav-item nav-link
+                                {% if request.path == '/fa/help/' %}active{% endif %} 
+                                {% if request.path == '/en/help/' %}active{% endif %}">
+                                {% trans 'Contact' %}
+                            </a>
+                        </div>
+                        <!-- sample category end -->
+
+                        <!-- wish list & cart (lg) -->
+                        <div id="navbar23Div" class="navbar-nav  py-0 d-none d-lg-block">
+
+                            <!-- cart (lg) -->
+                            {% with total_items=cart|length %}
+                            <a href="{% url 'cart:cart_detail' %}" class="btn px-0 ml-3">
+                                <i class="fas fa-shopping-cart text-primary"></i>
+                                <span class="badge text-secondary border border-secondary rounded-circle"
+                                    style="padding-bottom: 2px;">{{ total_items }}</span>
+                            </a>
+                            {% endwith %}
+                            <!-- end cart (lg) -->
+
+                            <!-- wish list(lg) -->
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'account:wishlist' %}" class="btn px-0 ml-3">
+                                <i class="fas fa-heart text-danger"></i>
+                                <span class="badge text-secondary border border-secondary rounded-circle"
+                                    style="padding-bottom: 2px;">{{ wishlist_count }}</span>
+                            </a>
+                            {% else %}
+                            <a href="{% url 'account:wishlist' %}" class="btn px-0 ml-3">
+                                <i class="fas fa-heart text-danger"></i>
+                                <span class="badge text-secondary border border-secondary rounded-circle"
+                                    style="padding-bottom: 2px;">{{ 0 }}</span>
+                            </a>
+                            {% endif %}
+                            <!-- end wish list(lg) -->
+
+                        </div>
+                        <!-- wish list & cart (lg) end -->
+
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Navbar End -->
+
+    <div id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-secondary mt-5 pt-5">
+
+        <div class="row px-xl-5 pt-5">
+            <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
+                <h5 class="text-secondary text-uppercase mb-4">{% trans 'Get In Touch' %}</h5>
+                <p class="mb-4">
+                    {% trans 'No dolore ipsum accusam no lorem. Invidunt sed clita kasd clita et et dolor sed dolor. Rebum tempor no vero est magna amet no' %}
+                </p>
+                <p class="mb-2"><i
+                        class="fa fa-map-marker-alt text-primary mr-3"></i>{% trans '123 Street, New York, USA' %}</p>
+                <p class="mb-2"><i class="fa fa-envelope text-primary mr-3"></i>{% trans 'info@example.com' %}</p>
+                <p class="mb-0"><i class="fa fa-phone-alt text-primary mr-3"></i>{% trans '+012 345 67890' %}</p>
+            </div>
+            <div class="col-lg-8 col-md-12">
+                <div class="row">
+                    <div class="col-md-4 mb-5">
+                        <h5 class="text-secondary text-uppercase mb-4">{% trans 'Quick Shop' %}</h5>
+                        <div class="d-flex flex-column justify-content-start">
+                            <a class="text-secondary mb-2" href="#">{% trans 'Home' %}</a>
+                            <a class="text-secondary mb-2" href="#">{% trans 'Our Shop' %}</a>
+                            <a class="text-secondary mb-2" href="#">{% trans 'Shop Detail' %}</a>
+                            <a class="text-secondary mb-2" href="#">{% trans 'Shopping Cart' %}</a>
+                            <a class="text-secondary mb-2" href="#">{% trans 'Checkout' %}</a>
+                            <a class="text-secondary" href="#">{% trans 'Contact Us' %}</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-5">
+                        <h5 class="text-secondary text-uppercase mb-4">{% trans 'My Account' %}</h5>
+                        <div class="d-flex flex-column justify-content-start">
+                            <a class="text-secondary mb-2" href="#">{% trans 'Home' %}</a>
+                            <a class="text-secondary mb-2" href="#">{% trans 'Our Shop' %}</a>
+                            <a class="text-secondary mb-2" href="#">{% trans 'Shop Detail' %}</a>
+                            <a class="text-secondary mb-2" href="#">{% trans 'Shopping Cart' %}</a>
+                            <a class="text-secondary mb-2" href="#">{% trans 'Checkout' %}</a>
+                            <a class="text-secondary" href="#">{% trans 'Contact Us' %}</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-5">
+                        <h5 class="text-secondary text-uppercase mb-4">{% trans 'Newsletter' %}</h5>
+                        <p>{% trans 'Subscribe to our newsletter for the latest products, discounts, and more!' %}</p>
+                        <form action="">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="{% trans 'Your Email Address' %}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary">{% trans 'Sign Up' %}</button>
+                                </div>
+                            </div>
+                        </form>
+                        <h6 class="text-secondary text-uppercase mt-4 mb-3">{% trans 'Follow Us' %}</h6>
+                        <div class="d-flex">
+                            <a class="btn btn-primary btn-square mr-2" href="#"><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-primary btn-square mr-2" href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-primary btn-square mr-2" href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a class="btn btn-primary btn-square" href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
+            <div class="col-md-6 px-xl-0">
+                <p class="mb-md-0 text-center text-md-left text-secondary">
+                    &copy; <a class="text-primary" href="#">{% trans 'Domain' %}</a>. {% trans 'All Rights Reserved' %}.
+                    {% trans 'Designed by' %}
+                    <a class="text-primary" href="https://htmlcodex.com">HTML Codex</a>
+                </p>
+            </div>
+            <div class="col-md-6 px-xl-0 text-center text-md-right">
+                <img class="img-fluid" src="{% static 'assets/img/payments.png' %}" alt="">
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% comment %} <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script> {% endcomment %}
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'assets/lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'assets/lib/owlcarousel/owl.carousel.min.js' %}"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="{% static 'assets/mail/jqBootstrapValidation.min.js' %}"></script>
+    <script src="{% static 'assets/mail/contact.js' %}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{% static 'assets/js/main.js' %}"></script>
+</body>
+
+<!-- For translate to persian  -->
+<script>
+    //  راست چین کردن کل صفحه به غیر از کروسل و آفر و ....
+    document.addEventListener("DOMContentLoaded", function () {
+        var currentURL = window.location.href;
+
+        if (currentURL.includes("/fa/")) {
+            adjustTextAlign('#storeName *', 'right');
+            adjustTextAlign(
+                'body > *:not(#navbar23Div) > *:not(#exceptionDivCarousel) > *',
+                'right');
+            adjustTextAlign('#exceptionDivHelp *, #exceptionDivAccount *', 'center');
+            adjustTextAlign('#exceptionDivOffer *, #exceptionDivCustomerService *', 'left');
+
+        }
+    });
+
+    function adjustTextAlign(selector, alignment) {
+        var textDivs = document.querySelectorAll(selector);
+        textDivs.forEach(function (div) {
+            div.style.textAlign = alignment;
+        });
+    }
+
+
+    // تغییر جای دیو های Topbar Start
+    document.addEventListener("DOMContentLoaded", function () {
+        // Function to check if '/fa/' exists in the URL
+        function checkURL() {
+            var url = window.location.href;
+            if (url.includes("/fa/")) {
+                reorder1Divs(); // If '/fa/' is in the URL, reorder the divs
+                reorder2Divs();
+                reorder3Divs();
+                updateAnchorTag();
+                switchText();
+                swapElementsForCategories();
+                replaceMlWithMrInNavbar1DivSubElements();
+
+            }
+        }
+
+        // Function to reorder the divs in Topbar
+        function reorder1Divs() {
+            var parent1Div = document.querySelector(
+                '.row.align-items-center.bg-light.py-3.px-xl-5.d-none.d-lg-flex');
+            var customerServiceDiv = document.querySelector('.col-lg-4.text-right');
+            var middleDiv = document.querySelector('.col-lg-4.text-left');
+            var radinShopDiv = document.querySelector('.col-lg-4:not(.text-right):not(.text-left)');
+
+            // Reorder the divs
+            parent1Div.appendChild(customerServiceDiv);
+            parent1Div.appendChild(middleDiv);
+            parent1Div.appendChild(radinShopDiv);
+        }
+
+        // Function to replace the divs in Navbar
+        function reorder2Divs() {
+            var parent2Div = document.querySelector('#navbarDiv');
+
+            var categoriesDiv = document.querySelector('#navbar1Div');
+            var rightDiv = document.querySelector('#navbar2Div');
+
+            // Reorder the divs
+            parent2Div.appendChild(rightDiv);
+            parent2Div.appendChild(categoriesDiv);
+        }
+
+        // Function to replace the divs in Navbar Chalid
+        function reorder3Divs() {
+            var parent3Div = document.querySelector('#navbar21Div');
+
+            var sampleCategoryDiv = document.querySelector('#navbar22Div');
+            var wishCartDiv = document.querySelector('#navbar23Div');
+
+            // Reorder the divs
+            parent3Div.appendChild(wishCartDiv);
+            parent3Div.appendChild(sampleCategoryDiv);
+        }
+
+        // Function to replace the divs in Navbar Chalid Categories
+        function updateAnchorTag() {
+            var navbarElement = document.getElementById('navbar11Div');
+
+            if (navbarElement) {
+                var iconBars = document.createElement('i');
+                iconBars.classList.add('fa', 'fa-bars', 'mr-2');
+
+                var h6Text = document.createElement('h6');
+                h6Text.classList.add('text-dark', 'm-0');
+                h6Text.innerText = '{% trans "Categories" %}';
+                h6Text.appendChild(iconBars);
+
+                var iconDown = navbarElement.querySelector('.fa-angle-down');
+                navbarElement.removeChild(iconDown);
+
+                var existingH6 = navbarElement.querySelector('h6');
+                if (existingH6) {
+                    navbarElement.removeChild(existingH6);
+                }
+
+                navbarElement.insertBefore(iconDown, navbarElement.firstChild);
+                navbarElement.appendChild(h6Text);
+            }
+        }
+
+        // Function to replace buttons on sample categories
+        function switchText() {
+            var navbarDiv = document.getElementById("navbar22Div");
+            var homeButton = document.getElementById("navbar22DivHome");
+            var contactButton = document.getElementById("navbar22DivContact");
+            var kidsBabyButton = document.querySelectorAll('[href*="kids-baby"]')[0];
+            var womanFashionButton = document.querySelectorAll('[href*="woman"]')[0];
+            var manFashionButton = document.querySelectorAll('[href*="man"]')[0];
+
+            navbarDiv.insertBefore(homeButton, contactButton);
+            navbarDiv.insertBefore(contactButton, kidsBabyButton);
+            navbarDiv.insertBefore(kidsBabyButton, womanFashionButton);
+            navbarDiv.insertBefore(womanFashionButton, manFashionButton);
+        }
+
+        // Function to change <span> and <i> of elements under categories 
+        function swapElementsForCategories() {
+            // Function to swap HTML content
+            function swapContent(element1, element2) {
+                var tempHTML = element1.innerHTML;
+                element1.innerHTML = element2.outerHTML;
+                element2.outerHTML = tempHTML;
+            }
+
+            // Swap elements for categories
+            var categories = document.querySelectorAll("[id^='span1_']");
+            categories.forEach(function (category) {
+                var categoryId = category.id.split("_")[1];
+                var iconId = document.getElementById("i1_" + categoryId);
+
+                swapContent(category, iconId);
+            });
+
+            // Swap elements for subcategories
+            var subcategories = document.querySelectorAll("[id^='span2_']");
+            subcategories.forEach(function (subcategory) {
+                var subcategoryId = subcategory.id.split("_")[1];
+                var iconId = document.getElementById("i2_" + subcategoryId);
+
+                swapContent(subcategory, iconId);
+            });
+
+            // Swap elements for subsubcategories
+            var subsubcategories = document.querySelectorAll("[id^='small3_']");
+            subsubcategories.forEach(function (subsubcategory) {
+                var subsubcategoryId = subsubcategory.id.split("_")[1];
+                var iconId = document.getElementById("i3_" + subsubcategoryId);
+
+                swapContent(subsubcategory, iconId);
+            });
+
+            // Swap elements for gray subcategories
+            var graySubcategories = document.querySelectorAll("[id^='span4_']");
+            graySubcategories.forEach(function (graySubcategory) {
+                var graySubcategoryId = graySubcategory.id.split("_")[1];
+                var iconId = document.getElementById("i4_" + graySubcategoryId);
+
+                swapContent(graySubcategory, iconId);
+            });
+
+
+        }
+
+        // Function to change ml- to mr- in all categories's elements  
+        function replaceMlWithMrInNavbar1DivSubElements() {
+            var navbar1Div = document.getElementById('navbar1Div');
+            if (navbar1Div) {
+                navbar1Div.querySelectorAll('*').forEach(function (el) {
+                    el.classList.forEach(function (className) {
+                        if (className.startsWith('ml-')) {
+                            el.classList.remove(className);
+                            el.classList.add(className.replace('ml-', 'mr-'));
+                        }
+                    });
+                });
+            }
+        }
+
+        checkURL(); // Check the URL when the page loads
+    });
+</script>
+
+</html>

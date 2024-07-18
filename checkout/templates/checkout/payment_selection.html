@@ -1,0 +1,176 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% load i18n %}
+{% block title %}{% trans "Payment Selection" %}{% endblock %}
+{% block content %}
+
+<div class="col-11">
+  <div class="col-12">
+    <h1 class="h2">{% trans "Payment Selection" %}</h1>
+  </div>
+  <div class="col-12">
+    <p>{% trans "Please select your payment option" %}</p>
+  </div>
+  <hr />
+</div>
+
+<div class="col-11">
+  <div class="row g-3">
+
+    <!-- Left -->
+    <div class="col-lg-8">
+      <div class="row justify-content-center">
+        <div class="col-8">
+          <div class="text-center" style="margin-top: 50px;">
+            <a href="{% url 'zarinpal:pay' %}" style="text-decoration: none;">
+              <button
+                style="background-color: rgb(255, 196, 57); border: none; padding: 15px 0; text-align: center; text-decoration: none; display: inline-block; font-size: 18px; width: 96%; border-radius: 5px; cursor: pointer;">
+                <span style="font-weight: bold; color: rgb(0, 48, 135); font-style: italic;">{% trans "Zarin" %}</span>
+                <span style="font-weight: bold; color: rgb(0, 156, 222); font-style: italic;">{% trans "Pal" %}</span>
+              </button>
+            </a>
+          </div>
+          <hr>
+          <div class="col-12" id="paypal-button-container"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Right -->
+    <div class="col-lg-4">
+      <form class="mb-30" action="">
+        <div class="input-group">
+          <input type="text" class="form-control border-0 p-4" placeholder="{% trans "Coupon Code" %}" />
+          <div class="input-group-append">
+            <button class="btn btn-primary">{% trans "Apply Coupon" %}</button>
+          </div>
+        </div>
+      </form>
+      <h5 class="section-title position-relative text-uppercase mb-3">
+        <span class="bg-secondary pr-3">{% trans "Cart Summary" %}</span>
+      </h5>
+      <div class="bg-light p-30 mb-5">
+        <div class="border-bottom pb-2">
+          <div class="d-flex justify-content-between mb-3">
+            <h6 id="subtotalLabel">{% trans "Subtotal" %}</h6>
+            <h6 id="subtotalPrice">${{cart.get_subtotal_price}}</h6>
+          </div>
+          <div class="d-flex justify-content-between">
+            <h6 id="shippingLabel" class="font-weight-medium">{% trans "Shipping" %}</h6>
+            <h6 id="shippingPrice" class="font-weight-medium">${{cart.get_delivery_price}}</h6>
+          </div>
+        </div>
+        <div class="pt-2">
+          <div class="d-flex justify-content-between mt-2">
+            <h5 id="totalLabel">{% trans "Total" %}</h5>
+            <h5 id="totalPrice">${{cart.get_total_price}}</h5>
+          </div>
+          <a href="{% url "checkout:delivery_address" %}"
+            class="btn btn-block btn-primary font-weight-bold my-3 py-3">{% trans "Back to addresses" %}</a>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- paypal -->
+<script
+  src="https://www.paypal.com/sdk/js?client-id=AVXCU_vK1UIfRqLh8-rtPvMZmW1ktL1EJWQMDw8-yFvxo5FIZbm8WXH5UTameESlYUxDQ4B6hpTb2KzV&currency=USD"
+  data-sdk-integration-source="button-factory">
+</script>
+
+<script>
+  function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  var csrftoken = getCookie('csrftoken');
+
+
+
+  function initPayPalButton() {
+    paypal.Buttons({
+      style: {
+        shape: 'rect',
+        color: 'gold',
+        layout: 'vertical',
+        label: 'paypal',
+
+      },
+      createOrder: function (data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            "amount": {
+              "currency_code": "USD",
+              "value": '{{cart.get_total_price}}'
+            }
+          }]
+        });
+      },
+      onApprove: function (data) {
+        var url = "{% url 'checkout:payment_complete' %}"
+        return fetch(url, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'X-CSRFToken': csrftoken,
+          },
+          body: JSON.stringify({
+            orderID: data.orderID
+          })
+        }).then(function () {
+          location.href = '{% url "checkout:payment_successful" %}';
+        })
+      },
+    }).render('#paypal-button-container');
+  }
+  initPayPalButton();
+</script>
+
+<!-- Changing the place of tags inside the shopping summary -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var currentURL = window.location.href;
+
+    if (currentURL.includes("/fa/")) {
+      // دسته اول
+      var subtotalLabel = document.getElementById("subtotalLabel");
+      var subtotalPrice = document.getElementById("subtotalPrice");
+
+      if (subtotalLabel && subtotalPrice) {
+        subtotalPrice.parentNode.insertBefore(subtotalPrice, subtotalLabel);
+      }
+
+      // دسته دوم
+      var shippingLabel = document.getElementById("shippingLabel");
+      var shippingPrice = document.getElementById("shippingPrice");
+
+      if (shippingLabel && shippingPrice) {
+        shippingPrice.parentNode.insertBefore(shippingPrice, shippingLabel);
+      }
+
+      // دسته سوم
+      var totalLabel = document.getElementById("totalLabel");
+      var totalPrice = document.getElementById("totalPrice");
+
+      if (totalLabel && totalPrice) {
+        totalPrice.parentNode.insertBefore(totalPrice, totalLabel);
+      }
+    }
+  });
+</script>
+
+{% endblock %}

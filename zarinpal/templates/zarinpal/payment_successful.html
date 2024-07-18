@@ -1,0 +1,20 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% load i18n %}
+{% block title %}{% trans "Payment Successful" %}{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div class="col-12">
+    <h1 class="h2">{% trans "Payment Successful" %}</h1>
+  </div>
+  <div class="col-12">
+    <p>{% trans "Order Summary" %}</p>
+  </div>
+  <hr />
+  <div class="col-12">
+    <p>{% trans "View all" %} <a href="{% url 'account:user_orders' %}">{% trans "orders" %}</a></p>
+  </div>
+</div>
+
+{% endblock %}

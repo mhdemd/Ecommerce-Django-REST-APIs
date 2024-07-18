@@ -1,0 +1,46 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-21 16:31+0330\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Payment failed"
+msgstr "پرداخت ناموفق بود"
+
+msgid "The connection to the server could not be established successfully"
+msgstr "اتصال به سرور با موفقیت برقرار نشد"
+
+msgid "Please check your internet connection and try again"
+msgstr "لطفاً اتصال اینترنت خود را بررسی کرده و دوباره تلاش کنید"
+
+msgid "View shopping cart"
+msgstr "مشاهده سبد خرید"
+
+msgid "click here"
+msgstr "اینجا را کلیک کنید"
+
+msgid "Payment Successful"
+msgstr "پرداخت با موفقیت انجام شد"
+
+msgid "Order Summary"
+msgstr "خلاصه سفارش"
+
+msgid "View all"
+msgstr "مشاهده همه"
+
+msgid "orders"
+msgstr "سفارشات"

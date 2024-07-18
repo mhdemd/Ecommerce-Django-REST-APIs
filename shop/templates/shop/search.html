@@ -1,0 +1,138 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}
+{% if category %}{{ category.name }}{% else %}{% trans 'Products' %}{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Shop Start -->
+<div class="container-fluid">
+
+    {% if messages %}
+    <div style="margin-left: 45px;" class="alert alert-warning {{ message.tags }}" role="alert">
+        {% for message in messages %}
+        {{ message|safe }} - <a href="{% url 'account:wishlist' %}" class="alert-link">{% trans 'Your Wishlist' %}</a>.
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="margin-left: 45px;" class="archive-header mb-3">
+        <div class="row">
+            <div class="col-xl-5 text-left">
+                {% if products %}
+                <h4 class="mb-15">{% trans 'Search Results for' %}: "{{ query }}"</h4>
+                {% else %}
+                <h4 class="mb-15">{% trans 'No Search Item Found' %}</h4>
+                <p>{% trans 'Sorry, no items were found for' %} "{{ query }}".</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row px-xl-5">
+        <!-- Shop Product Start -->
+        <div class="col-lg-12 col-md-8">
+            <div class="row pb-3">
+
+                <!-- products -->
+                {% for product in products %}
+                <div class="col-lg-3 col-md-6 col-sm-6 pb-1">
+                    <div class="product-item bg-light mb-4">
+                        <!-- image section -->
+                        <div class="product-img position-relative overflow-hidden">
+                            {% if product.media_product.exists %}
+                            <img class="img-fluid w-100" src="{{ product.media_product.first.image.url }}"
+                                alt="{{ product.name }}" />
+                            {% else %}
+                            <img class="img-fluid w-100" src="{% static 'img/no_image.png' %}"
+                                alt="{{ product.name }}" />
+                            {% endif %}
+
+                            <div class="product-action">
+                                {% if user.is_authenticated %}
+                                {% if product.id not in user_wishlist_ids %}
+                                <a class="btn btn-outline-dark btn-square"
+                                    href="{% url 'account:user_wishlist' product.id %}">
+                                    <i class="far fa-heart"></i>
+                                </a>
+                                {% else %}
+                                <a class="btn btn-outline-dark btn-square"><i class="fas fa-heart"></i>
+                                </a>
+                                {% endif %}
+                                {% else %}
+                                <a class="btn btn-outline-dark btn-square"
+                                    href="{% url 'account:user_wishlist' product.id %}">
+                                    <i class="far fa-heart"></i>
+                                </a>
+                                {% endif %}
+
+                                <a class="btn btn-outline-dark btn-square"
+                                    href="{% url 'shop:product_detail' id=product.id slug=product.slug %}"><i
+                                        class="fa fa-search"></i></a>
+                            </div>
+                        </div>
+                        <!-- end image section -->
+
+                        <!-- name & price & stars -->
+                        <div class="text-center py-4">
+
+                            <!-- name -->
+                            <a class="h6 text-decoration-none text-truncate"
+                                href="{% url 'shop:product_detail' id=product.id slug=product.slug %}">{{ product.name|truncatechars:25 }}</a>
+                            <!-- end name -->
+
+                            <!-- price -->
+                            <div class="d-flex align-items-center justify-content-center mt-2">
+                                <h5>${{ product.first_sale_price|floatformat:2 }}</h5>
+                                <h6 class="text-muted ml-2">
+                                    <del>${{ product.first_retail_price|floatformat:2 }}</del>
+                                </h6>
+                            </div>
+                            <!-- end price -->
+
+                            <!-- stars -->
+                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                {% if product.reviews.count > 0 %}
+                                <div class="text-primary mb-2">
+                                    {% for i in "12345" %}
+                                    {% if product.average_rating >= i|add:"0" %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div style="margin-left: 5px;">
+                                    <small>({{ product.reviews.count }})</small>
+                                </div>
+                                {% else %}
+                                <div class="text-primary mb-2">
+                                    {% for i in "12345" %}
+                                    <i class="far fa-star"></i>
+                                    {% endfor %}
+                                </div>
+                                <div style="margin-left: 5px;">
+                                    <small>(0)</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <!-- end stars -->
+
+                        </div>
+                        <!-- end name & price & stars -->
+
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+        <!-- Shop Product End -->
+    </div>
+</div>
+<!-- Shop End -->
+
+{% endblock %}

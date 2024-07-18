@@ -1,0 +1,179 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% load i18n %}
+{% block title %}
+{{ product.name }}
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb Start -->
+<div class="container-fluid">
+  <div class="row px-xl-5">
+    <div class="col-12">
+      <nav class="breadcrumb bg-light mb-30">
+        <a class="breadcrumb-item text-dark" href="/">{% trans "Home" %}</a>
+        <!-- <a class="breadcrumb-item text-dark" href="#">{% trans "Shop" %}</a> -->
+        <span class="breadcrumb-item active">{% trans "Shopping Cart" %}</span>
+      </nav>
+    </div>
+  </div>
+</div>
+<!-- Breadcrumb End -->
+
+<!-- Cart Start -->
+<div class="container-fluid">
+  <div class="row px-xl-5">
+    <!-- main table -->
+    <div class="col-lg-8 table-responsive mb-5">
+      <table class="table table-light table-borderless table-hover text-center mb-0">
+        <thead class="thead-dark">
+          <tr>
+            <th>{% trans "Products" %}</th>
+            <th>{% trans "Size/Color" %}</th>
+            <th>{% trans "Price" %}</th>
+            <th>{% trans "Quantity" %}</th>
+            <th>{% trans "Total" %}</th>
+            <th>{% trans "Remove" %}</th>
+          </tr>
+        </thead>
+        <tbody class="align-middle">
+          {% for key, item in cart.cart.items %}
+          {% with product=item.product %}
+          <tr>
+            <td class="align-middle">
+              <img
+                src="{% if product.media_product.exists %}{{ product.media_product.first.image.url }} {% else %}{% static "img/no_image.png" %}{% endif %}"
+                alt="" style="width: 50px;"> {{ product.name|truncatechars:20 }}
+            </td>
+            <td class="align-middle">
+              <span>{{ item.variety }}</span>
+            </td>
+            <td class="align-middle">{% trans "$" %}{{ item.sale_price|floatformat:2 }}</td>
+            <td class="align-middle">
+              <form action="{% url 'cart:cart_add' product.id %}" method="post" class="input-group">
+                {% csrf_token %}
+                {{ item.update_quantity_form.quantity }}
+                {{ item.update_quantity_form.override }}
+                <input type="hidden" name="variety" value="{{ key }}" />
+                <div class="input-group-append align-items-center">
+                  <input type="submit" class="btn btn-primary" value="{% trans "Update" %}" />
+                </div>
+              </form>
+              <link rel="stylesheet" href="{% static 'assets/css/quantity-styles.css' %}" />
+            </td>
+            <td class="align-middle">{% trans "$" %}{{ item.total_price|floatformat:2 }}</td>
+            <td class="align-middle">
+              <form action="{% url 'cart:cart_remove' key %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">
+                  <i class="fa fa-times"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endwith %}
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+
+    <!-- CART SUMMARY -->
+    <div class="col-lg-4">
+
+      <h5 class="section-title position-relative text-uppercase mb-3">
+        <span class="bg-secondary pr-3">{% trans "Cart Summary" %}</span>
+      </h5>
+      <div class="bg-light p-30 mb-5">
+        <div class="border-bottom pb-2">
+          <div class="d-flex justify-content-between mb-3">
+            <h6 id="totalQuantityLable">{% trans "Total Quantity" %}</h6>
+            {% with total_items=cart|length %}
+            <h6 id="totalQuantity">{% trans "$" %}{{ total_items }}</h6>
+            {% endwith %}
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <div class="d-flex justify-content-between mt-2">
+            <h5 id="totalPriceLable">{% trans "Total Price" %}</h5>
+            <h5 id="totalPrice">{{ cart.get_subtotal_price|floatformat:2 }}</h5>
+          </div>
+
+          {% if cart %}
+          <a href="{% url "checkout:deliverychoices" %}"
+            class="btn btn-block btn-primary font-weight-bold my-3 py-3">{% trans "Proceed To Checkout" %}</a>
+          {% else %}
+          <a href="" class="btn btn-block btn-primary font-weight-bold my-3 py-3">{% trans "Your cart is empty" %}</a>
+          {% endif %}
+
+          {% if cart %}
+          <div class="text-center">
+            <div class="timer-text text-center small">{% trans "Time remaining" %}</div>
+            <div id="countdown" class="mx-auto"></div>
+          </div>
+          {% else %}
+          <div class="text-center"></div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Cart End -->
+
+<script>
+  // To display the shopping cart expiration timer 
+  function updateRemainingTime(remainingMinutes, remainingSeconds) {
+    var countdown = document.getElementById('countdown');
+
+    if ((remainingMinutes < 0 || remainingSeconds < 0) || (remainingMinutes === 0 && remainingSeconds === 0)) {
+      countdown.innerHTML = "{% trans 'Deleting...' %}";
+      // Additional code for clearing cart or performing other actions when timer ends
+      return;
+    }
+
+    countdown.innerHTML = remainingMinutes.toString().padStart(2, '0') + ":" + remainingSeconds.toString().padStart(2,
+      '0');
+
+    if (remainingSeconds > 0) {
+      remainingSeconds--;
+    } else {
+      remainingSeconds = 59;
+      remainingMinutes--;
+    }
+
+    setTimeout(function () {
+      updateRemainingTime(remainingMinutes, remainingSeconds);
+    }, 1000);
+  }
+
+  var remainingMinutes = parseInt("{{ remaining_time.remaining_minutes }}");
+  var remainingSeconds = parseInt("{{ remaining_time.remaining_seconds }}");
+
+  updateRemainingTime(remainingMinutes, remainingSeconds);
+
+  // Changing the place of tags inside the shopping summary
+  document.addEventListener("DOMContentLoaded", function () {
+    var currentURL = window.location.href;
+
+    if (currentURL.includes("/fa/")) {
+      var totalQuantityLabel = document.getElementById("totalQuantityLable");
+      var totalQuantity = document.getElementById("totalQuantity");
+      var totalPriceLabel = document.getElementById("totalPriceLable");
+      var totalPrice = document.getElementById("totalPrice");
+
+      if (totalQuantityLabel && totalQuantity) {
+        totalQuantity.parentNode.insertBefore(totalQuantity, totalQuantityLabel);
+      }
+
+      if (totalPriceLabel && totalPrice) {
+        totalPrice.parentNode.insertBefore(totalPrice, totalPriceLabel);
+      }
+    }
+  });
+</script>
+
+{% endblock %}

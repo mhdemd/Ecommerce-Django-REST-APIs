@@ -1,0 +1,53 @@
+{% load i18n %}
+<html>
+
+<body>
+  <h1>{% trans "My Shop" %}</h1>
+  <p>
+    {% trans "Invoice no." %} {{ order.id }}<br>
+    <span class="secondary">
+      {{ order.created|date:"M d, Y" }}
+    </span>
+  </p>
+  <h3>{% trans "Bill to" %}</h3>
+  <p>
+    {{ order.shipping_address.recipient_name }}<br>
+    {{ order.user.email }}<br>
+    {{ order.shipping_address.town_city }} {{ order.shipping_address.address_line }},
+    {{ order.shipping_address.address_line2 }}<br>
+    {{ order.shipping_address.postcode }},
+    {{ order.shipping_address.country }}<br>
+  </p>
+
+  <h3>{% trans "Items bought" %}</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>{% trans "Product" %}</th>
+        <th>{% trans "Price" %}</th>
+        <th>{% trans "Quantity" %}</th>
+        <th>{% trans "Cost" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order.items.all %}
+      <tr class="row{% cycle "1" "2" %}">
+        <td>{{ item.product.name }}</td>
+        <td class="num">${{ item.price }}</td>
+        <td class="num">{{ item.quantity }}</td>
+        <td class="num">${{ item.get_cost }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="total">
+        <td colspan="3">{% trans "Total" %}</td>
+        <td class="num">${{ order.get_total_cost }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <span class="{% if order.billing_status %}paid{% else %}pending{% endif %}">
+    {% if order.billing_status %}{% trans "Paid" %}{% else %}{% trans "Pending payment" %}{% endif %}
+  </span>
+</body>
+
+</html>

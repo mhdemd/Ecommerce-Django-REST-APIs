@@ -1,0 +1,395 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-21 16:29+0330\n"
+"PO-Revision-Date: 2023-12-14 10:17+0000\n"
+"Last-Translator: Mehdi Emadi <a@a.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Translated-Using: django-rosetta 0.10.0\n"
+
+msgid "Recipient Full Name"
+msgstr ""
+
+msgid "Phone Number"
+msgstr ""
+
+msgid "Country"
+msgstr ""
+
+msgid "Address Line 1"
+msgstr ""
+
+msgid "Address Line 2"
+msgstr ""
+
+msgid "Town/City/State"
+msgstr ""
+
+msgid "Postcode"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "First Name"
+msgstr ""
+
+msgid "Required"
+msgstr ""
+
+msgid "Last Name"
+msgstr ""
+
+msgid "Sorry, you will need an email"
+msgstr ""
+
+msgid "Repeat password"
+msgstr ""
+
+msgid "Passwords do not match."
+msgstr ""
+
+msgid "Please use another Email, that is already taken"
+msgstr ""
+
+msgid "E-mail"
+msgstr ""
+
+msgid "Repeat Password"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Unfortunately we cannot find that email address"
+msgstr ""
+
+msgid "New password"
+msgstr ""
+
+msgid "New Password"
+msgstr ""
+
+msgid "Mobile"
+msgstr ""
+
+msgid "You must provide an email address"
+msgstr ""
+
+msgid "email address"
+msgstr ""
+
+msgid "first name"
+msgstr ""
+
+msgid "last name"
+msgstr ""
+
+msgid "mobile"
+msgstr ""
+
+msgid "is active"
+msgstr ""
+
+msgid "is staff"
+msgstr ""
+
+msgid "created"
+msgstr ""
+
+msgid "updated"
+msgstr ""
+
+msgid "UserBase"
+msgstr ""
+
+msgid "Recipient Name"
+msgstr ""
+
+msgid "Delivery Instructions"
+msgstr ""
+
+msgid "Created at"
+msgstr ""
+
+msgid "Updated at"
+msgstr ""
+
+msgid "Set as default address?"
+msgstr ""
+
+msgid "Edit Addresses"
+msgstr ""
+
+msgid "Your Addresses"
+msgstr ""
+
+msgid "Manage your addresses"
+msgstr ""
+
+msgid "Add Address"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Set Default"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Your Account"
+msgstr ""
+
+msgid "Manage your orders and personal details"
+msgstr ""
+
+msgid "Orders"
+msgstr ""
+
+msgid "View, Track, Change or buy again"
+msgstr ""
+
+msgid "Login & Security"
+msgstr ""
+
+msgid "Edit login, email and phone number"
+msgstr ""
+
+msgid "Edit your shipping addresses"
+msgstr ""
+
+msgid "Your Wish List"
+msgstr ""
+
+msgid "View your Wish List"
+msgstr ""
+
+msgid "Delete Confirm"
+msgstr ""
+
+msgid "Account deleted"
+msgstr ""
+
+msgid "Thank you"
+msgstr ""
+
+msgid "Create/Edit Address"
+msgstr ""
+
+msgid "Add a new delivery"
+msgstr ""
+
+msgid "address"
+msgstr ""
+
+msgid "and delivery preferences"
+msgstr ""
+
+msgid "Edit Profile"
+msgstr ""
+
+msgid "Details successfully updated!"
+msgstr ""
+
+msgid "Back to Dashboard"
+msgstr ""
+
+msgid "Change your details"
+msgstr ""
+
+msgid "You can edit your account using the following form:"
+msgstr ""
+
+msgid "Error: Please try again!"
+msgstr ""
+
+msgid "Save changes"
+msgstr ""
+
+msgid "Save Changes"
+msgstr ""
+
+msgid "Delete Account"
+msgstr ""
+
+msgid "Are you sure you want to delete your account?"
+msgstr ""
+
+msgid "User Orders"
+msgstr ""
+
+msgid "Manage your"
+msgstr ""
+
+msgid "orders"
+msgstr ""
+
+msgid "and personal details"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Total paid"
+msgstr ""
+
+msgid "Product"
+msgstr ""
+
+msgid "Price"
+msgstr ""
+
+msgid "Quantity"
+msgstr ""
+
+msgid "Problem with order"
+msgstr ""
+
+msgid "Leave a review"
+msgstr ""
+
+msgid "You have no registered orders"
+msgstr ""
+
+msgid "Users Wish List"
+msgstr ""
+
+msgid "My Wishlist"
+msgstr ""
+
+msgid "Manage your Wishlist"
+msgstr ""
+
+msgid "Remove from Wishlist"
+msgstr ""
+
+msgid "No products have been added to your wishlist yet"
+msgstr ""
+
+msgid "Log-in"
+msgstr ""
+
+msgid "Change your password"
+msgstr ""
+
+msgid "Use the form below to change your password."
+msgstr ""
+
+msgid "Your password can’t be too similar to your other personal information."
+msgstr ""
+
+msgid "Your password must contain at least 8 characters."
+msgstr ""
+
+msgid "Your password can’t be a commonly used password."
+msgstr ""
+
+msgid "Your password can’t be entirely numeric."
+msgstr ""
+
+msgid "Submit"
+msgstr ""
+
+msgid "Already have an account?"
+msgstr ""
+
+msgid "Help Center?"
+msgstr ""
+
+#, python-format
+msgid ""
+"You're receiving this email because you requested a password reset for your user account at\n"
+"%(site_name)s."
+msgstr ""
+"شما این ایمیل را دریافت می‌کنید چون درخواست بازنشانی رمز عبور برای حساب کاربری شما در\n"
+"%(site_name)s داده‌اید."
+
+msgid "Please go to the following page and choose a new password:"
+msgstr ""
+
+msgid "Your username, in case you’ve forgotten:"
+msgstr ""
+
+msgid "Thanks for using our site!"
+msgstr ""
+
+#, python-format
+msgid "The %(site_name)s team"
+msgstr ""
+
+msgid "Forgotten your password?"
+msgstr ""
+
+msgid "Enter your e-mail address to obtain a new password."
+msgstr ""
+
+msgid "Send e-mail"
+msgstr ""
+
+msgid "Login"
+msgstr ""
+
+msgid "Password Reset Success"
+msgstr ""
+
+msgid "Check your email for instructions"
+msgstr ""
+
+msgid "Sign In"
+msgstr ""
+
+msgid "Error: Username or Password not correct!"
+msgstr ""
+
+msgid "Log in"
+msgstr ""
+
+msgid "Create an account"
+msgstr ""
+
+msgid "Password Reset"
+msgstr ""
+
+msgid "Register"
+msgstr ""
+
+msgid "It's free and only takes a minute."
+msgstr ""
+
+msgid "Please correct the following errors:"
+msgstr ""
+
+msgid "At least 8 characters and 1 digit"
+msgstr ""
+
+msgid "Registration Successful"
+msgstr ""
+
+msgid "Thank you for registering. An activation link has been sent to your email address. Please click on the link to activate your account."
+msgstr ""

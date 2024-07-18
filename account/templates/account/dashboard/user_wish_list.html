@@ -1,0 +1,49 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Users Wish List" %}{% endblock %}
+
+{% block content %}
+<div class="col-11">
+  <h1 class="h2">{% trans "My Wishlist" %}</h1>
+</div>
+<div class="col-11 justify-content-between">
+  <div>{% trans "Manage your Wishlist" %}
+  </div>
+</div>
+
+<hr />
+
+{% if wishlist %}
+{% for product in wishlist  %}
+
+<div class="card col-11 mb-3 rounded-0 mx-auto">
+  <div class="row g-0">
+    <div class="col-md-2 d-flex align-items-center justify-content-center">
+      <a href="{% url 'shop:product_detail' id=product.id slug=product.slug %}">
+        <img class="d-block p-2" style="height: 200px; object-fit: contain;"
+          src="{% if product.media_product.exists %}{{ product.media_product.first.image.url }}{% else %}{% static "img/no_image.png" %}{% endif %}">
+      </a>
+    </div>
+    <div class="col-md-10">
+      <div class="card-body">
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="card-text">{{ product.description|truncatechars:250 }}</p>
+        <a href="{% url 'account:user_wishlist' product.id %}"
+          class="btn btn-primary fw500 btn-sm">{% trans "Remove from Wishlist" %}</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endfor %}
+{% else %}
+<div class="col-11">
+  <p>{% trans "No products have been added to your wishlist yet" %}</p>
+</div>
+{% endif %}
+
+
+{% endblock %}

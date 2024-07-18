@@ -1,0 +1,99 @@
+{% extends "shop/base.html" %}
+{% block title %}Edit Addresses{% endblock %}
+
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+
+<div class="col-11">
+  <h1 class="h2">{% trans "Create/Edit Address" %}</h1>
+</div>
+<div class="col-11 justify-content-between">
+  <div>{% trans "Add a new delivery" %} <b>{% trans "address" %}</b> {% trans "and delivery preferences" %}
+  </div>
+</div>
+
+<hr />
+
+<div class="col-10 mx-auto">
+  <style>
+    /* قرار دادن فرم در وسط صفحه */
+    .account-form {
+      max-width: 400px;
+      /* عرض حداکثری برای فرم */
+      margin: 0 auto;
+      /* قرار دادن فرم در وسط صفحه */
+    }
+
+    /* اندازه یکسان برای تمام ورودی‌ها */
+    .account-form input[type="text"],
+    .account-form input[type="tel"],
+    .account-form select {
+      width: 100%;
+      /* عرض 100% برای ورودی‌ها */
+      padding: 10px;
+      /* پدینگ داخلی برای ورودی‌ها */
+      margin-bottom: 10px;
+      /* فاصله بین ورودی‌ها */
+      box-sizing: border-box;
+      /* اضافه شدن padding و border به عرض ورودی */
+    }
+  </style>
+
+  <form name="address_form" class="account-form" method="post" enctype="multipart/form-data">
+    {% if form.errors %}
+    <div class="alert alert-primary" role="alert">
+      Error: * All fields are required.
+    </div>
+    {% endif %}
+    {% csrf_token %}
+    <label class="small fw-bold">{{ form.recipient_name.label}}</label>
+    <br>
+    {{ form.recipient_name }}
+    <br>
+    <label class="small fw-bold">{{ form.recipient_phone.label}}</label>
+    <br>
+    {{ form.recipient_phone }}
+    <br>
+    <label class="small fw-bold">{{ form.country.label}}</label>
+    <br>
+    {{ form.country }}
+    <br>
+    <label class="small fw-bold">{{ form.address_line.label}}</label>
+    <br>
+    {{ form.address_line }}
+    <br>
+    <label class="small fw-bold">{{ form.address_line2.label}}</label>
+    <br>
+    {{ form.address_line2 }}
+    <br>
+    <label class="small fw-bold">{{ form.town_city.label}}</label>
+    <br>
+    {{ form.town_city }}
+    <br>
+    <label class="small fw-bold">{{ form.postcode.label}}</label>
+    <br>
+    {{ form.postcode }}
+    <br>
+    <label class="small fw-bold">{{ form.default.label}}</label>
+    <br>
+    {{ form.default }}
+    <br>
+    <button class="btn btn-primary btn-block py-2 mb-4 mt-4 fw-bold w-100" type="button" value="Submit"
+      onclick="submitForm()">
+      Add Address
+    </button>
+  </form>
+
+</div>
+
+<script>
+  function submitForm() {
+    var form = document.getElementsByName('address_form')[0];
+    form.submit(); // Submit the form
+    form.reset(); // Reset all form data
+    return false; // Prevent page refresh
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-21 16:29+0330\n"
+"PO-Revision-Date: 2023-12-14 17:01+0000\n"
+"Last-Translator: Mehdi Emadi <a@a.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Translated-Using: django-rosetta 0.10.0\n"
+
+msgid "Quantity"
+msgstr "تعداد"
+
+msgid "Now the maximum available quantity for the selected {} is {}."
+msgstr "در حال حاضر حداکثر تعداد موجود برای {} انتخابی {} است."
+
+msgid "Home"
+msgstr "خانه"
+
+msgid "Shop"
+msgstr "فروشگاه"
+
+msgid "Shopping Cart"
+msgstr "سبد خرید"
+
+msgid "Products"
+msgstr "محصولات"
+
+msgid "Size/Color"
+msgstr "اندازه/رنگ"
+
+msgid "Price"
+msgstr "قیمت"
+
+msgid "Total"
+msgstr "مجموع"
+
+msgid "Remove"
+msgstr "حذف"
+
+msgid "$"
+msgstr "$"
+
+msgid "Update"
+msgstr "به‌روزرسانی"
+
+msgid "Cart Summary"
+msgstr "خلاصه سبد خرید"
+
+msgid "Total Quantity"
+msgstr "مجموع تعداد"
+
+msgid "Total Price"
+msgstr "مجموع قیمت"
+
+msgid "Proceed To Checkout"
+msgstr "ادامه فرایند پرداخت"
+
+msgid "Time remaining"
+msgstr "زمان باقی‌مانده"
+
+msgid "Your cart is empty"
+msgstr "سبد خرید شما خالی است"
+
+msgid "Deleting..."
+msgstr "در حال حذف..."

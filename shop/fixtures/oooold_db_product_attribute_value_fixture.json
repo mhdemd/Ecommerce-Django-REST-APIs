@@ -1,0 +1,82 @@
+[
+    {
+        "model": "shop.productattributevalue",
+        "id": "1",
+        "fields": {
+            "product_attribute": "1",
+            "attribute_value": "38"
+        }
+    },
+    {
+        "model": "shop.productattributevalue",
+        "id": "2",
+        "fields": {
+            "product_attribute": "1",
+            "attribute_value": "39"
+        }
+    },
+    {
+        "model": "shop.productattributevalue",
+        "id": "3",
+        "fields": {
+            "product_attribute": "1",
+            "attribute_value": "40"
+        }
+    },
+    {
+        "model": "shop.productattributevalue",
+        "id": "4",
+        "fields": {
+            "product_attribute": "1",
+            "attribute_value": "41"
+        }
+    },
+    {
+        "model": "shop.productattributevalue",
+        "id": "5",
+        "fields": {
+            "product_attribute": "1",
+            "attribute_value": "42"
+        }
+    },
+    {
+        "model": "shop.productattributevalue",
+        "id": "6",
+        "fields": {
+            "product_attribute": "2",
+            "attribute_value": "red"
+        }
+    },
+    {
+        "model": "shop.productattributevalue",
+        "id": "7",
+        "fields": {
+            "product_attribute": "2",
+            "attribute_value": "green"
+        }
+    },
+    {
+        "model": "shop.productattributevalue",
+        "id": "8",
+        "fields": {
+            "product_attribute": "2",
+            "attribute_value": "blue"
+        }
+    },
+    {
+        "model": "shop.productattributevalue",
+        "id": "9",
+        "fields": {
+            "product_attribute": "2",
+            "attribute_value": "black"
+        }
+    },
+    {
+        "model": "shop.productattributevalue",
+        "id": "10",
+        "fields": {
+            "product_attribute": "2",
+            "attribute_value": "white"
+        }
+    }
+]

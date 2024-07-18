@@ -1,0 +1,8 @@
+[{
+        "model": "shop.producttype",
+        "id": "1",
+        "fields": {
+            "name": "shoes"
+        }
+    }
+]
