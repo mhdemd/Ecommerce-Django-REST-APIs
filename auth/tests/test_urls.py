@@ -4,6 +4,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
+# ---------------------------------------------------------- Making fixtures
 @pytest.fixture
 def create_user():
     user = User.objects.create_user(username="testuser", password="testpassword")
@@ -24,6 +25,7 @@ def token(create_user):
     }
 
 
+# ---------------------------------------------------------- api/token/
 @pytest.mark.django_db
 def test_token_obtain_pair(api_client, create_user):
     url = "/auth/api/token/"
@@ -44,6 +46,7 @@ def test_token_obtain_pair_invalid_credentials(api_client):
     assert "refresh" not in response.data
 
 
+# ---------------------------------------------------------- api/token/refresh/
 @pytest.mark.django_db
 def test_token_refresh(api_client, token):
     url = "/auth/api/token/refresh/"
@@ -62,6 +65,7 @@ def test_token_refresh_invalid(api_client):
     assert "access" not in response.data
 
 
+# ---------------------------------------------------------- api/token/verify/
 @pytest.mark.django_db
 def test_token_verify(api_client, token):
     url = "/auth/api/token/verify/"
