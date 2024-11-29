@@ -1,4 +1,4 @@
-# RadinGalleryAPI
+# Ecommerce-Django-REST-APIs (RadinGalleryAPI)
 
 ## Overview
 RadinGalleryAPI is a project built with Django REST Framework designed to provide a complete set of APIs for an e-commerce site. This includes features like user authentication, product management, and more. The goal is to develop, test, and document these APIs thoroughly, ensuring seamless integration and a high-quality experience.
