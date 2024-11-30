@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
+
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.utils.crypto import get_random_string
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -70,9 +72,18 @@ class RegisterView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
+        # Generate a secure, one-time token
+        token = get_random_string(32)
+        token_expiration = datetime.now() + timedelta(hours=1)  # Token valid for 1 hour
+
+        # Store token and expiration in the user object or a separate model
+        user.verification_token = token
+        user.token_expiration = token_expiration
+        user.save()
+
         # Create a verification link
         verification_link = (
-            f"http://127.0.0.1:8000/auth/api/verify-email/?user_id={user.id}"
+            f"http://127.0.0.1:8000/auth/api/verify-email/?token={token}"
         )
         print(f"Verification Link: {verification_link}")
 
@@ -91,26 +102,30 @@ class VerifyEmailView(generics.GenericAPIView):
         description="Activates a user account after email verification.",
     )
     def get(self, request):
-        user_id = request.query_params.get("user_id")
-        if not user_id:
+        token = request.query_params.get("token")
+        if not token:
             return Response(
-                {"error": "User ID not provided."}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Token is required."}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            user = User.objects.get(id=user_id)
-            if user.is_active:
+            user = User.objects.get(verification_token=token)
+            if user.token_expiration < datetime.now():
                 return Response(
-                    {"message": "User is already verified."}, status=status.HTTP_200_OK
+                    {"error": "Token has expired."}, status=status.HTTP_400_BAD_REQUEST
                 )
+
             user.is_active = True
+            user.verification_token = None  # Remove the token after verification
+            user.token_expiration = None
             user.save()
+
             return Response(
-                {"message": "User verified successfully."}, status=status.HTTP_200_OK
+                {"message": "Email verified successfully."}, status=status.HTTP_200_OK
             )
         except User.DoesNotExist:
             return Response(
-                {"error": "Invalid user ID."}, status=status.HTTP_404_NOT_FOUND
+                {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
             )
 
 

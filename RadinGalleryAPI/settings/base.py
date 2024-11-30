@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "drf_spectacular",
     # Internal apps (developed in-house)
+    "authentication",
 ]
 
 MIDDLEWARE = [
@@ -168,3 +169,5 @@ SIMPLE_JWT = {
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+AUTH_USER_MODEL = "authentication.User"
