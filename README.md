@@ -5,7 +5,7 @@ RadinGalleryAPI is a project built with Django REST Framework designed to provid
 
 ## API Documentation
 You can view the latest API documentation, including the current status of all endpoints, through the Swagger interface at the following link:  
-[Swagger Documentation](https://mhdemd.github.io/RadinGalleryAPI/)
+[Swagger Documentation](https://mhdemd.github.io/Ecommerce-Django-REST-APIs/)
 
 ## Features
 - Full API implementation for an e-commerce site using Django REST Framework.
