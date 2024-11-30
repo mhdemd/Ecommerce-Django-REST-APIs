@@ -97,7 +97,13 @@ paths:
   /auth/api/register/:
     post:
       operationId: auth_api_register_create
-      description: Registers a new user and sends a verification link.
+      description: |-
+        Registers a new user and sends a verification link.
+
+        Validation in the serializer prevents XSS attacks. No field is vulnerable to such attacks.
+        The email and password fields are validated according to Django standards for proper formatting.
+        Rate limiting is applied to prevent repeated request attacks, with adjustable request limits.
+        Two fields, verification_token and token_expiration, have been added to the user model to ensure the security of the email verification link. Once verified, the token is cleared.
       summary: User Registration
       tags:
       - Auth - Registration
