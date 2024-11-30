@@ -4,6 +4,149 @@ info:
   version: 1.0.0
   description: This is the API documentation for my project.
 paths:
+  /auth/api/change-password/:
+    post:
+      operationId: auth_api_change_password_create
+      description: Allows a logged-in user to change their password.
+      summary: Change Password
+      tags:
+      - Auth - Password
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/api/forgot-password/:
+    post:
+      operationId: auth_api_forgot_password_create
+      description: Sends a password reset link to the user's email.
+      summary: Forgot Password
+      tags:
+      - Auth - Password
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /auth/api/login/:
+    post:
+      operationId: auth_api_login_create
+      description: Logs in a user and returns a JWT token.
+      summary: Login
+      tags:
+      - Auth - Login/Logout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+          description: ''
+  /auth/api/logout/:
+    post:
+      operationId: auth_api_logout_create
+      description: Logs out a user by blacklisting the refresh token.
+      summary: Logout
+      tags:
+      - Auth - Login/Logout
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/api/profile/:
+    get:
+      operationId: auth_api_profile_retrieve
+      description: Fetches the profile details of the logged-in user.
+      summary: Get Profile
+      tags:
+      - Auth - Profile
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/api/profile/update/:
+    put:
+      operationId: auth_api_profile_update_update
+      description: Updates the profile information of the logged-in user.
+      summary: Update Profile
+      tags:
+      - Auth - Profile
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/api/register/:
+    post:
+      operationId: auth_api_register_create
+      description: Registers a new user and sends a verification link.
+      summary: User Registration
+      tags:
+      - Auth - Registration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username for the new user
+                email:
+                  type: string
+                  description: The email for the new user
+                password:
+                  type: string
+                  description: The password for the new user
+                password2:
+                  type: string
+                  description: Confirm password
+              required:
+              - username
+              - email
+              - password
+              - password2
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /auth/api/reset-password/:
+    post:
+      operationId: auth_api_reset_password_create
+      description: Resets the user's password using the provided user ID and new password.
+      summary: Reset Password
+      tags:
+      - Auth - Password
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
   /auth/api/token/:
     post:
       operationId: auth_api_token_create
@@ -11,7 +154,7 @@ paths:
         Takes a set of user credentials and returns an access and refresh JSON web
         token pair to prove the authentication of those credentials.
       tags:
-      - auth
+      - Auth - Token
       requestBody:
         content:
           application/json:
@@ -38,7 +181,7 @@ paths:
         Takes a refresh type JSON web token and returns an access type JSON web
         token if the refresh token is valid.
       tags:
-      - auth
+      - Auth - Token
       requestBody:
         content:
           application/json:
@@ -65,7 +208,7 @@ paths:
         Takes a token and indicates if it is valid.  This view provides no
         information about a token's fitness for a particular use.
       tags:
-      - auth
+      - Auth - Token
       requestBody:
         content:
           application/json:
@@ -85,8 +228,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/TokenVerify'
           description: ''
+  /auth/api/verify-email/:
+    get:
+      operationId: auth_api_verify_email_retrieve
+      description: Activates a user account after email verification.
+      summary: Verify Email
+      tags:
+      - Auth - Registration
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
 components:
   schemas:
+    Login:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    Register:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+        password2:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - password2
+      - username
     TokenObtainPair:
       type: object
       properties:
@@ -126,3 +317,19 @@ components:
           writeOnly: true
       required:
       - token
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Auth - Registration
+  description: Endpoints related to user registration and email verification.
+- name: Auth - Login/Logout
+  description: Endpoints for user login and logout operations.
+- name: Auth - Password
+  description: Endpoints for managing user passwords, including reset and change.
+- name: Auth - Profile
+  description: Endpoints for fetching and updating user profile information.
+- name: Auth - Token
+  description: Endpoints related to obtaining, refreshing, and verifying JWT tokens.
