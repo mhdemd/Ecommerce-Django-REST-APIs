@@ -7,6 +7,17 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
+from django.contrib.auth.models import User
+from rest_framework import generics, status, permissions
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from drf_spectacular.utils import extend_schema
+from django.contrib.auth import authenticate
+from .serializers import RegisterSerializer, LoginSerializer, EmptySerializer
 
 # ---------------------------- JWT endpoints ----------------------------
 
@@ -24,30 +35,42 @@ class CustomTokenVerifyView(TokenVerifyView):
 
 # ---------------------------- Authentication Endpoints ----------------------------
 
-class RegisterView(APIView):
+class RegisterView(generics.GenericAPIView):
+    serializer_class = RegisterSerializer 
+
     @extend_schema(
         tags=["Auth - Registration"],
         summary="User Registration",
-        description="Registers a new user and sends a verification link."
+        description="Registers a new user and sends a verification link.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "username": {"type": "string", "description": "The username for the new user"},
+                    "email": {"type": "string", "description": "The email for the new user"},
+                    "password": {"type": "string", "description": "The password for the new user"}
+                },
+                "required": ["username", "email", "password"]
+            }
+        }
     )
     def post(self, request):
-        username = request.data.get("username")
-        email = request.data.get("email")
-        password = request.data.get("password")
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()  
 
-        user = User.objects.create_user(username=username, email=email, password=password)
-        user.is_active = False
-        user.save()
-
-        verification_link = f"http://127.0.0.1:8000/api/verify-email/?user_id={user.id}"
+        # Create a verification link
+        verification_link = f"http://127.0.0.1:8000/auth/api/verify-email/?user_id={user.id}"
         print(f"Verification Link: {verification_link}")
 
         return Response(
-            {"message": "User registered successfully. Please verify your email."}, 
+            {"message": "User registered successfully. Please verify your email."},
             status=status.HTTP_201_CREATED
         )
 
-class VerifyEmailView(APIView):
+class VerifyEmailView(generics.GenericAPIView):
+    serializer_class = EmptySerializer
+
     @extend_schema(
         tags=["Auth - Registration"],
         summary="Verify Email",
@@ -57,7 +80,7 @@ class VerifyEmailView(APIView):
         user_id = request.query_params.get("user_id")
         if not user_id:
             return Response({"error": "User ID not provided."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             user = User.objects.get(id=user_id)
             if user.is_active:
@@ -68,28 +91,30 @@ class VerifyEmailView(APIView):
         except User.DoesNotExist:
             return Response({"error": "Invalid user ID."}, status=status.HTTP_404_NOT_FOUND)
 
-class LoginView(APIView):
+class LoginView(generics.GenericAPIView):
+    serializer_class = LoginSerializer  # Replace with actual serializer class for login
+
     @extend_schema(
         tags=["Auth - Login/Logout"],
         summary="Login",
         description="Logs in a user and returns a JWT token."
     )
     def post(self, request):
-        from django.contrib.auth import authenticate
-        username = request.data.get("username")
-        password = request.data.get("password")
-        user = authenticate(username=username, password=password)
-        if user:
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-            })
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data["user"]
 
-class LogoutView(APIView):
+        # Token generation logic
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        })
+
+class LogoutView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = EmptySerializer
+    
     @extend_schema(
         tags=["Auth - Login/Logout"],
         summary="Logout",
