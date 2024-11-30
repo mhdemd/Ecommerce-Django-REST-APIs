@@ -6,6 +6,21 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+
+# ---------------------------- JWT endpoints ----------------------------
+
+@extend_schema(tags=["Auth - Token"])
+class CustomTokenObtainPairView(TokenObtainPairView):
+    pass
+
+@extend_schema(tags=["Auth - Token"])
+class CustomTokenRefreshView(TokenRefreshView):
+    pass
+
+@extend_schema(tags=["Auth - Token"])
+class CustomTokenVerifyView(TokenVerifyView):
+    pass
 
 # ---------------------------- Authentication Endpoints ----------------------------
 

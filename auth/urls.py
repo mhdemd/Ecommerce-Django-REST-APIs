@@ -15,12 +15,17 @@ from .views import (
     UpdateProfileView,
     ChangePasswordView,
 )
+from django.urls import path
+from .views import CustomTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView
+
+
+
 
 urlpatterns = [
     # JWT endpoints
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+    path("api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
+    path("api/token/verify/", CustomTokenVerifyView.as_view(), name="token_verify"),
     
     # Authentication endpoints
     path("api/register/", RegisterView.as_view(), name="register"),

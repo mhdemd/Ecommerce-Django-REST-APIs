@@ -130,6 +130,7 @@ SPECTACULAR_SETTINGS = {
         {'name': 'Auth - Login/Logout', 'description': 'Endpoints for user login and logout operations.'},
         {'name': 'Auth - Password', 'description': 'Endpoints for managing user passwords, including reset and change.'},
         {'name': 'Auth - Profile', 'description': 'Endpoints for fetching and updating user profile information.'},
+        {'name': 'Auth - Token', 'description': 'Endpoints related to obtaining, refreshing, and verifying JWT tokens.'},
     ],
 }
 
