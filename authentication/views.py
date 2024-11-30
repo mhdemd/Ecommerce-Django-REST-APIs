@@ -49,10 +49,11 @@ class RegisterView(generics.GenericAPIView):
         description=(
             "Registers a new user and sends a verification link.\n"
             "\n"
-            "Validation in the serializer prevents XSS attacks. No field is vulnerable to such attacks.\n"
-            "The email and password fields are validated according to Django standards for proper formatting.\n"
-            "Rate limiting is applied to prevent repeated request attacks, with adjustable request limits.\n"
-            "Two fields, verification_token and token_expiration, have been added to the user model to ensure the security of the email verification link. Once verified, the token is cleared."
+            "The serializer includes built-in validations to prevent XSS attacks, ensuring no field is vulnerable.\n"
+            "Email and password fields are validated according to Django standards to guarantee proper formatting.\n"
+            "Rate limiting is implemented to prevent excessive requests, with customizable limits for added security.\n"
+            "The user model includes 'verification_token' and 'token_expiration' fields to secure the email verification link.\n"
+            "Once the link is used for verification, the token is cleared to maintain security."
         ),
         request={
             "application/json": {
