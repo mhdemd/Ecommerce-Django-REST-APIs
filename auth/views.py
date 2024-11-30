@@ -66,19 +66,6 @@ class RegisterView(generics.GenericAPIView):
         },
     )
     def post(self, request):
-        password1 = request.data.get("password")
-        password2 = request.data.get("password2")
-
-        # Validate that passwords match
-        if password1 != password2:
-            return Response(
-                {"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Custom password validation
-        if "<" in password1 or ">" in password1:
-            raise ValidationError({"password": "Password must not contain HTML tags."})
-
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()

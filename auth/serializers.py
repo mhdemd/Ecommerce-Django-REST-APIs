@@ -1,28 +1,54 @@
+from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from django.contrib.auth import get_user_model, authenticate
 
 User = get_user_model()
+
 
 class EmptySerializer(serializers.Serializer):
     pass
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
+    password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ["username", "email", "password", "password2"]
+
+    def validate(self, data):
+        password1 = data.get("password")
+        password2 = data.get("password2")
+
+        # Check if passwords match
+        if password1 != password2:
+            raise serializers.ValidationError({"password": "Passwords do not match."})
+
+        # Validate password against Django's built-in password validators
+        validate_password(password1)
+
+        # Custom validation to ensure password doesn't contain HTML tags
+        if "<" in password1 or ">" in password1:
+            raise serializers.ValidationError(
+                {"password": "Password must not contain HTML tags."}
+            )
+
+        return data
 
     def create(self, validated_data):
-        # Create a new user and set it to inactive for email verification
+        # Remove password2 since it's not needed for user creation
+        validated_data.pop("password2")
         user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
         )
         user.is_active = False  # Deactivate until email is verified
         user.save()
         return user
+
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
@@ -35,6 +61,6 @@ class LoginSerializer(serializers.Serializer):
 
         if user is None:
             raise serializers.ValidationError("Invalid credentials")
-        
+
         # Returning user object for further use, if necessary
         return {"user": user}
