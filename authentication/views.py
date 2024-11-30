@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
-from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
@@ -14,6 +14,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
+
+from authentication.models import User
 
 from .serializers import EmptySerializer, LoginSerializer, RegisterSerializer
 
@@ -110,7 +112,7 @@ class VerifyEmailView(generics.GenericAPIView):
 
         try:
             user = User.objects.get(verification_token=token)
-            if user.token_expiration < datetime.now():
+            if user.token_expiration < timezone.now():
                 return Response(
                     {"error": "Token has expired."}, status=status.HTTP_400_BAD_REQUEST
                 )
