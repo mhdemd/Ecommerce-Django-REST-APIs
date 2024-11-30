@@ -125,6 +125,12 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "This is the API documentation for my project.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    'TAGS': [
+        {'name': 'Auth - Registration', 'description': 'Endpoints related to user registration and email verification.'},
+        {'name': 'Auth - Login/Logout', 'description': 'Endpoints for user login and logout operations.'},
+        {'name': 'Auth - Password', 'description': 'Endpoints for managing user passwords, including reset and change.'},
+        {'name': 'Auth - Profile', 'description': 'Endpoints for fetching and updating user profile information.'},
+    ],
 }
 
 SIMPLE_JWT = {
