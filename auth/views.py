@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from rest_framework import status
-from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 from django.contrib.auth.models import User
@@ -16,8 +15,13 @@ from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema
-from django.contrib.auth import authenticate
 from .serializers import RegisterSerializer, LoginSerializer, EmptySerializer
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework import generics
+from drf_spectacular.utils import extend_schema
+from .serializers import RegisterSerializer
+
 
 # ---------------------------- JWT endpoints ----------------------------
 
@@ -34,13 +38,6 @@ class CustomTokenVerifyView(TokenVerifyView):
     pass
 
 # ---------------------------- Authentication Endpoints ----------------------------
-
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework import generics
-from drf_spectacular.utils import extend_schema
-from .serializers import RegisterSerializer
-from django.core.exceptions import ValidationError
 
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer 
