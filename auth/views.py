@@ -35,6 +35,13 @@ class CustomTokenVerifyView(TokenVerifyView):
 
 # ---------------------------- Authentication Endpoints ----------------------------
 
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework import generics
+from drf_spectacular.utils import extend_schema
+from .serializers import RegisterSerializer
+from django.core.exceptions import ValidationError
+
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer 
 
@@ -48,13 +55,21 @@ class RegisterView(generics.GenericAPIView):
                 "properties": {
                     "username": {"type": "string", "description": "The username for the new user"},
                     "email": {"type": "string", "description": "The email for the new user"},
-                    "password": {"type": "string", "description": "The password for the new user"}
+                    "password": {"type": "string", "description": "The password for the new user"},
+                    "password2": {"type": "string", "description": "Confirm password"}
                 },
-                "required": ["username", "email", "password"]
+                "required": ["username", "email", "password", "password2"]
             }
         }
     )
     def post(self, request):
+        password1 = request.data.get("password")
+        password2 = request.data.get("password2")
+
+        # Validate that passwords match
+        if password1 != password2:
+            return Response({"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()  
