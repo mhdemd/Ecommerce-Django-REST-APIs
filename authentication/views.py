@@ -46,7 +46,14 @@ class RegisterView(generics.GenericAPIView):
     @extend_schema(
         tags=["Auth - Registration"],
         summary="User Registration",
-        description="Registers a new user and sends a verification link.",
+        description=(
+            "Registers a new user and sends a verification link.\n"
+            "\n"
+            "Validation in the serializer prevents XSS attacks. No field is vulnerable to such attacks.\n"
+            "The email and password fields are validated according to Django standards for proper formatting.\n"
+            "Rate limiting is applied to prevent repeated request attacks, with adjustable request limits.\n"
+            "Two fields, verification_token and token_expiration, have been added to the user model to ensure the security of the email verification link. Once verified, the token is cleared."
+        ),
         request={
             "application/json": {
                 "type": "object",
