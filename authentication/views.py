@@ -17,7 +17,7 @@ from rest_framework_simplejwt.views import (
 
 from authentication.models import User
 
-from .serializers import EmptySerializer, LoginSerializer, RegisterSerializer
+from .serializers import EmptySerializer, RegisterSerializer
 
 # ---------------------------- JWT endpoints ----------------------------
 
@@ -120,7 +120,15 @@ class VerifyEmailView(generics.GenericAPIView):
     @extend_schema(
         tags=["Auth - Registration"],
         summary="Verify Email",
-        description="Activates a user account after email verification.",
+        description=(
+            "# Activates a user account after email verification.\n"
+            "\n"
+            "- When the user clicks on the link sent to their email, this API is called.\n"
+            "\n"
+            "- The link contains a temporary token that is valid for one hour.\n"
+            "\n"
+            "- Without the temporary token, you cannot access this API.\n"
+        ),
     )
     def get(self, request):
         token = request.query_params.get("token")
@@ -148,29 +156,6 @@ class VerifyEmailView(generics.GenericAPIView):
             return Response(
                 {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
             )
-
-
-class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer  # Replace with actual serializer class for login
-
-    @extend_schema(
-        tags=["Auth - Login/Logout"],
-        summary="Login",
-        description="Logs in a user and returns a JWT token.",
-    )
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
-
-        # Token generation logic
-        refresh = RefreshToken.for_user(user)
-        return Response(
-            {
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-            }
-        )
 
 
 class LogoutView(generics.GenericAPIView):

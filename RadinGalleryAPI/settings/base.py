@@ -143,6 +143,10 @@ SPECTACULAR_SETTINGS = {
             "description": "Endpoints related to user registration and email verification.",
         },
         {
+            "name": "Auth - Token",
+            "description": "Endpoints related to obtaining, refreshing, and verifying JWT tokens.",
+        },
+        {
             "name": "Auth - Login/Logout",
             "description": "Endpoints for user login and logout operations.",
         },
@@ -153,10 +157,6 @@ SPECTACULAR_SETTINGS = {
         {
             "name": "Auth - Profile",
             "description": "Endpoints for fetching and updating user profile information.",
-        },
-        {
-            "name": "Auth - Token",
-            "description": "Endpoints related to obtaining, refreshing, and verifying JWT tokens.",
         },
     ],
 }

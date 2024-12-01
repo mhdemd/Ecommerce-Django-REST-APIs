@@ -6,7 +6,6 @@ from .views import (
     CustomTokenRefreshView,
     CustomTokenVerifyView,
     ForgotPasswordView,
-    LoginView,
     LogoutView,
     ProfileView,
     RegisterView,
@@ -23,7 +22,6 @@ urlpatterns = [
     # Authentication endpoints
     path("api/register/", RegisterView.as_view(), name="register"),
     path("api/verify-email/", VerifyEmailView.as_view(), name="verify_email"),
-    path("api/login/", LoginView.as_view(), name="login"),
     path("api/logout/", LogoutView.as_view(), name="logout"),
     path("api/forgot-password/", ForgotPasswordView.as_view(), name="forgot_password"),
     path("api/reset-password/", ResetPasswordView.as_view(), name="reset_password"),

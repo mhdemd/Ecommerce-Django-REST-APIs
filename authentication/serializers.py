@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
@@ -48,19 +48,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.is_active = False  # Deactivate until email is verified
         user.save()
         return user
-
-
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(write_only=True, required=True)
-
-    def validate(self, data):
-        username = data.get("username")
-        password = data.get("password")
-        user = authenticate(username=username, password=password)
-
-        if user is None:
-            raise serializers.ValidationError("Invalid credentials")
-
-        # Returning user object for further use, if necessary
-        return {"user": user}
