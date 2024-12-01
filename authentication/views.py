@@ -47,38 +47,38 @@ class RegisterView(generics.GenericAPIView):
         tags=["Auth - Registration"],
         summary="User Registration",
         description=(
-            "Registers a new user and sends a verification link.\n"
+            "# Registers a new user and sends a verification link.\n"
             "\n"
-            "The serializer includes built-in validations to prevent XSS attacks, ensuring no field is vulnerable.\n"
+            "- The serializer includes built-in validations to prevent XSS attacks, ensuring no field is vulnerable.\n"
             "\n"
-            "Email and password fields are validated according to Django standards to guarantee proper formatting.\n"
+            "- Email and password fields are validated according to Django standards to guarantee proper formatting.\n"
             "\n"
-            "Rate limiting is implemented to prevent excessive requests, with customizable limits for added security.\n"
+            "- Rate limiting is implemented to prevent excessive requests, with customizable limits for added security.\n"
             "\n"
-            "The user model includes 'verification_token' and 'token_expiration' fields to secure the email verification link.\n"
+            "- The user model includes 'verification_token' and 'token_expiration' fields to secure the email verification link.\n"
             "\n"
-            "Once the link is used for verification, the token is cleared to maintain security."
+            "- Once the link is used for verification, the token is cleared to maintain security."
         ),
-        request={
-            "application/json": {
+        request=RegisterSerializer,
+        responses={
+            201: {
                 "type": "object",
                 "properties": {
-                    "username": {
+                    "message": {
                         "type": "string",
-                        "description": "The username for the new user",
-                    },
-                    "email": {
-                        "type": "string",
-                        "description": "The email for the new user",
-                    },
-                    "password": {
-                        "type": "string",
-                        "description": "The password for the new user",
-                    },
-                    "password2": {"type": "string", "description": "Confirm password"},
+                        "example": "User registered successfully. Please verify your email.",
+                    }
                 },
-                "required": ["username", "email", "password", "password2"],
-            }
+            },
+            400: {
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "example": "Validation error details.",
+                    }
+                },
+            },
         },
     )
     def post(self, request):
