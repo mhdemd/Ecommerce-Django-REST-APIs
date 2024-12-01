@@ -17,7 +17,7 @@ from rest_framework_simplejwt.views import (
 
 from authentication.models import User
 
-from .serializers import EmptySerializer, RegisterSerializer
+from .serializers import EmptySerializer, LogoutSerializer, RegisterSerializer
 
 # ---------------------------- JWT endpoints ----------------------------
 
@@ -160,12 +160,21 @@ class VerifyEmailView(generics.GenericAPIView):
 
 class LogoutView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = EmptySerializer
+    serializer_class = LogoutSerializer
 
     @extend_schema(
-        tags=["Auth - Login/Logout"],
+        tags=["Auth - Logout"],
         summary="Logout",
-        description="Logs out a user by blacklisting the refresh token.",
+        description=(
+            "# Logs out a user by blacklisting the refresh token.\n"
+            "\n"
+            "- To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.\n"
+            "\n"
+            "- By sending the refresh token, it is added to the blacklist and becomes invalid.\n"
+            "\n"
+            "- The access token remains valid in this case (although it will eventually expire automatically).\n"
+            "\n"
+        ),
     )
     def post(self, request):
         try:

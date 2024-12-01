@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "rest_framework_simplejwt.token_blacklist",
     # Internal apps (developed in-house)
     "authentication",
 ]
@@ -147,8 +148,8 @@ SPECTACULAR_SETTINGS = {
             "description": "Endpoints related to obtaining, refreshing, and verifying JWT tokens.",
         },
         {
-            "name": "Auth - Login/Logout",
-            "description": "Endpoints for user login and logout operations.",
+            "name": "Auth - Logout",
+            "description": "Endpoints for user logout operations.",
         },
         {
             "name": "Auth - Password",

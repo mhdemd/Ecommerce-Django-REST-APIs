@@ -48,3 +48,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.is_active = False  # Deactivate until email is verified
         user.save()
         return user
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(
+        required=True, help_text="The refresh token to be blacklisted."
+    )
