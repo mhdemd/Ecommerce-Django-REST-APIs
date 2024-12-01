@@ -62,13 +62,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "RadinGalleryAPI.wsgi.application"
 
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -127,6 +120,17 @@ REST_FRAMEWORK = {
         "user": "10/min",  # Rate limit for authenticated users
         "anon": "5/min",  # Rate limit for unauthenticated (anonymous) users
     },
+}
+
+# Redis cache configuration
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis_cache:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
 }
 
 
