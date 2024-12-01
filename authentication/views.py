@@ -95,7 +95,14 @@ class RegisterView(generics.GenericAPIView):
         verification_link = (
             f"http://127.0.0.1:8000/auth/api/verify-email/?token={token}"
         )
-        print(f"Verification Link: {verification_link}")
+
+        # Send the verification email
+        subject = "Email Verification"
+        message = f"Hi {user.username},\n\nPlease verify your email by clicking the link below:\n\n{verification_link}\n\nThank you!"
+        from_email = "no-reply@example.com"
+        recipient_list = [user.email]
+
+        send_mail(subject, message, from_email, recipient_list)
 
         return Response(
             {"message": "User registered successfully. Please verify your email."},
