@@ -7,28 +7,74 @@ paths:
   /auth/api/change-password/:
     post:
       operationId: auth_api_change_password_create
-      description: Allows a logged-in user to change their password.
+      description: |+
+        # Allows a logged-in user to change their password.
+
+        - To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.
+
+        - For validation, we specifically used the validate method in the serializer during the RegisterView process.
+
       summary: Change Password
       tags:
       - Auth - Password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+        required: true
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePassword'
+          description: ''
   /auth/api/forgot-password/:
     post:
       operationId: auth_api_forgot_password_create
-      description: Sends a password reset link to the user's email.
+      description: |+
+        # Sends a password reset link to the user's email.
+
+        - First, the email is checked to see if it exists in the database. If it does not, an error is raised.
+
+        - The email format is validated using EmailField.
+
+        - The website URL and the sender's email address are configured in the settings under SITE_URL and DEFAULT_FROM_EMAIL.
+
       summary: Forgot Password
       tags:
       - Auth - Password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ForgotPassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ForgotPassword'
+        required: true
       security:
       - jwtAuth: []
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgotPassword'
+          description: ''
   /auth/api/logout/:
     post:
       operationId: auth_api_logout_create
@@ -259,6 +305,30 @@ paths:
           description: No response body
 components:
   schemas:
+    ChangePassword:
+      type: object
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+        new_password:
+          type: string
+          writeOnly: true
+        new_password2:
+          type: string
+          writeOnly: true
+      required:
+      - new_password
+      - new_password2
+      - old_password
+    ForgotPassword:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
     Logout:
       type: object
       properties:
