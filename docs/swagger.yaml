@@ -192,16 +192,42 @@ paths:
   /auth/api/reset-password/:
     post:
       operationId: auth_api_reset_password_create
-      description: Resets the user's password using the provided user ID and new password.
+      description: |+
+        # Resets the user's password using the provided token and new password.
+
+        - This is used in cases where, unlike the ChangePasswordView, the previous password is not available. Instead, the user provides their email address, and a link containing a temporary token is sent to them. The user's identity is determined based on the token.
+
+        - The user then enters a new password, which replaces their old password in the database.
+
+        - The token is automatically retrieved from the request, but to enable testing through Swagger UI, a token field has been added to the serializer. This field can be left empty, in which case the token will still be fetched from the request.
+
+        - The password validation rules from the ChangePasswordView are applied to ensure the new passwords meet the required standards.
+
       summary: Reset Password
       tags:
       - Auth - Password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+        required: true
       security:
       - jwtAuth: []
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPassword'
+          description: ''
   /auth/api/token/:
     post:
       operationId: auth_api_token_create
@@ -361,6 +387,20 @@ components:
       - password
       - password2
       - username
+    ResetPassword:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+        new_password:
+          type: string
+          writeOnly: true
+        new_password2:
+          type: string
+          writeOnly: true
+      required:
+      - new_password2
     TokenObtainPair:
       type: object
       properties:
