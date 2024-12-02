@@ -17,7 +17,12 @@ from rest_framework_simplejwt.views import (
 
 from authentication.models import User
 
-from .serializers import EmptySerializer, LogoutSerializer, RegisterSerializer
+from .serializers import (
+    ChangePasswordSerializer,
+    EmptySerializer,
+    LogoutSerializer,
+    RegisterSerializer,
+)
 
 # ---------------------------- JWT endpoints ----------------------------
 
@@ -191,6 +196,46 @@ class LogoutView(generics.GenericAPIView):
 # ---------------------------- Password Management Endpoints ----------------------------
 
 
+class ChangePasswordView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ChangePasswordSerializer
+
+    @extend_schema(
+        tags=["Auth - Password"],
+        summary="Change Password",
+        description=(
+            "# Allows a logged-in user to change their password.\n"
+            "\n"
+            "- To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.\n"
+            "\n"
+            "- For validation, we specifically used the validate method in the serializer during the RegisterView process.\n"
+            "\n"
+        ),
+    )
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        old_password = serializer.validated_data["old_password"]
+        new_password = serializer.validated_data["new_password"]
+
+        # Check the old password
+        if not user.check_password(old_password):
+            return Response(
+                {"error": "Old password is incorrect."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Set and save the new password
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"message": "Password changed successfully."}, status=status.HTTP_200_OK
+        )
+
+
 class ForgotPasswordView(APIView):
     @extend_schema(
         tags=["Auth - Password"],
@@ -225,30 +270,6 @@ class ResetPasswordView(APIView):
         user.save()
         return Response(
             {"message": "Password reset successfully."}, status=status.HTTP_200_OK
-        )
-
-
-class ChangePasswordView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    @extend_schema(
-        tags=["Auth - Password"],
-        summary="Change Password",
-        description="Allows a logged-in user to change their password.",
-    )
-    def post(self, request):
-        user = request.user
-        old_password = request.data.get("old_password")
-        new_password = request.data.get("new_password")
-        if not user.check_password(old_password):
-            return Response(
-                {"error": "Old password is incorrect."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        user.set_password(new_password)
-        user.save()
-        return Response(
-            {"message": "Password changed successfully."}, status=status.HTTP_200_OK
         )
 
 

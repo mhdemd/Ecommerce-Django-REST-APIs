@@ -54,3 +54,30 @@ class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(
         required=True, help_text="The refresh token to be blacklisted."
     )
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    new_password2 = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        password1 = data.get("new_password")
+        password2 = data.get("new_password2")
+
+        # Check if passwords match
+        if password1 != password2:
+            raise serializers.ValidationError(
+                {"new_password": "Passwords do not match."}
+            )
+
+        # Validate password against Django's built-in password validators
+        validate_password(password1)
+
+        # Custom validation to ensure password doesn't contain HTML tags
+        if "<" in password1 or ">" in password1:
+            raise serializers.ValidationError(
+                {"new_password": "Password must not contain HTML tags."}
+            )
+
+        return data
