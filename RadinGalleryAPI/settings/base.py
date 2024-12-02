@@ -172,5 +172,9 @@ SIMPLE_JWT = {
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "no-reply@example.com"
+
 
 AUTH_USER_MODEL = "authentication.User"
+
+SITE_URL = "http://127.0.0.1:8000"

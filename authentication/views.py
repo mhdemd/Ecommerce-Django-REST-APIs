@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -20,6 +21,7 @@ from authentication.models import User
 from .serializers import (
     ChangePasswordSerializer,
     EmptySerializer,
+    ForgotPasswordSerializer,
     LogoutSerializer,
     RegisterSerializer,
 )
@@ -101,14 +103,12 @@ class RegisterView(generics.GenericAPIView):
         user.save()
 
         # Create a verification link
-        verification_link = (
-            f"http://127.0.0.1:8000/auth/api/verify-email/?token={token}"
-        )
+        verification_link = f"{settings.SITE_URL}/auth/api/verify-email/?token={token}"
 
         # Send the verification email
         subject = "Email Verification"
         message = f"Hi {user.username},\n\nPlease verify your email by clicking the link below:\n\n{verification_link}\n\nThank you!"
-        from_email = "no-reply@example.com"
+        from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [user.email]
 
         send_mail(subject, message, from_email, recipient_list)
@@ -236,21 +236,41 @@ class ChangePasswordView(generics.GenericAPIView):
         )
 
 
-class ForgotPasswordView(APIView):
+class ForgotPasswordView(generics.GenericAPIView):
+    serializer_class = ForgotPasswordSerializer
+
     @extend_schema(
         tags=["Auth - Password"],
         summary="Forgot Password",
-        description="Sends a password reset link to the user's email.",
+        description=(
+            "# Sends a password reset link to the user's email.\n"
+            "\n"
+            "- First, the email is checked to see if it exists in the database. If it does not, an error is raised.\n"
+            "\n"
+            "- The email format is validated using EmailField.\n"
+            "\n"
+            "- The website URL and the sender's email address are configured in the settings under SITE_URL and DEFAULT_FROM_EMAIL.\n"
+            "\n"
+        ),
     )
     def post(self, request):
-        email = request.data.get("email")
+        # Data validation using serializer
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
         user = get_object_or_404(User, email=email)
+
+        # Send password reset email
+        reset_link = f"{settings.SITE_URL}/auth/api/reset-password/?user_id={user.id}"
+
         send_mail(
             "Reset your password",
-            f"Click the link to reset your password: http://example.com/reset-password/?user_id={user.id}",
-            "no-reply@example.com",
+            f"Click the link to reset your password: {reset_link}",
+            settings.DEFAULT_FROM_EMAIL,
             [email],
         )
+
         return Response(
             {"message": "Password reset link sent."}, status=status.HTTP_200_OK
         )
