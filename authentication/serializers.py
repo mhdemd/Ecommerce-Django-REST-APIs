@@ -90,3 +90,35 @@ class ForgotPasswordSerializer(serializers.Serializer):
         if not User.objects.filter(email=value).exists():
             raise serializers.ValidationError("This email is not registered.")
         return value
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    token = serializers.CharField(
+        write_only=True,
+        required=False,
+    )
+    new_password = serializers.CharField(
+        write_only=True, required=False, allow_blank=True
+    )
+    new_password2 = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, data):
+        password1 = data.get("new_password")
+        password2 = data.get("new_password2")
+
+        # Check if passwords match
+        if password1 != password2:
+            raise serializers.ValidationError(
+                {"new_password": "Passwords do not match."}
+            )
+
+        # Validate password against Django's built-in password validators
+        validate_password(password1)
+
+        # Custom validation to ensure password doesn't contain HTML tags
+        if "<" in password1 or ">" in password1:
+            raise serializers.ValidationError(
+                {"new_password": "Password must not contain HTML tags."}
+            )
+
+        return data

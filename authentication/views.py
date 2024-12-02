@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -24,6 +25,7 @@ from .serializers import (
     ForgotPasswordSerializer,
     LogoutSerializer,
     RegisterSerializer,
+    ResetPasswordSerializer,
 )
 
 # ---------------------------- JWT endpoints ----------------------------
@@ -254,40 +256,89 @@ class ForgotPasswordView(generics.GenericAPIView):
         ),
     )
     def post(self, request):
-        # Data validation using serializer
+        # Validate data
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         email = serializer.validated_data["email"]
         user = get_object_or_404(User, email=email)
 
-        # Send password reset email
-        reset_link = f"{settings.SITE_URL}/auth/api/reset-password/?user_id={user.id}"
+        # Generate a secure token and set expiration time
+        token = get_random_string(32)
+        token_expiration = datetime.now() + timedelta(hours=1)  # 1-hour expiration
 
-        send_mail(
-            "Reset your password",
-            f"Click the link to reset your password: {reset_link}",
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-        )
+        # Save token and expiration to the user
+        user.verification_token = token
+        user.token_expiration = token_expiration
+        user.save()
+
+        # Generate reset password link
+        reset_link = f"{settings.SITE_URL}/auth/api/reset-password/?token={token}"
+
+        # Send reset password email
+        subject = "Reset your password"
+        message = f"Click the link to reset your password: {reset_link}\nThis link will expire in 1 hour."
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
 
         return Response(
             {"message": "Password reset link sent."}, status=status.HTTP_200_OK
         )
 
 
-class ResetPasswordView(APIView):
+class ResetPasswordView(generics.GenericAPIView):
+    serializer_class = ResetPasswordSerializer
+
     @extend_schema(
         tags=["Auth - Password"],
         summary="Reset Password",
-        description="Resets the user's password using the provided user ID and new password.",
+        description=(
+            "# Resets the user's password using the provided token and new password.\n"
+            "\n"
+            "- This is used in cases where, unlike the ChangePasswordView, the previous password is not available. Instead, the user provides their email address, and a link containing a temporary token is sent to them. The user's identity is determined based on the token.\n"
+            "\n"
+            "- The user then enters a new password, which replaces their old password in the database.\n"
+            "\n"
+            "- The token is automatically retrieved from the request, but to enable testing through Swagger UI, a token field has been added to the serializer. This field can be left empty, in which case the token will still be fetched from the request.\n"
+            "\n"
+            "- The password validation rules from the ChangePasswordView are applied to ensure the new passwords meet the required standards.\n"
+            "\n"
+        ),
     )
-    def post(self, request):
-        user_id = request.query_params.get("user_id")
-        new_password = request.data.get("new_password")
-        user = get_object_or_404(User, id=user_id)
+    def post(self, request, *args, **kwargs):
+        # Validate the serializer data
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Get the token from serializer or query_params
+        token = serializer.validated_data.get("token") or request.query_params.get(
+            "token"
+        )
+
+        if not token:
+            # If token is missing from both places, raise an error
+            return Response(
+                {"error": "Token is required in query parameters or request body."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Find the user associated with the token
+        user = get_object_or_404(User, verification_token=token)
+
+        # Check if the token is expired
+        if user.token_expiration < now():
+            return Response(
+                {"error": "Token has expired."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Set the new password
+        new_password = serializer.validated_data["new_password"]
         user.set_password(new_password)
+
+        # Clear the token and expiration
+        user.verification_token = None
+        user.token_expiration = None
         user.save()
+
         return Response(
             {"message": "Password reset successfully."}, status=status.HTTP_200_OK
         )
