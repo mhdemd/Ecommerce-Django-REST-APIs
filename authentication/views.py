@@ -24,6 +24,7 @@ from .serializers import (
     EmptySerializer,
     ForgotPasswordSerializer,
     LogoutSerializer,
+    ProfileSerializer,
     RegisterSerializer,
     ResetPasswordSerializer,
 )
@@ -347,23 +348,18 @@ class ResetPasswordView(generics.GenericAPIView):
 # ---------------------------- Profile Management Endpoints ----------------------------
 
 
-class ProfileView(APIView):
+class ProfileView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProfileSerializer
 
     @extend_schema(
         tags=["Auth - Profile"],
         summary="Get Profile",
         description="Fetches the profile details of the logged-in user.",
     )
-    def get(self, request):
-        user = request.user
-        return Response(
-            {
-                "username": user.username,
-                "email": user.email,
-            },
-            status=status.HTTP_200_OK,
-        )
+    def get(self, request, *args, **kwargs):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
 
 class UpdateProfileView(APIView):
