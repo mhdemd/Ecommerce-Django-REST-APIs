@@ -30,9 +30,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         validate_password(password1)
 
         # Custom validation to ensure password doesn't contain HTML tags using bleach
-        cleaned_password = bleach.clean(
-            password1, tags=[], attributes=[], styles=[], strip=True
-        )
+        cleaned_password = bleach.clean(password1, tags=[], attributes=[], strip=True)
+
         if cleaned_password != password1:
             raise serializers.ValidationError(
                 {"password": "Password must not contain HTML tags or scripts."}

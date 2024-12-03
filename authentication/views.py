@@ -368,18 +368,19 @@ class ProfileView(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 
+@extend_schema(
+    tags=["Auth - Profile"],
+    summary="Update Profile",
+    description="Updates the profile information of the logged-in user.",
+)
 class UpdateProfileView(generics.UpdateAPIView):
+
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UpdateProfileSerializer
 
     def get_object(self):
         return self.request.user
 
-    @extend_schema(
-        tags=["Auth - Profile"],
-        summary="Update Profile",
-        description="Updates the profile information of the logged-in user.",
-    )
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
         return Response(
