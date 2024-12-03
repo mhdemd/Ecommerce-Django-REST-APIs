@@ -6,10 +6,6 @@ from rest_framework import serializers
 User = get_user_model()
 
 
-class EmptySerializer(serializers.Serializer):
-    pass
-
-
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
@@ -76,10 +72,12 @@ class ChangePasswordSerializer(serializers.Serializer):
         # Validate password against Django's built-in password validators
         validate_password(password1)
 
-        # Custom validation to ensure password doesn't contain HTML tags
-        if "<" in password1 or ">" in password1:
+        # Custom validation to ensure password doesn't contain HTML tags using bleach
+        cleaned_password = bleach.clean(password1, tags=[], attributes=[], strip=True)
+
+        if cleaned_password != password1:
             raise serializers.ValidationError(
-                {"new_password": "Password must not contain HTML tags."}
+                {"password": "Password must not contain HTML tags or scripts."}
             )
 
         return data

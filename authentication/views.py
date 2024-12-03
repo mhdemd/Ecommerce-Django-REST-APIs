@@ -8,6 +8,7 @@ from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -21,7 +22,6 @@ from authentication.models import User
 
 from .serializers import (
     ChangePasswordSerializer,
-    EmptySerializer,
     ForgotPasswordSerializer,
     LogoutSerializer,
     ProfileSerializer,
@@ -124,7 +124,6 @@ class RegisterView(generics.GenericAPIView):
 
 
 class VerifyEmailView(generics.GenericAPIView):
-    serializer_class = EmptySerializer
 
     @extend_schema(
         tags=["Auth - Registration"],
@@ -140,7 +139,9 @@ class VerifyEmailView(generics.GenericAPIView):
         ),
     )
     def get(self, request):
+        # Get the token directly from query parameters
         token = request.query_params.get("token")
+
         if not token:
             return Response(
                 {"error": "Token is required."}, status=status.HTTP_400_BAD_REQUEST
@@ -193,8 +194,15 @@ class LogoutView(generics.GenericAPIView):
             return Response(
                 {"message": "Logged out successfully."}, status=status.HTTP_200_OK
             )
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError:
+            return Response(
+                {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception:
+            return Response(
+                {"error": "An error occurred during logout."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 # ---------------------------- Password Management Endpoints ----------------------------
