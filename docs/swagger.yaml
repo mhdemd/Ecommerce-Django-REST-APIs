@@ -114,7 +114,11 @@ paths:
   /auth/api/profile/:
     get:
       operationId: auth_api_profile_retrieve
-      description: Fetches the profile details of the logged-in user.
+      description: |+
+        # Fetches the profile details of the logged-in user.
+
+        - To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.
+
       summary: Get Profile
       tags:
       - Auth - Profile
@@ -122,7 +126,11 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
   /auth/api/profile/update/:
     put:
       operationId: auth_api_profile_update_update
@@ -130,11 +138,53 @@ paths:
       summary: Update Profile
       tags:
       - Auth - Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateProfile'
+        required: true
       security:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateProfile'
+          description: ''
+    patch:
+      operationId: auth_api_profile_update_partial_update
+      description: Updates the profile information of the logged-in user.
+      summary: Update Profile
+      tags:
+      - Auth - Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateProfile'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateProfile'
+          description: ''
   /auth/api/register/:
     post:
       operationId: auth_api_register_create
@@ -199,7 +249,7 @@ paths:
 
         - The user then enters a new password, which replaces their old password in the database.
 
-        - The token is automatically retrieved from the request, but to enable testing through Swagger UI, a token field has been added to the serializer. This field can be left empty, in which case the token will still be fetched from the request.
+        - The token is automatically retrieved from the query parameters of the request.
 
         - The password validation rules from the ChangePasswordView are applied to ensure the new passwords meet the required standards.
 
@@ -363,6 +413,60 @@ components:
           description: The refresh token to be blacklisted.
       required:
       - refresh
+    PatchedUpdateProfile:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+    Profile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        date_joined:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+      required:
+      - id
+      - username
     Register:
       type: object
       properties:
@@ -390,9 +494,6 @@ components:
     ResetPassword:
       type: object
       properties:
-        token:
-          type: string
-          writeOnly: true
         new_password:
           type: string
           writeOnly: true
@@ -400,6 +501,7 @@ components:
           type: string
           writeOnly: true
       required:
+      - new_password
       - new_password2
     TokenObtainPair:
       type: object
@@ -440,6 +542,28 @@ components:
           writeOnly: true
       required:
       - token
+    UpdateProfile:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - username
   securitySchemes:
     jwtAuth:
       type: http
