@@ -1,3 +1,4 @@
+import bleach
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
@@ -28,10 +29,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Validate password against Django's built-in password validators
         validate_password(password1)
 
-        # Custom validation to ensure password doesn't contain HTML tags
-        if "<" in password1 or ">" in password1:
+        # Custom validation to ensure password doesn't contain HTML tags using bleach
+        cleaned_password = bleach.clean(
+            password1, tags=[], attributes=[], styles=[], strip=True
+        )
+        if cleaned_password != password1:
             raise serializers.ValidationError(
-                {"password": "Password must not contain HTML tags."}
+                {"password": "Password must not contain HTML tags or scripts."}
             )
 
         return data
