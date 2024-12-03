@@ -93,12 +93,8 @@ class ForgotPasswordSerializer(serializers.Serializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    token = serializers.CharField(
-        write_only=True,
-        required=False,
-    )
     new_password = serializers.CharField(
-        write_only=True, required=False, allow_blank=True
+        write_only=True, required=True, allow_blank=False
     )
     new_password2 = serializers.CharField(write_only=True, required=True)
 
@@ -115,10 +111,11 @@ class ResetPasswordSerializer(serializers.Serializer):
         # Validate password against Django's built-in password validators
         validate_password(password1)
 
-        # Custom validation to ensure password doesn't contain HTML tags
-        if "<" in password1 or ">" in password1:
+        # Custom validation to ensure password doesn't contain HTML tags using bleach
+        cleaned_password = bleach.clean(password1, tags=[], attributes=[], strip=True)
+        if cleaned_password != password1:
             raise serializers.ValidationError(
-                {"new_password": "Password must not contain HTML tags."}
+                {"new_password": "Password must not contain HTML tags or scripts."}
             )
 
         return data

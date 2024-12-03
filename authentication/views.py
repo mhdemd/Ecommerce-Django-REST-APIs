@@ -308,7 +308,7 @@ class ResetPasswordView(generics.GenericAPIView):
             "\n"
             "- The user then enters a new password, which replaces their old password in the database.\n"
             "\n"
-            "- The token is automatically retrieved from the request, but to enable testing through Swagger UI, a token field has been added to the serializer. This field can be left empty, in which case the token will still be fetched from the request.\n"
+            "- The token is automatically retrieved from the query parameters of the request.\n"
             "\n"
             "- The password validation rules from the ChangePasswordView are applied to ensure the new passwords meet the required standards.\n"
             "\n"
@@ -319,15 +319,11 @@ class ResetPasswordView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Get the token from serializer or query_params
-        token = serializer.validated_data.get("token") or request.query_params.get(
-            "token"
-        )
-
+        # Get the token from query_params
+        token = request.query_params.get("token")
         if not token:
-            # If token is missing from both places, raise an error
             return Response(
-                {"error": "Token is required in query parameters or request body."},
+                {"error": "Token is required in query parameters."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
