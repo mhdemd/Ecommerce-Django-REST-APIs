@@ -1,6 +1,7 @@
 import bleach
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.core.validators import EmailValidator
 from rest_framework import serializers
 
 User = get_user_model()
@@ -144,3 +145,33 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
         ]
+
+    def clean_input(self, value):
+        # Uses bleach to clean the input by removing any HTML or JavaScript tags
+        return bleach.clean(
+            value,
+            tags=[],
+            attributes=[],
+        )
+
+    def validate_email(self, value):
+        # Checks if the email already exists in the database (excluding the current user)
+        if User.objects.filter(email=value).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError("This email is already in use.")
+        return value
+
+    def validate_username(self, value):
+        # Cleans the input for the username
+        value = self.clean_input(value)
+        # Checks if the username already exists in the database (excluding the current user)
+        if User.objects.filter(username=value).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError("This username is already in use.")
+        return value
+
+    def validate_first_name(self, value):
+        # Cleans the input for the first name
+        return self.clean_input(value)
+
+    def validate_last_name(self, value):
+        # Cleans the input for the last name
+        return self.clean_input(value)

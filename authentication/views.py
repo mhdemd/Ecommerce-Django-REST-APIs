@@ -378,14 +378,15 @@ class ProfileView(generics.RetrieveAPIView):
     description="Updates the profile information of the logged-in user.",
 )
 class UpdateProfileView(generics.UpdateAPIView):
-
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UpdateProfileSerializer
 
     def get_object(self):
+        # Fetch the authenticated user
         return self.request.user
 
     def update(self, request, *args, **kwargs):
+        # Custom behavior for better error management or logging if needed
         response = super().update(request, *args, **kwargs)
         return Response(
             {"message": "Profile updated successfully."}, status=status.HTTP_200_OK
