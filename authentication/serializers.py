@@ -135,3 +135,14 @@ class ProfileSerializer(serializers.ModelSerializer):
             "date_joined",
             "is_active",
         ]
+
+
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+        ]

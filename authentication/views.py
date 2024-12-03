@@ -27,6 +27,7 @@ from .serializers import (
     ProfileSerializer,
     RegisterSerializer,
     ResetPasswordSerializer,
+    UpdateProfileSerializer,
 )
 
 # ---------------------------- JWT endpoints ----------------------------
@@ -355,26 +356,32 @@ class ProfileView(generics.RetrieveAPIView):
     @extend_schema(
         tags=["Auth - Profile"],
         summary="Get Profile",
-        description="Fetches the profile details of the logged-in user.",
+        description=(
+            "# Fetches the profile details of the logged-in user.\n"
+            "\n"
+            "- To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.\n"
+            "\n"
+        ),
     )
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
 
-class UpdateProfileView(APIView):
+class UpdateProfileView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UpdateProfileSerializer
+
+    def get_object(self):
+        return self.request.user
 
     @extend_schema(
         tags=["Auth - Profile"],
         summary="Update Profile",
         description="Updates the profile information of the logged-in user.",
     )
-    def put(self, request):
-        user = request.user
-        user.username = request.data.get("username", user.username)
-        user.email = request.data.get("email", user.email)
-        user.save()
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
         return Response(
             {"message": "Profile updated successfully."}, status=status.HTTP_200_OK
         )
