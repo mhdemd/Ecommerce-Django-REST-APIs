@@ -1,6 +1,8 @@
 # Run command in docker
 docker exec -it django_app [pip install ...]
 
+docker exec -it django_app /bin/bash
+
 # Check Redis cache keys
  - docker exec -it redis_cache redis-cli  
  - keys '*' 
