@@ -178,3 +178,5 @@ DEFAULT_FROM_EMAIL = "no-reply@example.com"
 AUTH_USER_MODEL = "authentication.User"
 
 SITE_URL = "http://127.0.0.1:8000"
+
+EMAIL_VERIFICATION_TOKEN_EXPIRY = 1

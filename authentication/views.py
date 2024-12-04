@@ -59,16 +59,11 @@ class RegisterView(generics.GenericAPIView):
         summary="User Registration",
         description=(
             "# Registers a new user and sends a verification link.\n"
-            "\n"
-            "- The serializer includes built-in validations to prevent XSS attacks, ensuring no field is vulnerable.\n"
-            "\n"
-            "- Email and password fields are validated according to Django standards to guarantee proper formatting.\n"
-            "\n"
-            "- Rate limiting is implemented to prevent excessive requests, with customizable limits for added security.\n"
-            "\n"
-            "- The user model includes 'verification_token' and 'token_expiration' fields to secure the email verification link.\n"
-            "\n"
-            "- Once the link is used for verification, the token is cleared to maintain security."
+            "- The serializer includes built-in validations to prevent XSS attacks.\n"
+            "- Email and password fields are validated.\n"
+            "- Rate limiting is implemented.\n"
+            "- 'verification_token' and 'token_expiration' fields secure the email verification link.\n"
+            "- Token is cleared after verification."
         ),
         request=RegisterSerializer,
         responses={
@@ -99,7 +94,9 @@ class RegisterView(generics.GenericAPIView):
 
         # Generate a secure, one-time token
         token = get_random_string(32)
-        token_expiration = datetime.now() + timedelta(hours=1)  # Token valid for 1 hour
+        token_expiration = datetime.now() + timedelta(
+            hours=settings.EMAIL_VERIFICATION_TOKEN_EXPIRY
+        )  # Token valid for 1 hour
 
         # Store token and expiration in the user object or a separate model
         user.verification_token = token
@@ -130,13 +127,39 @@ class VerifyEmailView(generics.GenericAPIView):
         summary="Verify Email",
         description=(
             "# Activates a user account after email verification.\n"
-            "\n"
             "- When the user clicks on the link sent to their email, this API is called.\n"
-            "\n"
             "- The link contains a temporary token that is valid for one hour.\n"
-            "\n"
             "- Without the temporary token, you cannot access this API.\n"
         ),
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Email verified successfully.",
+                    }
+                },
+            },
+            400: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Invalid token.",
+                    }
+                },
+            },
+            401: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Token has expired.",
+                    }
+                },
+            },
+        },
     )
     def get(self, request):
         # Get the token directly from query parameters
@@ -177,14 +200,39 @@ class LogoutView(generics.GenericAPIView):
         summary="Logout",
         description=(
             "# Logs out a user by blacklisting the refresh token.\n"
-            "\n"
-            "- To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.\n"
-            "\n"
-            "- By sending the refresh token, it is added to the blacklist and becomes invalid.\n"
-            "\n"
-            "- The access token remains valid in this case (although it will eventually expire automatically).\n"
-            "\n"
+            "- You need to authorize yourself from the Swagger UI before accessing this endpoint.\n"
+            "- Send the refresh token in the request body; it will be added to the blacklist and invalidated.\n"
+            "- Note that the access token will remain valid until it expires.\n"
         ),
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Logged out successfully.",
+                    }
+                },
+            },
+            400: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Invalid token.",
+                    }
+                },
+            },
+            500: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "An error occurred during logout.",
+                    }
+                },
+            },
+        },
     )
     def post(self, request):
         try:
@@ -217,12 +265,35 @@ class ChangePasswordView(generics.GenericAPIView):
         summary="Change Password",
         description=(
             "# Allows a logged-in user to change their password.\n"
-            "\n"
             "- To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.\n"
-            "\n"
             "- For validation, we specifically used the validate method in the serializer during the RegisterView process.\n"
-            "\n"
         ),
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Password changed successfully.",
+                    }
+                },
+            },
+            400: {
+                "type": "object",
+                "properties": {
+                    "error": {"type": "string", "example": "Old password is incorrect."}
+                },
+            },
+            422: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Password does not meet validation criteria.",
+                    }
+                },
+            },
+        },
     )
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -256,14 +327,36 @@ class ForgotPasswordView(generics.GenericAPIView):
         summary="Forgot Password",
         description=(
             "# Sends a password reset link to the user's email.\n"
-            "\n"
             "- First, the email is checked to see if it exists in the database. If it does not, an error is raised.\n"
-            "\n"
             "- The email format is validated using EmailField.\n"
-            "\n"
             "- The website URL and the sender's email address are configured in the settings under SITE_URL and DEFAULT_FROM_EMAIL.\n"
-            "\n"
         ),
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Password reset link sent.",
+                    }
+                },
+            },
+            404: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "User with this email does not exist.",
+                    }
+                },
+            },
+            422: {
+                "type": "object",
+                "properties": {
+                    "error": {"type": "string", "example": "Invalid email format."}
+                },
+            },
+        },
     )
     def post(self, request):
         # Validate data
@@ -303,16 +396,46 @@ class ResetPasswordView(generics.GenericAPIView):
         summary="Reset Password",
         description=(
             "# Resets the user's password using the provided token and new password.\n"
-            "\n"
             "- This is used in cases where, unlike the ChangePasswordView, the previous password is not available. Instead, the user provides their email address, and a link containing a temporary token is sent to them. The user's identity is determined based on the token.\n"
-            "\n"
             "- The user then enters a new password, which replaces their old password in the database.\n"
-            "\n"
             "- The token is automatically retrieved from the query parameters of the request.\n"
-            "\n"
             "- The password validation rules from the ChangePasswordView are applied to ensure the new passwords meet the required standards.\n"
-            "\n"
         ),
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Password reset successfully.",
+                    }
+                },
+            },
+            400: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Token is required in query parameters.",
+                    }
+                },
+            },
+            404: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "User not found with the given token.",
+                    }
+                },
+            },
+            422: {
+                "type": "object",
+                "properties": {
+                    "error": {"type": "string", "example": "Token has expired."}
+                },
+            },
+        },
     )
     def post(self, request, *args, **kwargs):
         # Validate the serializer data
@@ -362,10 +485,29 @@ class ProfileView(generics.RetrieveAPIView):
         summary="Get Profile",
         description=(
             "# Fetches the profile details of the logged-in user.\n"
-            "\n"
             "- To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.\n"
-            "\n"
         ),
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "integer", "example": 1},
+                    "username": {"type": "string", "example": "johndoe"},
+                    "email": {"type": "string", "example": "johndoe@example.com"},
+                    "first_name": {"type": "string", "example": "John"},
+                    "last_name": {"type": "string", "example": "Doe"},
+                },
+            },
+            401: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Authentication credentials were not provided.",
+                    }
+                },
+            },
+        },
     )
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer(request.user)
@@ -375,7 +517,38 @@ class ProfileView(generics.RetrieveAPIView):
 @extend_schema(
     tags=["Auth - Profile"],
     summary="Update Profile",
-    description="Updates the profile information of the logged-in user.",
+    description="# Updates the profile information of the logged-in user.",
+    responses={
+        200: {
+            "description": "Profile updated successfully.",
+            "content": {
+                "application/json": {
+                    "example": {"message": "Profile updated successfully."}
+                }
+            },
+        },
+        400: {
+            "description": "Bad request. Validation errors or invalid data provided.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "Invalid data provided.",
+                        "details": {"field_name": ["error message"]},
+                    }
+                }
+            },
+        },
+        401: {
+            "description": "Unauthorized. Authentication credentials were not provided or are invalid.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "Authentication credentials were not provided."
+                    }
+                }
+            },
+        },
+    },
 )
 class UpdateProfileView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
