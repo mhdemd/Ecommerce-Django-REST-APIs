@@ -34,8 +34,6 @@ logger = logging.getLogger(__name__)
 
 
 # ---------------------------- Mixin ----------------------------
-
-
 class TokenMixin:
     def generate_token(self, user, expiry_hours=1):
         """
@@ -50,8 +48,6 @@ class TokenMixin:
 
 
 # ---------------------------- JWT endpoints ----------------------------
-
-
 @extend_schema(tags=["Auth - Token"])
 class CustomTokenObtainPairView(TokenObtainPairView):
     pass
@@ -68,8 +64,6 @@ class CustomTokenVerifyView(TokenVerifyView):
 
 
 # ---------------------------- Authentication Endpoints ----------------------------
-
-
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
 
@@ -258,8 +252,6 @@ class LogoutView(generics.GenericAPIView):
 
 
 # ---------------------------- Password Management Endpoints ----------------------------
-
-
 class ChangePasswordView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ChangePasswordSerializer
@@ -472,8 +464,6 @@ class ResetPasswordView(generics.GenericAPIView):
 
 
 # ---------------------------- Profile Management Endpoints ----------------------------
-
-
 class ProfileView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProfileSerializer

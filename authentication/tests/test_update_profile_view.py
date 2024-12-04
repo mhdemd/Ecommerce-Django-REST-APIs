@@ -119,19 +119,19 @@ def test_update_profile_html_injection(api_client, user):
     api_client.force_authenticate(user=user)
     url = reverse("update_profile")
     data = {
-        "username": "alert_XSS_",  # A valid username that mimics malicious input
+        "username": "alert_XSS_",
         "email": "cleanemail@example.com",
-        "first_name": "<b>John</b>",
-        "last_name": "<i>Doe</i>",
+        "first_name": "<b>John</b>",  # Input with HTML
+        "last_name": "<i>Doe</i>",  # Input with HTML
     }
 
     response = api_client.put(url, data)
 
-    # Ensure the response is successful
-    assert response.status_code == status.HTTP_200_OK
+    # Ensure the response is rejected
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    # Check that the data has been cleaned and stored correctly
-    user.refresh_from_db()
-    assert user.username == "alert_XSS_"  # Username remains valid
-    assert user.first_name == "John"  # Cleaned first name
-    assert user.last_name == "Doe"  # Cleaned last name
+    # Ensure the correct error messages are returned
+    assert "first_name" in response.data
+    assert "last_name" in response.data
+    assert response.data["first_name"][0] == "Input contains invalid HTML or scripts."
+    assert response.data["last_name"][0] == "Input contains invalid HTML or scripts."

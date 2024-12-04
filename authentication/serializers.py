@@ -7,6 +7,20 @@ from rest_framework.validators import UniqueValidator
 
 User = get_user_model()
 
+from rest_framework.exceptions import ValidationError
+
+
+def clean_input(value):
+    """
+    Clean the input by removing any HTML or JavaScript tags.
+    """
+    if not value:  # Skip cleaning for None or empty values
+        return value
+    cleaned_value = bleach.clean(value, tags=[], attributes=[], strip=True)
+    if cleaned_value != value:
+        raise ValidationError("Input contains invalid HTML or scripts.")
+    return cleaned_value
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
@@ -27,13 +41,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Validate password against Django's built-in password validators
         validate_password(password1)
 
-        # Custom validation to ensure password doesn't contain HTML tags using bleach
-        cleaned_password = bleach.clean(password1, tags=[], attributes=[], strip=True)
-
-        if cleaned_password != password1:
-            raise serializers.ValidationError(
-                {"password": "Password must not contain HTML tags or scripts."}
-            )
+        # Use clean_input to validate the password
+        try:
+            clean_input(password1)
+        except ValidationError as e:
+            raise serializers.ValidationError({"password": str(e)})
 
         return data
 
@@ -74,13 +86,11 @@ class ChangePasswordSerializer(serializers.Serializer):
         # Validate password against Django's built-in password validators
         validate_password(password1)
 
-        # Custom validation to ensure password doesn't contain HTML tags using bleach
-        cleaned_password = bleach.clean(password1, tags=[], attributes=[], strip=True)
-
-        if cleaned_password != password1:
-            raise serializers.ValidationError(
-                {"password": "Password must not contain HTML tags or scripts."}
-            )
+        # Use clean_input to validate and clean the password
+        try:
+            clean_input(password1)
+        except ValidationError as e:
+            raise serializers.ValidationError({"new_password": str(e)})
 
         return data
 
@@ -113,12 +123,11 @@ class ResetPasswordSerializer(serializers.Serializer):
         # Validate password against Django's built-in password validators
         validate_password(password1)
 
-        # Custom validation to ensure password doesn't contain HTML tags using bleach
-        cleaned_password = bleach.clean(password1, tags=[], attributes=[], strip=True)
-        if cleaned_password != password1:
-            raise serializers.ValidationError(
-                {"new_password": "Password must not contain HTML tags or scripts."}
-            )
+        # Use clean_input to validate and clean the password
+        try:
+            clean_input(password1)
+        except ValidationError as e:
+            raise serializers.ValidationError({"new_password": str(e)})
 
         return data
 
@@ -160,24 +169,11 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ["username", "email", "first_name", "last_name"]
 
-    def clean_input(self, value):
-        """
-        Clean the input by removing any HTML or JavaScript tags.
-        """
-        if not value:  # Skip cleaning for None or empty values
-            return value
-        return bleach.clean(
-            value,
-            tags=[],  # Remove all tags
-            attributes=[],  # Remove all attributes
-            strip=True,  # Strip tags completely
-        )
-
     def validate_username(self, value):
         """
         Clean the username and ensure it meets the requirements.
         """
-        return self.clean_input(value)
+        return clean_input(value)
 
     def validate_email(self, value):
         """
@@ -189,10 +185,10 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         """
         Clean the first name and remove unwanted HTML.
         """
-        return self.clean_input(value)
+        return clean_input(value)
 
     def validate_last_name(self, value):
         """
         Clean the last name and remove unwanted HTML.
         """
-        return self.clean_input(value)
+        return clean_input(value)
