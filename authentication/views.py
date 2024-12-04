@@ -39,11 +39,24 @@ class TokenMixin:
         """
         Generate a secure token and save it to the user model with an expiration time.
         """
+        # Generate the token
         token = get_random_string(32)
         token_expiration = now() + timedelta(hours=expiry_hours)
+
+        # Log the token generation process
+        logger.info(
+            f"Generating token for user {user.id} with expiration at {token_expiration}."
+        )
+
+        # Save the token and expiration time to the user's model
         user.verification_token = token
         user.token_expiration = token_expiration
         user.save()
+
+        logger.info(
+            f"Token for user {user.id} saved successfully with expiration at {token_expiration}."
+        )
+
         return token
 
 
@@ -101,15 +114,26 @@ class RegisterView(generics.GenericAPIView):
         },
     )
     def post(self, request):
+        # Log the incoming registration request
+        logger.info("Received registration request.")
+
+        # Validate the incoming data
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # Save the new user
         user = serializer.save()
+        logger.info(
+            f"User {user.username} registered successfully with email {user.email}."
+        )
 
         # Generate token using the mixin
         token = self.generate_token(user)
+        logger.info(f"Generated verification token for user {user.username}.")
 
         # Create a verification link
         verification_link = f"{settings.SITE_URL}/auth/api/verify-email/?token={token}"
+        logger.info(f"Generated verification link: {verification_link}")
 
         # Send the verification email
         subject = "Email Verification"
@@ -117,7 +141,11 @@ class RegisterView(generics.GenericAPIView):
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [user.email]
 
-        send_mail(subject, message, from_email, recipient_list)
+        try:
+            send_mail(subject, message, from_email, recipient_list)
+            logger.info(f"Verification email sent to {user.email}.")
+        except Exception as e:
+            logger.error(f"Failed to send verification email to {user.email}: {e}")
 
         return Response(
             {"message": "User registered successfully. Please verify your email."},
@@ -171,26 +199,34 @@ class VerifyEmailView(generics.GenericAPIView):
         token = request.query_params.get("token")
 
         if not token:
+            logger.warning("Token is missing in the request.")
             return Response(
                 {"error": "Token is required."}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
             user = User.objects.get(verification_token=token)
+            logger.info(f"Found user {user.id} for token verification.")
+
+            # Check if the token is expired
             if user.token_expiration < timezone.now():
+                logger.warning(f"Token for user {user.id} has expired.")
                 return Response(
                     {"error": "Token has expired."}, status=status.HTTP_400_BAD_REQUEST
                 )
 
+            # Activate the user and clear the token
             user.is_active = True
             user.verification_token = None  # Remove the token after verification
             user.token_expiration = None
             user.save()
 
+            logger.info(f"User {user.id} email verified successfully.")
             return Response(
                 {"message": "Email verified successfully."}, status=status.HTTP_200_OK
             )
         except User.DoesNotExist:
+            logger.error("Invalid token provided, user not found.")
             return Response(
                 {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -233,6 +269,7 @@ class LogoutView(generics.GenericAPIView):
     def post(self, request):
         refresh_token = request.data.get("refresh")
         if not refresh_token:
+            logger.warning("Attempted logout without refresh token.")
             return Response(
                 {"error": "Refresh token is required."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -241,6 +278,9 @@ class LogoutView(generics.GenericAPIView):
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()
+            logger.info(
+                f"Successfully logged out user by blacklisting refresh token: {refresh_token}"
+            )
             return Response(
                 {"message": "Logged out successfully."}, status=status.HTTP_200_OK
             )
@@ -299,8 +339,14 @@ class ChangePasswordView(generics.GenericAPIView):
         old_password = serializer.validated_data["old_password"]
         new_password = serializer.validated_data["new_password"]
 
+        # Log the password change attempt
+        logger.info(f"User {user.id} is attempting to change their password.")
+
         # Check the old password
         if not user.check_password(old_password):
+            logger.warning(
+                f"User {user.id} attempted to change password with incorrect old password."
+            )
             return Response(
                 {"error": "Old password is incorrect."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -309,6 +355,9 @@ class ChangePasswordView(generics.GenericAPIView):
         # Set and save the new password
         user.set_password(new_password)
         user.save()
+
+        # Log the successful password change
+        logger.info(f"Password changed successfully for user {user.id}.")
 
         return Response(
             {"message": "Password changed successfully."}, status=status.HTTP_200_OK
@@ -355,23 +404,37 @@ class ForgotPasswordView(TokenMixin, generics.GenericAPIView):
         },
     )
     def post(self, request):
+        logger.info("Received forgot password request.")
         # Validate data
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         email = serializer.validated_data["email"]
+        logger.info(f"Looking up user with email: {email}")
+
         user = get_object_or_404(User, email=email)
+        logger.info(f"User found with email: {email}, ID: {user.id}")
 
         # Generate token using the mixin
         token = self.generate_token(user)
+        logger.info(f"Generated reset token for user ID: {user.id}")
 
         # Generate reset password link
         reset_link = f"{settings.SITE_URL}/auth/api/reset-password/?token={token}"
+        logger.info(f"Reset link generated: {reset_link}")
 
         # Send reset password email
         subject = "Reset your password"
         message = f"Click the link to reset your password: {reset_link}\nThis link will expire in 1 hour."
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+        try:
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+            logger.info(f"Password reset email sent to: {email}")
+        except Exception as e:
+            logger.error(f"Failed to send password reset email to {email}: {e}")
+            return Response(
+                {"error": "Failed to send email. Please try again later."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         return Response(
             {"message": "Password reset link sent."}, status=status.HTTP_200_OK
@@ -435,16 +498,26 @@ class ResetPasswordView(generics.GenericAPIView):
         # Get the token from query_params
         token = request.query_params.get("token")
         if not token:
+            logger.warning("Reset password attempt without token.")
             return Response(
                 {"error": "Token is required in query parameters."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         # Find the user associated with the token
-        user = get_object_or_404(User, verification_token=token)
+        try:
+            user = get_object_or_404(User, verification_token=token)
+            logger.info(f"Found user {user.id} for token reset.")
+        except User.DoesNotExist:
+            logger.error(f"No user found with the given token.")
+            return Response(
+                {"error": "User not found with the given token."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         # Check if the token is expired
         if user.token_expiration < now():
+            logger.warning(f"Token for user {user.id} has expired.")
             return Response(
                 {"error": "Token has expired."}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -458,6 +531,7 @@ class ResetPasswordView(generics.GenericAPIView):
         user.token_expiration = None
         user.save()
 
+        logger.info(f"Password reset successfully for user {user.id}.")
         return Response(
             {"message": "Password reset successfully."}, status=status.HTTP_200_OK
         )
@@ -507,9 +581,19 @@ class ProfileView(generics.RetrieveAPIView):
         },
     )
     def get(self, request, *args, **kwargs):
+        # Check if the user is active
         if not request.user.is_active:
+            logger.warning(
+                f"User {request.user.id} attempted to access profile while inactive."
+            )
             raise PermissionDenied("User account is disabled.")
+
+        # Log the profile fetch attempt
+        logger.info(f"User {request.user.id} is fetching their profile.")
+
+        # Serialize and return the user profile data
         serializer = self.get_serializer(request.user)
+        logger.info(f"Profile fetched successfully for user {request.user.id}.")
         return Response(serializer.data)
 
 
@@ -556,11 +640,18 @@ class UpdateProfileView(generics.UpdateAPIView):
 
     def get_object(self):
         # Fetch the authenticated user
-        return self.request.user
+        user = self.request.user
+        logger.info(f"Fetching profile for user {user.id}")
+        return user
 
     def update(self, request, *args, **kwargs):
         # Custom behavior for better error management or logging if needed
+        logger.info(f"Attempting to update profile for user {request.user.id}")
         response = super().update(request, *args, **kwargs)
+
+        # Log the successful update
+        logger.info(f"Profile updated successfully for user {request.user.id}")
+
         return Response(
             {"message": "Profile updated successfully."}, status=status.HTTP_200_OK
         )
