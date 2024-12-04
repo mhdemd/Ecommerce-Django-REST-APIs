@@ -1,8 +1,11 @@
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import User
+User = get_user_model()
 
 
 class VerifyEmailViewTest(APITestCase):
@@ -16,9 +19,10 @@ class VerifyEmailViewTest(APITestCase):
             token_expiration=timezone.now() + timezone.timedelta(hours=1),
             is_active=False,
         )
+        self.verify_email_url = settings.SITE_URL + reverse("verify_email")
 
     def test_verify_email_success(self):
-        response = self.client.get("/path/to/verify-email/", {"token": "validtoken123"})
+        response = self.client.get(f"{self.verify_email_url}?token=validtoken123")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["message"], "Email verified successfully.")
         # بررسی تغییر وضعیت کاربر
@@ -31,16 +35,16 @@ class VerifyEmailViewTest(APITestCase):
         self.user.token_expiration = timezone.now() - timezone.timedelta(hours=1)
         self.user.save()
 
-        response = self.client.get("/path/to/verify-email/", {"token": "validtoken123"})
+        response = self.client.get(f"{self.verify_email_url}?token=validtoken123")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"], "Token has expired.")
 
     def test_verify_email_invalid_token(self):
-        response = self.client.get("/path/to/verify-email/", {"token": "invalidtoken"})
+        response = self.client.get(f"{self.verify_email_url}?token=invalidtoken")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"], "Invalid token.")
 
     def test_verify_email_missing_token(self):
-        response = self.client.get("/path/to/verify-email/")
+        response = self.client.get(self.verify_email_url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"], "Token is required.")
