@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -8,9 +9,8 @@ from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -29,6 +29,8 @@ from .serializers import (
     ResetPasswordSerializer,
     UpdateProfileSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------- JWT endpoints ----------------------------
 
@@ -223,33 +225,26 @@ class LogoutView(generics.GenericAPIView):
                     }
                 },
             },
-            500: {
-                "type": "object",
-                "properties": {
-                    "error": {
-                        "type": "string",
-                        "example": "An error occurred during logout.",
-                    }
-                },
-            },
         },
     )
     def post(self, request):
+        refresh_token = request.data.get("refresh")
+        if not refresh_token:
+            return Response(
+                {"error": "Refresh token is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
-            refresh_token = request.data.get("refresh")
             token = RefreshToken(refresh_token)
             token.blacklist()
             return Response(
                 {"message": "Logged out successfully."}, status=status.HTTP_200_OK
             )
-        except ValidationError:
+        except Exception as e:
+            logger.warning("Invalid token provided: %s", e)
             return Response(
                 {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
-            )
-        except Exception:
-            return Response(
-                {"error": "An error occurred during logout."},
-                status=status.HTTP_400_BAD_REQUEST,
             )
 
 
