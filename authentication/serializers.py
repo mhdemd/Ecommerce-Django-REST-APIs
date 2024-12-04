@@ -1,7 +1,9 @@
 import bleach
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 User = get_user_model()
 
@@ -122,6 +124,7 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = [
@@ -136,41 +139,60 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
+
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(),
+                message="A user with that username already exists.",
+            )
+        ]
+    )
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(
+                queryset=User.objects.all(), message="This email is already in use."
+            )
+        ]
+    )
+
     class Meta:
         model = User
-        fields = [
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-        ]
+        fields = ["username", "email", "first_name", "last_name"]
 
     def clean_input(self, value):
-        # Uses bleach to clean the input by removing any HTML or JavaScript tags
+        """
+        Clean the input by removing any HTML or JavaScript tags.
+        """
+        if not value:  # Skip cleaning for None or empty values
+            return value
         return bleach.clean(
             value,
-            tags=[],
-            attributes=[],
+            tags=[],  # Remove all tags
+            attributes=[],  # Remove all attributes
+            strip=True,  # Strip tags completely
         )
 
-    def validate_email(self, value):
-        # Checks if the email already exists in the database (excluding the current user)
-        if User.objects.filter(email=value).exclude(pk=self.instance.pk).exists():
-            raise serializers.ValidationError("This email is already in use.")
-        return value
-
     def validate_username(self, value):
-        # Cleans the input for the username
-        value = self.clean_input(value)
-        # Checks if the username already exists in the database (excluding the current user)
-        if User.objects.filter(username=value).exclude(pk=self.instance.pk).exists():
-            raise serializers.ValidationError("This username is already in use.")
+        """
+        Clean the username and ensure it meets the requirements.
+        """
+        return self.clean_input(value)
+
+    def validate_email(self, value):
+        """
+        Validate the email and ensure it is unique.
+        """
         return value
 
     def validate_first_name(self, value):
-        # Cleans the input for the first name
+        """
+        Clean the first name and remove unwanted HTML.
+        """
         return self.clean_input(value)
 
     def validate_last_name(self, value):
-        # Cleans the input for the last name
+        """
+        Clean the last name and remove unwanted HTML.
+        """
         return self.clean_input(value)
