@@ -1,7 +1,8 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
-from rest_framework_simplejwt.tokens import RefreshToken
+
+User = get_user_model()
 
 
 class ChangePasswordViewTest(APITestCase):
@@ -16,7 +17,11 @@ class ChangePasswordViewTest(APITestCase):
 
     def test_successful_password_change(self):
         """Test changing password with valid old and new passwords"""
-        data = {"old_password": "oldpassword123", "new_password": "newpassword123"}
+        data = {
+            "old_password": "oldpassword123",
+            "new_password": "newpassword123",
+            "new_password2": "newpassword123",
+        }
         response = self.client.post(self.change_password_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["message"], "Password changed successfully.")
@@ -27,23 +32,34 @@ class ChangePasswordViewTest(APITestCase):
 
     def test_incorrect_old_password(self):
         """Test changing password with an incorrect old password"""
-        data = {"old_password": "wrongpassword", "new_password": "newpassword123"}
+        data = {
+            "old_password": "wrongpassword",
+            "new_password": "newpassword123",
+            "new_password2": "newpassword123",
+        }
         response = self.client.post(self.change_password_url, data)
+        # print(response.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"], "Old password is incorrect.")
 
     def test_invalid_new_password(self):
         """Test changing password with a new password that does not meet validation criteria"""
-        data = {"old_password": "oldpassword123", "new_password": "short"}
+        data = {
+            "old_password": "oldpassword123",
+            "new_password": "short",
+            "new_password2": "short",
+        }
         response = self.client.post(self.change_password_url, data)
-        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
-        self.assertEqual(
-            response.data["error"], "Password does not meet validation criteria."
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        print(response.data)
+        self.assertIn(
+            "This password is too short. It must contain at least 9 characters.",
+            response.data["non_field_errors"],
         )
 
     def test_missing_old_password(self):
         """Test changing password with missing old password"""
-        data = {"new_password": "newpassword123"}
+        data = {"new_password": "newpassword123", "new_password2": "newpassword123"}
         response = self.client.post(self.change_password_url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("old_password", response.data)
@@ -58,7 +74,11 @@ class ChangePasswordViewTest(APITestCase):
     def test_unauthenticated_user(self):
         """Test accessing the password change endpoint without authentication"""
         self.client.logout()  # Ensure the user is logged out
-        data = {"old_password": "oldpassword123", "new_password": "newpassword123"}
+        data = {
+            "old_password": "oldpassword123",
+            "new_password": "newpassword123",
+            "new_password2": "newpassword123",
+        }
         response = self.client.post(self.change_password_url, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn("detail", response.data)
