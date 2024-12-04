@@ -32,6 +32,23 @@ from .serializers import (
 
 logger = logging.getLogger(__name__)
 
+
+# ---------------------------- Mixin ----------------------------
+
+
+class TokenMixin:
+    def generate_token(self, user, expiry_hours=1):
+        """
+        Generate a secure token and save it to the user model with an expiration time.
+        """
+        token = get_random_string(32)
+        token_expiration = now() + timedelta(hours=expiry_hours)
+        user.verification_token = token
+        user.token_expiration = token_expiration
+        user.save()
+        return token
+
+
 # ---------------------------- JWT endpoints ----------------------------
 
 
@@ -94,16 +111,8 @@ class RegisterView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Generate a secure, one-time token
-        token = get_random_string(32)
-        token_expiration = datetime.now() + timedelta(
-            hours=settings.EMAIL_VERIFICATION_TOKEN_EXPIRY
-        )  # Token valid for 1 hour
-
-        # Store token and expiration in the user object or a separate model
-        user.verification_token = token
-        user.token_expiration = token_expiration
-        user.save()
+        # Generate token using the mixin
+        token = self.generate_token(user)
 
         # Create a verification link
         verification_link = f"{settings.SITE_URL}/auth/api/verify-email/?token={token}"
@@ -314,7 +323,7 @@ class ChangePasswordView(generics.GenericAPIView):
         )
 
 
-class ForgotPasswordView(generics.GenericAPIView):
+class ForgotPasswordView(TokenMixin, generics.GenericAPIView):
     serializer_class = ForgotPasswordSerializer
 
     @extend_schema(
@@ -361,14 +370,8 @@ class ForgotPasswordView(generics.GenericAPIView):
         email = serializer.validated_data["email"]
         user = get_object_or_404(User, email=email)
 
-        # Generate a secure token and set expiration time
-        token = get_random_string(32)
-        token_expiration = datetime.now() + timedelta(hours=1)  # 1-hour expiration
-
-        # Save token and expiration to the user
-        user.verification_token = token
-        user.token_expiration = token_expiration
-        user.save()
+        # Generate token using the mixin
+        token = self.generate_token(user)
 
         # Generate reset password link
         reset_link = f"{settings.SITE_URL}/auth/api/reset-password/?token={token}"
