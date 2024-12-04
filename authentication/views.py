@@ -9,7 +9,7 @@ from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
-from rest_framework.exceptions import AuthenticationFailed, ValidationError
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import (
@@ -502,9 +502,20 @@ class ProfileView(generics.RetrieveAPIView):
                     }
                 },
             },
+            403: {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "User account is disabled.",
+                    }
+                },
+            },
         },
     )
     def get(self, request, *args, **kwargs):
+        if not request.user.is_active:
+            raise PermissionDenied("User account is disabled.")
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
