@@ -11,7 +11,7 @@ User = get_user_model()
 class VerifyEmailViewTest(APITestCase):
 
     def setUp(self):
-        # ایجاد یک کاربر با توکن معتبر برای تست
+        # Create a user with a valid token for testing
         self.user = User.objects.create(
             username="testuser",
             email="test@example.com",
@@ -25,13 +25,13 @@ class VerifyEmailViewTest(APITestCase):
         response = self.client.get(f"{self.verify_email_url}?token=validtoken123")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["message"], "Email verified successfully.")
-        # بررسی تغییر وضعیت کاربر
+        # Check user status change
         self.user.refresh_from_db()
         self.assertTrue(self.user.is_active)
         self.assertIsNone(self.user.verification_token)
 
     def test_verify_email_token_expired(self):
-        # تنظیم زمان انقضا به یک زمان گذشته
+        # Set the expiration time to a past time
         self.user.token_expiration = timezone.now() - timezone.timedelta(hours=1)
         self.user.save()
 
