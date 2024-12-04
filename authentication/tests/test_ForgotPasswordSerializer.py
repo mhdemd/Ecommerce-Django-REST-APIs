@@ -1,14 +1,16 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from ..serializers import ForgotPasswordSerializer
 
+User = get_user_model()
+
 
 class ForgotPasswordSerializerTest(TestCase):
     def setUp(self):
         User.objects.create_user(
-            username="testuser", email="testuser@example.com", password="password123"
+            username="testuser", email="testuser@example.com", password="password@123"
         )
 
     def test_valid_email(self):
