@@ -24,8 +24,13 @@ class ForgotPasswordSerializerTest(TestCase):
         """Test that an unregistered email returns a validation error."""
         data = {"email": "nonexistent@example.com"}
         serializer = ForgotPasswordSerializer(data=data)
-        with self.assertRaises(ValidationError):
-            serializer.is_valid(raise_exception=True)
+
+        is_valid = serializer.is_valid(raise_exception=False)
+
+        self.assertFalse(is_valid)
+        self.assertIn("email", serializer.errors)
+
+        self.assertEqual(serializer.errors["email"][0], "This email is not registered.")
 
     def test_invalid_email_format(self):
         """Test that an invalid email format returns a validation error."""
