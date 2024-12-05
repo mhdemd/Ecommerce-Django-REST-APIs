@@ -778,7 +778,33 @@ class UpdateProfileView(generics.UpdateAPIView):
         )
 
 
+from datetime import timedelta
+
+from django.core.mail import send_mail
+from django.utils.crypto import get_random_string
+from django.utils.timezone import now
+
 # ---------------------------- OTP Endpoints ----------------------------
+from drf_spectacular.utils import extend_schema
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+
+from authentication.models import User
+
+from .serializers import (
+    Disable2FASerializer,
+    Enable2FASerializer,
+    GenerateOTPSerializer,
+    VerifyOTPSerializer,
+)
+
+
+# ---------------------------- Enable 2FA ----------------------------
+@extend_schema(
+    tags=["Auth - OTP"],
+    summary="Enable 2FA",
+    description="Enables two-factor authentication (2FA) for the user using the specified method (email or SMS).",
+)
 class Enable2FAView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = Enable2FASerializer
@@ -807,6 +833,11 @@ class Enable2FAView(generics.GenericAPIView):
         )
 
 
+@extend_schema(
+    tags=["Auth - OTP"],
+    summary="Generate OTP",
+    description="Generates a one-time password (OTP) for the user, which is sent via the selected method (email or SMS).",
+)
 class GenerateOTPView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = GenerateOTPSerializer
@@ -848,6 +879,11 @@ class GenerateOTPView(generics.GenericAPIView):
         )
 
 
+@extend_schema(
+    tags=["Auth - OTP"],
+    summary="Verify OTP",
+    description="Verifies the one-time password (OTP) entered by the user.",
+)
 class VerifyOTPView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = VerifyOTPSerializer
@@ -877,6 +913,11 @@ class VerifyOTPView(generics.GenericAPIView):
         )
 
 
+@extend_schema(
+    tags=["Auth - OTP"],
+    summary="Disable 2FA",
+    description="Disables two-factor authentication (2FA) for the user after verifying the password.",
+)
 class Disable2FAView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = Disable2FASerializer
@@ -912,6 +953,11 @@ class Disable2FAView(generics.GenericAPIView):
 
 
 # ---------------------------- Sessions Endpoints ----------------------------
+@extend_schema(
+    tags=["Auth - Session"],
+    summary="List Active Sessions",
+    description="Fetches a list of all active sessions for the authenticated user.",
+)
 class ListSessionsView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -930,6 +976,11 @@ class ListSessionsView(generics.GenericAPIView):
         return Response({"sessions": session_data})
 
 
+@extend_schema(
+    tags=["Auth - Session"],
+    summary="Delete a Specific Session",
+    description="Deletes a specific session of the authenticated user by session ID.",
+)
 class DeleteSessionView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -943,6 +994,11 @@ class DeleteSessionView(generics.GenericAPIView):
         return Response({"message": "Session deleted successfully."})
 
 
+@extend_schema(
+    tags=["Auth - Session"],
+    summary="Logout from All Sessions",
+    description="Logs out the user from all active sessions.",
+)
 class LogoutAllSessionsView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 

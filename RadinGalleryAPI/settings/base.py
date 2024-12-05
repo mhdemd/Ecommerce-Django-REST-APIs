@@ -161,8 +161,17 @@ SPECTACULAR_SETTINGS = {
             "name": "Auth - Profile",
             "description": "Endpoints for fetching and updating user profile information.",
         },
+        {
+            "name": "Auth - OTP",
+            "description": "Endpoints for managing two-factor authentication (2FA), including OTP generation and verification.",
+        },
+        {
+            "name": "Auth - Session",
+            "description": "Endpoints for managing user sessions, including session listing, deletion, and logout of all sessions.",
+        },
     ],
 }
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
