@@ -121,13 +121,21 @@ class ResetPasswordSerializer(serializers.Serializer):
             )
 
         # Validate password against Django's built-in password validators
-        validate_password(password1)
+        try:
+            validate_password(password1)
+        except ValidationError:
+            # Return a generic error message for password validation failures
+            raise serializers.ValidationError(
+                {"new_password": "Password does not meet the required criteria."}
+            )
 
         # Use clean_input to validate and clean the password
         try:
             clean_input(password1)
-        except ValidationError as e:
-            raise serializers.ValidationError({"new_password": str(e)})
+        except ValidationError:
+            raise serializers.ValidationError(
+                {"new_password": "Invalid password input."}
+            )
 
         return data
 
