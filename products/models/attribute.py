@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -12,12 +10,23 @@ class ProductType(models.Model):
         verbose_name=_("Type of Product"),
         help_text=_("Required, unique, max 255 characters"),
         unique=True,
-        null=False,
-        blank=False,
     )
+    slug = models.SlugField(
+        max_length=255,
+        unique=True,
+        verbose_name=_("Product Type Slug"),
+        help_text=_("Unique URL identifier for product type."),
+    )
+
+    class Meta:
+        verbose_name = _("Product Type")
+        verbose_name_plural = _("Product Types")
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("product_type_detail", args=[self.slug])
 
 
 class ProductAttribute(models.Model):
@@ -26,16 +35,19 @@ class ProductAttribute(models.Model):
         verbose_name=_("Product Attribute Name"),
         help_text=_("Required, unique, max 255 characters"),
         unique=True,
-        null=False,
-        blank=False,
     )
     description = models.TextField(
         verbose_name=_("Product Attribute Description"),
-        help_text=_("Required"),
-        unique=False,
-        null=False,
-        blank=False,
+        help_text=_("Optional"),
+        null=True,
+        blank=True,
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _("Product Attribute")
+        verbose_name_plural = _("Product Attributes")
 
     def __str__(self):
         return self.name
@@ -51,10 +63,14 @@ class ProductAttributeValue(models.Model):
         max_length=255,
         verbose_name=_("Attribute Value"),
         help_text=_("Required, max 255 characters"),
-        unique=False,
-        null=False,
-        blank=False,
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("product_attribute", "attribute_value")
+        verbose_name = _("Product Attribute Value")
+        verbose_name_plural = _("Product Attribute Values")
 
     def __str__(self):
         return f"{self.product_attribute.name}: {self.attribute_value}"

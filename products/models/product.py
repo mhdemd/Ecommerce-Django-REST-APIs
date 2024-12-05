@@ -1,39 +1,36 @@
 from django.conf import settings
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from mptt.models import MPTTModel, TreeForeignKey
 
 
 class Media(models.Model):
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="media_product"
+        "Product",
+        on_delete=models.CASCADE,
+        related_name="media",
+        verbose_name=_("Product"),
     )
     image = models.ImageField(
-        verbose_name=_("Product Image"),
-        help_text=_("Required, default: 'default.png'"),
         upload_to="images/",
         default="images/default.png",
-        unique=False,
-        null=False,
-        blank=False,
+        verbose_name=_("Product Image"),
+        help_text=_("Required, default: 'default.png'"),
     )
     is_feature = models.BooleanField(
+        default=False,
         verbose_name=_("Product Default Image"),
         help_text=_("Default: False, True = Default Image"),
-        default=False,
     )
     ordering = models.PositiveIntegerField(
+        default=0,
         verbose_name=_("Image Ordering"),
         help_text=_("Define the order of images"),
-        default=0,
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name=_("Date Image Created"),
         help_text=_("Format: Y-m-d H:M:S"),
-        editable=False,
     )
     updated_at = models.DateTimeField(
         auto_now=True,
@@ -53,63 +50,46 @@ class Media(models.Model):
 class Product(models.Model):
     web_id = models.CharField(
         max_length=50,
+        unique=True,
         verbose_name=_("Product Website ID"),
         help_text=_("Required, unique"),
-        unique=True,
-        null=False,
-        blank=False,
     )
     slug = models.SlugField(
         max_length=255,
         verbose_name=_("Product Safe URL"),
         help_text=_("Required, letters, numbers, underscores, or hyphens"),
-        unique=False,
-        null=False,
-        blank=False,
     )
     name = models.CharField(
         max_length=255,
         verbose_name=_("Product Name"),
         help_text=_("Required, max 255 characters"),
-        unique=False,
-        null=False,
-        blank=False,
     )
     description = models.TextField(
         verbose_name=_("Product Description"),
         help_text=_("Required"),
-        unique=False,
-        null=False,
-        blank=False,
     )
     brand = models.ForeignKey(
-        Brand,
+        "Brand",
         related_name="products",
         on_delete=models.PROTECT,
+        verbose_name=_("Brand"),
     )
     category = models.ForeignKey(
-        Category,
+        "Category",
         on_delete=models.CASCADE,
         related_name="products",
         verbose_name=_("Product Category"),
         help_text=_("Required"),
-        unique=False,
-        null=False,
-        blank=False,
     )
     is_active = models.BooleanField(
+        default=True,
         verbose_name=_("Product Visibility"),
         help_text=_("True = Product Visible"),
-        default=True,
-        unique=False,
-        null=False,
-        blank=False,
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name=_("Date Product Created"),
         help_text=_("Format: Y-m-d H:M:S"),
-        editable=False,
     )
     updated_at = models.DateTimeField(
         auto_now=True,
@@ -121,6 +101,7 @@ class Product(models.Model):
         through="Wishlist",
         related_name="wishlisted_products",
         blank=True,
+        verbose_name=_("Users Wishlist"),
     )
 
     class Meta:
@@ -133,9 +114,11 @@ class Product(models.Model):
             models.Index(fields=["category"]),
         ]
         unique_together = ("web_id", "slug")
+        verbose_name = _("Product")
+        verbose_name_plural = _("Products")
 
     def get_absolute_url(self):
-        return reverse("shop:product_detail", args=[int(self.id), self.slug])
+        return reverse("shop:product_detail", args=[self.id, self.slug])
 
     def __str__(self):
         return self.name
