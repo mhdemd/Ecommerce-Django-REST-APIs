@@ -18,7 +18,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
-from authentication.models import User
+from authentication.models import Session, User
 from authentication.serializers import Disable2FASerializer
 
 from .serializers import (
@@ -909,3 +909,43 @@ class Disable2FAView(generics.GenericAPIView):
             {"message": "2FA has been disabled successfully."},
             status=status.HTTP_200_OK,
         )
+
+
+# ---------------------------- Sessions Endpoints ----------------------------
+class ListSessionsView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        sessions = Session.objects.filter(user=request.user)
+        session_data = [
+            {
+                "id": session.id,
+                "device": session.device or "Unknown Device",
+                "location": session.location or "Unknown Location",
+                "created_at": session.created_at,
+                "last_activity": session.last_activity,
+            }
+            for session in sessions
+        ]
+        return Response({"sessions": session_data})
+
+
+class DeleteSessionView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, session_id):
+        session = Session.objects.filter(user=request.user, id=session_id).first()
+        if not session:
+            return Response(
+                {"error": "Session not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+        session.delete()
+        return Response({"message": "Session deleted successfully."})
+
+
+class LogoutAllSessionsView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        Session.objects.filter(user=request.user).delete()
+        return Response({"message": "All sessions logged out successfully."})

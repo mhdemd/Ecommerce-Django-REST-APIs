@@ -5,10 +5,13 @@ from .views import (
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
     CustomTokenVerifyView,
+    DeleteSessionView,
     Disable2FAView,
     Enable2FAView,
     ForgotPasswordView,
     GenerateOTPView,
+    ListSessionsView,
+    LogoutAllSessionsView,
     LogoutView,
     ProfileView,
     RegisterView,
@@ -40,4 +43,16 @@ urlpatterns = [
     path("api/generate-otp/", GenerateOTPView.as_view(), name="generate_otp"),
     path("api/verify-otp/", VerifyOTPView.as_view(), name="verify_otp"),
     path("api/disable-2fa/", Disable2FAView.as_view(), name="disable_2fa"),
+    # Sessions endpoints
+    path("api/sessions/", ListSessionsView.as_view(), name="list_sessions"),
+    path(
+        "api/sessions/<int:session_id>/delete/",
+        DeleteSessionView.as_view(),
+        name="delete_session",
+    ),
+    path(
+        "api/sessions/logout-all/",
+        LogoutAllSessionsView.as_view(),
+        name="logout_all_sessions",
+    ),
 ]
