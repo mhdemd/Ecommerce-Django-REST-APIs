@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     # Internal apps (developed in-house)
     "authentication",
+    "products",
 ]
 
 MIDDLEWARE = [
