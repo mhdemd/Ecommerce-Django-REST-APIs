@@ -1,4 +1,5 @@
 import bleach
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
@@ -39,13 +40,30 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"password": "Passwords do not match."})
 
         # Validate password against Django's built-in password validators
-        validate_password(password1)
+        try:
+            validate_password(password1)
+        except ValidationError as e:
+            if settings.DEBUG:
+                # Detailed errors in development environment
+                raise serializers.ValidationError({"password": str(e)})
+            else:
+                # Generic error in production
+                raise serializers.ValidationError(
+                    {"password": "Password does not meet the required criteria."}
+                )
 
         # Use clean_input to validate the password
         try:
             clean_input(password1)
         except ValidationError as e:
-            raise serializers.ValidationError({"password": str(e)})
+            if settings.DEBUG:
+                # Detailed errors in development environment
+                raise serializers.ValidationError({"password": str(e)})
+            else:
+                # Generic error in production
+                raise serializers.ValidationError(
+                    {"password": "Invalid password input."}
+                )
 
         return data
 
@@ -84,13 +102,30 @@ class ChangePasswordSerializer(serializers.Serializer):
             )
 
         # Validate password against Django's built-in password validators
-        validate_password(password1)
+        try:
+            validate_password(password1)
+        except ValidationError as e:
+            if settings.DEBUG:
+                # Detailed errors in development environment
+                raise serializers.ValidationError({"new_password": str(e)})
+            else:
+                # Generic error in production
+                raise serializers.ValidationError(
+                    {"new_password": "Password does not meet the required criteria."}
+                )
 
         # Use clean_input to validate and clean the password
         try:
             clean_input(password1)
         except ValidationError as e:
-            raise serializers.ValidationError({"new_password": str(e)})
+            if settings.DEBUG:
+                # Detailed errors in development environment
+                raise serializers.ValidationError({"new_password": str(e)})
+            else:
+                # Generic error in production
+                raise serializers.ValidationError(
+                    {"new_password": "Invalid password input."}
+                )
 
         return data
 
@@ -114,28 +149,22 @@ class ResetPasswordSerializer(serializers.Serializer):
         password1 = data.get("new_password")
         password2 = data.get("new_password2")
 
-        # Check if passwords match
         if password1 != password2:
             raise serializers.ValidationError(
                 {"new_password": "Passwords do not match."}
             )
 
-        # Validate password against Django's built-in password validators
         try:
             validate_password(password1)
-        except ValidationError:
-            # Return a generic error message for password validation failures
-            raise serializers.ValidationError(
-                {"new_password": "Password does not meet the required criteria."}
-            )
-
-        # Use clean_input to validate and clean the password
-        try:
-            clean_input(password1)
-        except ValidationError:
-            raise serializers.ValidationError(
-                {"new_password": "Invalid password input."}
-            )
+        except ValidationError as e:
+            if settings.DEBUG:
+                # Detailed errors in development
+                raise serializers.ValidationError({"new_password": str(e)})
+            else:
+                # Generic error in production
+                raise serializers.ValidationError(
+                    {"new_password": "Password does not meet the required criteria."}
+                )
 
         return data
 
