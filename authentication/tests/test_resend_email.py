@@ -84,7 +84,8 @@ class TestResendEmailView:
         response = api_client.post(url, data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["error"] == "Invalid email type."
+        assert "email_type" in response.data
+        assert response.data["email_type"] == ['"invalid_type" is not a valid choice.']
 
     def test_resend_email_missing_fields(self, api_client):
         """Test resend email with missing fields."""
