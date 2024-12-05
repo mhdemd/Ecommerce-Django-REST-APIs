@@ -542,7 +542,7 @@ class ResendEmailView(TokenMixin, generics.GenericAPIView):
     serializer_class = ResendEmailSerializer
 
     @extend_schema(
-        tags=["Auth - Email"],
+        tags=["Auth - Password"],
         summary="Resend Email",
         description=(
             "Resends an email for either verification or password reset.\n"
@@ -714,46 +714,45 @@ class ProfileView(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 
+@extend_schema(
+    tags=["Auth - Profile"],
+    summary="Update Profile",
+    description="# Updates the profile information of the logged-in user.",
+    responses={
+        200: {
+            "description": "Profile updated successfully.",
+            "content": {
+                "application/json": {
+                    "example": {"message": "Profile updated successfully."}
+                }
+            },
+        },
+        400: {
+            "description": "Bad request. Validation errors or invalid data provided.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "Invalid data provided.",
+                        "details": {"field_name": ["error message"]},
+                    }
+                }
+            },
+        },
+        401: {
+            "description": "Unauthorized. Authentication credentials were not provided or are invalid.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "Authentication credentials were not provided."
+                    }
+                }
+            },
+        },
+    },
+)
 class UpdateProfileView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UpdateProfileSerializer
-
-    extend_schema = extend_schema(
-        tags=["Auth - Profile"],
-        summary="Update Profile",
-        description="# Updates the profile information of the logged-in user.",
-        responses={
-            200: {
-                "description": "Profile updated successfully.",
-                "content": {
-                    "application/json": {
-                        "example": {"message": "Profile updated successfully."}
-                    }
-                },
-            },
-            400: {
-                "description": "Bad request. Validation errors or invalid data provided.",
-                "content": {
-                    "application/json": {
-                        "example": {
-                            "error": "Invalid data provided.",
-                            "details": {"field_name": ["error message"]},
-                        }
-                    }
-                },
-            },
-            401: {
-                "description": "Unauthorized. Authentication credentials were not provided or are invalid.",
-                "content": {
-                    "application/json": {
-                        "example": {
-                            "error": "Authentication credentials were not provided."
-                        }
-                    }
-                },
-            },
-        },
-    )
 
     def get_object(self):
         # Fetch the authenticated user
