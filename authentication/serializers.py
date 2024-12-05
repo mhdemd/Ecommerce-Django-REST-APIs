@@ -76,6 +76,7 @@ class LogoutSerializer(serializers.Serializer):
     )
 
 
+# ---------------------------- Password Management Endpoints ----------------------------
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True)
@@ -149,6 +150,14 @@ class ResetPasswordSerializer(serializers.Serializer):
         return data
 
 
+class ResendEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    email_type = serializers.ChoiceField(
+        choices=["verification", "reset_password"], required=True
+    )
+
+
+# ---------------------------- Profile Management Endpoints ----------------------------
 class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -211,8 +220,24 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         return clean_input(value)
 
 
-class ResendEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-    email_type = serializers.ChoiceField(
-        choices=["verification", "reset_password"], required=True
+# ---------------------------- OTP Endpoints ----------------------------
+class Enable2FASerializer(serializers.Serializer):
+    method = serializers.ChoiceField(
+        choices=["email", "sms"],
+        required=True,
+        help_text="Choose between 'email' or 'sms' for 2FA.",
+    )
+
+
+class GenerateOTPSerializer(serializers.Serializer):
+    method = serializers.ChoiceField(
+        choices=["email", "sms"],
+        required=True,
+        help_text="Choose 'email' or 'sms' for receiving the OTP.",
+    )
+
+
+class VerifyOTPSerializer(serializers.Serializer):
+    otp = serializers.CharField(
+        max_length=6, required=True, help_text="Enter the 6-digit OTP you received."
     )

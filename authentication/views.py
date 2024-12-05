@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from django.utils.timezone import now
+from django.utils.timezone import now, timedelta
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
@@ -22,13 +22,16 @@ from authentication.models import User
 
 from .serializers import (
     ChangePasswordSerializer,
+    Enable2FASerializer,
     ForgotPasswordSerializer,
+    GenerateOTPSerializer,
     LogoutSerializer,
     ProfileSerializer,
     RegisterSerializer,
     ResendEmailSerializer,
     ResetPasswordSerializer,
     UpdateProfileSerializer,
+    VerifyOTPSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -770,4 +773,103 @@ class UpdateProfileView(generics.UpdateAPIView):
 
         return Response(
             {"message": "Profile updated successfully."}, status=status.HTTP_200_OK
+        )
+
+
+# ---------------------------- OTP Endpoints ----------------------------
+class Enable2FAView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = Enable2FASerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        method = serializer.validated_data["method"]
+        user = request.user
+
+        if user.is_2fa_enabled:
+            return Response(
+                {"error": "2FA is already enabled."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Enable 2FA and save the selected method
+        user.is_2fa_enabled = True
+        user.two_fa_method = method
+        user.save()
+
+        return Response(
+            {"message": f"2FA has been enabled using {method}."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class GenerateOTPView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = GenerateOTPSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        method = serializer.validated_data["method"]
+        user = request.user
+
+        if not user.is_2fa_enabled or user.two_fa_method != method:
+            return Response(
+                {"error": "2FA is not enabled or method mismatch."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Generate OTP
+        otp = get_random_string(6, allowed_chars="0123456789")
+        user.otp_code = otp
+        user.otp_expiry = now() + timedelta(minutes=5)
+        user.save()
+
+        # Send OTP
+        if method == "email":
+            send_mail(
+                "Your OTP Code",
+                f"Your OTP code is: {otp}. It will expire in 5 minutes.",
+                "no-reply@example.com",
+                [user.email],
+            )
+        elif method == "sms":
+            # Placeholder for future SMS integration
+            print(f"Send this OTP via SMS: {otp}")
+
+        return Response(
+            {"message": f"OTP sent via {method}."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class VerifyOTPView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = VerifyOTPSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = request.user
+        otp = serializer.validated_data["otp"]
+
+        # Check if OTP is valid
+        if not user.otp_code or user.otp_expiry < now() or user.otp_code != otp:
+            return Response(
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # OTP is valid, clear it
+        user.otp_code = None
+        user.otp_expiry = None
+        user.save()
+
+        return Response(
+            {"message": "OTP verified successfully."},
+            status=status.HTTP_200_OK,
         )
