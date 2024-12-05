@@ -5,7 +5,9 @@ from .views import (
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
     CustomTokenVerifyView,
+    Enable2FAView,
     ForgotPasswordView,
+    GenerateOTPView,
     LogoutView,
     ProfileView,
     RegisterView,
@@ -13,6 +15,7 @@ from .views import (
     ResetPasswordView,
     UpdateProfileView,
     VerifyEmailView,
+    VerifyOTPView,
 )
 
 urlpatterns = [
@@ -31,4 +34,8 @@ urlpatterns = [
     path("api/profile/", ProfileView.as_view(), name="profile"),
     path("api/profile/update/", UpdateProfileView.as_view(), name="update_profile"),
     path("api/change-password/", ChangePasswordView.as_view(), name="change_password"),
+    # OTP and 2FA endpoints
+    path("api/enable-2fa/", Enable2FAView.as_view(), name="enable_2fa"),
+    path("api/generate-otp/", GenerateOTPView.as_view(), name="generate_otp"),
+    path("api/verify-otp/", VerifyOTPView.as_view(), name="verify_otp"),
 ]
