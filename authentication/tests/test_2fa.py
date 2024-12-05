@@ -31,7 +31,13 @@ class Test2FA:
 
     def authenticate(self, client):
         """Helper method to authenticate the test user."""
-        client.login(username=self.user.username, password="testpassword")
+        response = client.post(
+            reverse("token_obtain_pair"),
+            {"username": self.user.username, "password": "testpassword"},
+        )
+        assert response.status_code == 200
+        token = response.data["access"]
+        client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
 
     def test_enable_2fa_success(self, api_client):
         """Test successful activation of 2FA."""
