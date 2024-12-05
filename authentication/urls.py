@@ -9,6 +9,7 @@ from .views import (
     LogoutView,
     ProfileView,
     RegisterView,
+    ResendEmailView,
     ResetPasswordView,
     UpdateProfileView,
     VerifyEmailView,
@@ -25,6 +26,7 @@ urlpatterns = [
     path("api/logout/", LogoutView.as_view(), name="logout"),
     path("api/forgot-password/", ForgotPasswordView.as_view(), name="forgot_password"),
     path("api/reset-password/", ResetPasswordView.as_view(), name="reset_password"),
+    path("api/resend-email/", ResendEmailView.as_view(), name="resend_email"),
     # User management
     path("api/profile/", ProfileView.as_view(), name="profile"),
     path("api/profile/update/", UpdateProfileView.as_view(), name="update_profile"),

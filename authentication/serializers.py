@@ -192,3 +192,10 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         Clean the last name and remove unwanted HTML.
         """
         return clean_input(value)
+
+
+class ResendEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    email_type = serializers.ChoiceField(
+        choices=["verification", "reset_password"], required=True
+    )

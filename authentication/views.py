@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -26,6 +26,7 @@ from .serializers import (
     LogoutSerializer,
     ProfileSerializer,
     RegisterSerializer,
+    ResendEmailSerializer,
     ResetPasswordSerializer,
     UpdateProfileSerializer,
 )
@@ -535,6 +536,122 @@ class ResetPasswordView(generics.GenericAPIView):
         return Response(
             {"message": "Password reset successfully."}, status=status.HTTP_200_OK
         )
+
+
+class ResendEmailView(TokenMixin, generics.GenericAPIView):
+    serializer_class = ResendEmailSerializer
+
+    @extend_schema(
+        tags=["Auth - Email"],
+        summary="Resend Email",
+        description=(
+            "Resends an email for either verification or password reset.\n"
+            "- If `email_type` is 'verification', a verification email is resent.\n"
+            "- If `email_type` is 'reset_password', a password reset email is resent."
+        ),
+        request=ResendEmailSerializer,
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Email resent successfully.",
+                    }
+                },
+            },
+            404: {
+                "type": "object",
+                "properties": {
+                    "error": {"type": "string", "example": "User not found."}
+                },
+            },
+            400: {
+                "type": "object",
+                "properties": {
+                    "error": {"type": "string", "example": "Invalid email type."}
+                },
+            },
+        },
+    )
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        email_type = serializer.validated_data["email_type"]
+
+        try:
+            user = User.objects.get(email=email)
+            logger.info(f"User found with email: {email}, ID: {user.id}")
+        except User.DoesNotExist:
+            logger.error(f"User with email {email} not found.")
+            return Response(
+                {"error": "User not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if email_type == "verification":
+            if user.is_active:
+                logger.warning(f"User {user.id} is already verified.")
+                return Response(
+                    {"error": "User is already verified."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Generate verification token and link
+            token = self.generate_token(user)
+            verification_link = (
+                f"{settings.SITE_URL}/auth/api/verify-email/?token={token}"
+            )
+            subject = "Email Verification"
+            message = (
+                f"Hi {user.username},\n\n"
+                f"Please verify your email by clicking the link below:\n\n{verification_link}\n\nThank you!"
+            )
+
+            try:
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+                logger.info(f"Verification email resent to {user.email}.")
+                return Response(
+                    {"message": "Verification email resent successfully."},
+                    status=status.HTTP_200_OK,
+                )
+            except Exception as e:
+                logger.error(
+                    f"Failed to resend verification email to {user.email}: {e}"
+                )
+                return Response(
+                    {"error": "Failed to send email. Please try again later."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+        elif email_type == "reset_password":
+            # Generate reset token and link
+            token = self.generate_token(user)
+            reset_link = f"{settings.SITE_URL}/auth/api/reset-password/?token={token}"
+            subject = "Reset your password"
+            message = (
+                f"Hi {user.username},\n\n"
+                f"Click the link below to reset your password:\n\n{reset_link}\n\n"
+                f"This link will expire in 1 hour."
+            )
+
+            try:
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+                logger.info(f"Password reset email resent to {user.email}.")
+                return Response(
+                    {"message": "Password reset email resent successfully."},
+                    status=status.HTTP_200_OK,
+                )
+            except Exception as e:
+                logger.error(
+                    f"Failed to resend password reset email to {user.email}: {e}"
+                )
+                return Response(
+                    {"error": "Failed to send email. Please try again later."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
 
 # ---------------------------- Profile Management Endpoints ----------------------------
