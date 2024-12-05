@@ -241,3 +241,7 @@ class VerifyOTPSerializer(serializers.Serializer):
     otp = serializers.CharField(
         max_length=6, required=True, help_text="Enter the 6-digit OTP you received."
     )
+
+
+class Disable2FASerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True, required=True)

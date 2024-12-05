@@ -147,3 +147,69 @@ class Test2FA:
 
         assert response.status_code == 400
         assert response.data["error"] == "Invalid or expired OTP."
+
+
+@pytest.mark.django_db
+class TestDisable2FA:
+    @pytest.fixture
+    def create_user(self, db):
+        user = User.objects.create_user(
+            username="testuser",
+            email="testuser@example.com",
+            password="testpassword",
+            is_2fa_enabled=True,
+            two_fa_method="email",
+        )
+        return user
+
+    @pytest.fixture
+    def api_client(self):
+        from rest_framework.test import APIClient
+
+        return APIClient()
+
+    def authenticate(self, client, user):
+        response = client.post(
+            reverse("token_obtain_pair"),
+            {"username": user.username, "password": "testpassword"},
+        )
+        assert response.status_code == 200
+        token = response.data["access"]
+        client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+    def test_disable_2fa_success(self, api_client, create_user):
+        """Test successful 2FA disable."""
+        self.authenticate(api_client, create_user)
+        url = reverse("disable_2fa")
+        data = {"password": "testpassword"}
+        response = api_client.post(url, data)
+
+        assert response.status_code == 200
+        assert response.data["message"] == "2FA has been disabled successfully."
+
+        create_user.refresh_from_db()
+        assert create_user.is_2fa_enabled is False
+        assert create_user.two_fa_method is None
+
+    def test_disable_2fa_invalid_password(self, api_client, create_user):
+        """Test disabling 2FA with invalid password."""
+        self.authenticate(api_client, create_user)
+        url = reverse("disable_2fa")
+        data = {"password": "wrongpassword"}
+        response = api_client.post(url, data)
+
+        assert response.status_code == 400
+        assert response.data["error"] == "Invalid password."
+
+    def test_disable_2fa_not_enabled(self, api_client, create_user):
+        """Test disabling 2FA when not enabled."""
+        create_user.is_2fa_enabled = False
+        create_user.save()
+
+        self.authenticate(api_client, create_user)
+        url = reverse("disable_2fa")
+        data = {"password": "testpassword"}
+        response = api_client.post(url, data)
+
+        assert response.status_code == 400
+        assert response.data["error"] == "2FA is not enabled."

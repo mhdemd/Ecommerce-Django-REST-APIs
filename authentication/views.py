@@ -19,9 +19,11 @@ from rest_framework_simplejwt.views import (
 )
 
 from authentication.models import User
+from authentication.serializers import Disable2FASerializer
 
 from .serializers import (
     ChangePasswordSerializer,
+    Disable2FASerializer,
     Enable2FASerializer,
     ForgotPasswordSerializer,
     GenerateOTPSerializer,
@@ -871,5 +873,39 @@ class VerifyOTPView(generics.GenericAPIView):
 
         return Response(
             {"message": "OTP verified successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class Disable2FAView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = Disable2FASerializer
+
+    def post(self, request):
+        user = request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Check if 2FA is enabled
+        if not user.is_2fa_enabled:
+            return Response(
+                {"error": "2FA is not enabled."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Verify password or OTP
+        if not user.check_password(serializer.validated_data["password"]):
+            return Response(
+                {"error": "Invalid password."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Disable 2FA
+        user.is_2fa_enabled = False
+        user.two_fa_method = None
+        user.otp_code = None
+        user.otp_expiry = None
+        user.save()
+
+        return Response(
+            {"message": "2FA has been disabled successfully."},
             status=status.HTTP_200_OK,
         )

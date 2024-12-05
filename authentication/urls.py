@@ -5,6 +5,7 @@ from .views import (
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
     CustomTokenVerifyView,
+    Disable2FAView,
     Enable2FAView,
     ForgotPasswordView,
     GenerateOTPView,
@@ -38,4 +39,5 @@ urlpatterns = [
     path("api/enable-2fa/", Enable2FAView.as_view(), name="enable_2fa"),
     path("api/generate-otp/", GenerateOTPView.as_view(), name="generate_otp"),
     path("api/verify-otp/", VerifyOTPView.as_view(), name="verify_otp"),
+    path("api/disable-2fa/", Disable2FAView.as_view(), name="disable_2fa"),
 ]
