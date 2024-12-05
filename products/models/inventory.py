@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from .inventory import ProductAttributeValue, ProductType
+from .attribute import ProductAttributeValue, ProductType
 from .product import Product
 
 
