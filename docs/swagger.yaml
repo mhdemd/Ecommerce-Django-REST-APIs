@@ -7,13 +7,10 @@ paths:
   /auth/api/change-password/:
     post:
       operationId: auth_api_change_password_create
-      description: |+
+      description: |
         # Allows a logged-in user to change their password.
-
         - To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.
-
         - For validation, we specifically used the validate method in the serializer during the RegisterView process.
-
       summary: Change Password
       tags:
       - Auth - Password
@@ -36,20 +33,98 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChangePassword'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password changed successfully.
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Old password is incorrect.
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Password does not meet validation criteria.
+          description: ''
+  /auth/api/disable-2fa/:
+    post:
+      operationId: auth_api_disable_2fa_create
+      description: Disables two-factor authentication (2FA) for the user after verifying
+        the password.
+      summary: Disable 2FA
+      tags:
+      - Auth - OTP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Disable2FA'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Disable2FA'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Disable2FA'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Disable2FA'
+          description: ''
+  /auth/api/enable-2fa/:
+    post:
+      operationId: auth_api_enable_2fa_create
+      description: Enables two-factor authentication (2FA) for the user using the
+        specified method (email or SMS).
+      summary: Enable 2FA
+      tags:
+      - Auth - OTP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Enable2FA'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Enable2FA'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Enable2FA'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enable2FA'
           description: ''
   /auth/api/forgot-password/:
     post:
       operationId: auth_api_forgot_password_create
-      description: |+
+      description: |
         # Sends a password reset link to the user's email.
-
         - First, the email is checked to see if it exists in the database. If it does not, an error is raised.
-
         - The email format is validated using EmailField.
-
         - The website URL and the sender's email address are configured in the settings under SITE_URL and DEFAULT_FROM_EMAIL.
-
       summary: Forgot Password
       tags:
       - Auth - Password
@@ -73,20 +148,69 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForgotPassword'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password reset link sent.
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User with this email does not exist.
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid email format.
+          description: ''
+  /auth/api/generate-otp/:
+    post:
+      operationId: auth_api_generate_otp_create
+      description: Generates a one-time password (OTP) for the user, which is sent
+        via the selected method (email or SMS).
+      summary: Generate OTP
+      tags:
+      - Auth - OTP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateOTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GenerateOTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GenerateOTP'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateOTP'
           description: ''
   /auth/api/logout/:
     post:
       operationId: auth_api_logout_create
-      description: |+
+      description: |
         # Logs out a user by blacklisting the refresh token.
-
-        - To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.
-
-        - By sending the refresh token, it is added to the blacklist and becomes invalid.
-
-        - The access token remains valid in this case (although it will eventually expire automatically).
-
+        - You need to authorize yourself from the Swagger UI before accessing this endpoint.
+        - Send the refresh token in the request body; it will be added to the blacklist and invalidated.
+        - Note that the access token will remain valid until it expires.
       summary: Logout
       tags:
       - Auth - Logout
@@ -109,16 +233,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Logout'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logged out successfully.
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token.
           description: ''
   /auth/api/profile/:
     get:
       operationId: auth_api_profile_retrieve
-      description: |+
+      description: |
         # Fetches the profile details of the logged-in user.
-
         - To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.
-
       summary: Get Profile
       tags:
       - Auth - Profile
@@ -129,12 +265,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  username:
+                    type: string
+                    example: johndoe
+                  email:
+                    type: string
+                    example: johndoe@example.com
+                  first_name:
+                    type: string
+                    example: John
+                  last_name:
+                    type: string
+                    example: Doe
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Authentication credentials were not provided.
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User account is disabled.
           description: ''
   /auth/api/profile/update/:
     put:
       operationId: auth_api_profile_update_update
-      description: Updates the profile information of the logged-in user.
+      description: '# Updates the profile information of the logged-in user.'
       summary: Update Profile
       tags:
       - Auth - Profile
@@ -157,11 +329,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateProfile'
+                description: Profile updated successfully.
+                content:
+                  application/json:
+                    example:
+                      message: Profile updated successfully.
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Bad request. Validation errors or invalid data provided.
+                content:
+                  application/json:
+                    example:
+                      error: Invalid data provided.
+                      details:
+                        field_name:
+                        - error message
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                description: Unauthorized. Authentication credentials were not provided
+                  or are invalid.
+                content:
+                  application/json:
+                    example:
+                      error: Authentication credentials were not provided.
           description: ''
     patch:
       operationId: auth_api_profile_update_partial_update
-      description: Updates the profile information of the logged-in user.
+      description: '# Updates the profile information of the logged-in user.'
       summary: Update Profile
       tags:
       - Auth - Profile
@@ -183,23 +383,46 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateProfile'
+                description: Profile updated successfully.
+                content:
+                  application/json:
+                    example:
+                      message: Profile updated successfully.
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                description: Bad request. Validation errors or invalid data provided.
+                content:
+                  application/json:
+                    example:
+                      error: Invalid data provided.
+                      details:
+                        field_name:
+                        - error message
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                description: Unauthorized. Authentication credentials were not provided
+                  or are invalid.
+                content:
+                  application/json:
+                    example:
+                      error: Authentication credentials were not provided.
           description: ''
   /auth/api/register/:
     post:
       operationId: auth_api_register_create
       description: |-
         # Registers a new user and sends a verification link.
-
-        - The serializer includes built-in validations to prevent XSS attacks, ensuring no field is vulnerable.
-
-        - Email and password fields are validated according to Django standards to guarantee proper formatting.
-
-        - Rate limiting is implemented to prevent excessive requests, with customizable limits for added security.
-
-        - The user model includes 'verification_token' and 'token_expiration' fields to secure the email verification link.
-
-        - Once the link is used for verification, the token is cleared to maintain security.
+        - The serializer includes built-in validations to prevent XSS attacks.
+        - Email and password fields are validated.
+        - Rate limiting is implemented.
+        - 'verification_token' and 'token_expiration' fields secure the email verification link.
+        - Token is cleared after verification.
       summary: User Registration
       tags:
       - Auth - Registration
@@ -239,20 +462,71 @@ paths:
                     type: string
                     example: Validation error details.
           description: ''
+  /auth/api/resend-email/:
+    post:
+      operationId: auth_api_resend_email_create
+      description: |-
+        Resends an email for either verification or password reset.
+        - If `email_type` is 'verification', a verification email is resent.
+        - If `email_type` is 'reset_password', a password reset email is resent.
+      summary: Resend Email
+      tags:
+      - Auth - Password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendEmail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResendEmail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResendEmail'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email resent successfully.
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found.
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid email type.
+          description: ''
   /auth/api/reset-password/:
     post:
       operationId: auth_api_reset_password_create
-      description: |+
+      description: |
         # Resets the user's password using the provided token and new password.
-
         - This is used in cases where, unlike the ChangePasswordView, the previous password is not available. Instead, the user provides their email address, and a link containing a temporary token is sent to them. The user's identity is determined based on the token.
-
         - The user then enters a new password, which replaces their old password in the database.
-
         - The token is automatically retrieved from the query parameters of the request.
-
         - The password validation rules from the ChangePasswordView are applied to ensure the new passwords meet the required standards.
-
       summary: Reset Password
       tags:
       - Auth - Password
@@ -276,8 +550,85 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResetPassword'
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password reset successfully.
           description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token is required in query parameters.
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found with the given token.
+          description: ''
+        '422':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token has expired.
+          description: ''
+  /auth/api/sessions/:
+    get:
+      operationId: auth_api_sessions_retrieve
+      description: Fetches a list of all active sessions for the authenticated user.
+      summary: List Active Sessions
+      tags:
+      - Auth - Session
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/api/sessions/{session_id}/delete/:
+    post:
+      operationId: auth_api_sessions_delete_create
+      description: Deletes a specific session of the authenticated user by session
+        ID.
+      summary: Delete a Specific Session
+      parameters:
+      - in: path
+        name: session_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Auth - Session
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/api/sessions/logout-all/:
+    post:
+      operationId: auth_api_sessions_logout_all_create
+      description: Logs out the user from all active sessions.
+      summary: Logout from All Sessions
+      tags:
+      - Auth - Session
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /auth/api/token/:
     post:
       operationId: auth_api_token_create
@@ -364,11 +715,8 @@ paths:
       operationId: auth_api_verify_email_retrieve
       description: |
         # Activates a user account after email verification.
-
         - When the user clicks on the link sent to their email, this API is called.
-
         - The link contains a temporary token that is valid for one hour.
-
         - Without the temporary token, you cannot access this API.
       summary: Verify Email
       tags:
@@ -378,7 +726,63 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email verified successfully.
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token.
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token has expired.
+          description: ''
+  /auth/api/verify-otp/:
+    post:
+      operationId: auth_api_verify_otp_create
+      description: Verifies the one-time password (OTP) entered by the user.
+      summary: Verify OTP
+      tags:
+      - Auth - OTP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyOTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyOTP'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyOTP'
+          description: ''
 components:
   schemas:
     ChangePassword:
@@ -397,6 +801,35 @@ components:
       - new_password
       - new_password2
       - old_password
+    Disable2FA:
+      type: object
+      properties:
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+    EmailTypeEnum:
+      enum:
+      - verification
+      - reset_password
+      type: string
+      description: |-
+        * `verification` - verification
+        * `reset_password` - reset_password
+    Enable2FA:
+      type: object
+      properties:
+        method:
+          allOf:
+          - $ref: '#/components/schemas/MethodEnum'
+          description: |-
+            Choose between 'email' or 'sms' for 2FA.
+
+            * `email` - email
+            * `sms` - sms
+      required:
+      - method
     ForgotPassword:
       type: object
       properties:
@@ -405,6 +838,19 @@ components:
           format: email
       required:
       - email
+    GenerateOTP:
+      type: object
+      properties:
+        method:
+          allOf:
+          - $ref: '#/components/schemas/MethodEnum'
+          description: |-
+            Choose 'email' or 'sms' for receiving the OTP.
+
+            * `email` - email
+            * `sms` - sms
+      required:
+      - method
     Logout:
       type: object
       properties:
@@ -413,60 +859,28 @@ components:
           description: The refresh token to be blacklisted.
       required:
       - refresh
+    MethodEnum:
+      enum:
+      - email
+      - sms
+      type: string
+      description: |-
+        * `email` - email
+        * `sms` - sms
     PatchedUpdateProfile:
       type: object
       properties:
         username:
           type: string
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
-          maxLength: 150
         email:
           type: string
           format: email
-          title: Email address
-          maxLength: 254
         first_name:
           type: string
           maxLength: 150
         last_name:
           type: string
           maxLength: 150
-    Profile:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        username:
-          type: string
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
-          maxLength: 150
-        email:
-          type: string
-          format: email
-          title: Email address
-          maxLength: 254
-        first_name:
-          type: string
-          maxLength: 150
-        last_name:
-          type: string
-          maxLength: 150
-        date_joined:
-          type: string
-          format: date-time
-        is_active:
-          type: boolean
-          title: Active
-          description: Designates whether this user should be treated as active. Unselect
-            this instead of deleting accounts.
-      required:
-      - id
-      - username
     Register:
       type: object
       properties:
@@ -491,6 +905,17 @@ components:
       - password
       - password2
       - username
+    ResendEmail:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        email_type:
+          $ref: '#/components/schemas/EmailTypeEnum'
+      required:
+      - email
+      - email_type
     ResetPassword:
       type: object
       properties:
@@ -547,15 +972,9 @@ components:
       properties:
         username:
           type: string
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
-          maxLength: 150
         email:
           type: string
           format: email
-          title: Email address
-          maxLength: 254
         first_name:
           type: string
           maxLength: 150
@@ -563,7 +982,17 @@ components:
           type: string
           maxLength: 150
       required:
+      - email
       - username
+    VerifyOTP:
+      type: object
+      properties:
+        otp:
+          type: string
+          description: Enter the 6-digit OTP you received.
+          maxLength: 6
+      required:
+      - otp
   securitySchemes:
     jwtAuth:
       type: http
@@ -580,3 +1009,9 @@ tags:
   description: Endpoints for managing user passwords, including reset and change.
 - name: Auth - Profile
   description: Endpoints for fetching and updating user profile information.
+- name: Auth - OTP
+  description: Endpoints for managing two-factor authentication (2FA), including OTP
+    generation and verification.
+- name: Auth - Session
+  description: Endpoints for managing user sessions, including session listing, deletion,
+    and logout of all sessions.
