@@ -1,0 +1,115 @@
+Table Brand {
+    id int [pk, increment]
+    name varchar(255) [unique]
+    slug varchar(255) [unique]
+    description text
+    logo varchar
+    created_at datetime
+    updated_at datetime
+}
+
+Table Category {
+    id int [pk, increment]
+    name varchar(100) [unique]
+    slug varchar(150) [unique]
+    is_active boolean
+    parent_id int // Self-referencing for hierarchy
+    created_at datetime
+    updated_at datetime
+}
+
+Table ProductType {
+    id int [pk, increment]
+    name varchar(255) [unique]
+    slug varchar(255) [unique]
+}
+
+Table ProductAttribute {
+    id int [pk, increment]
+    name varchar(255) [unique]
+    description text
+    created_at datetime
+    updated_at datetime
+}
+
+Table ProductAttributeValue {
+    id int [pk, increment]
+    product_attribute_id int [ref: > ProductAttribute.id]
+    attribute_value varchar(255)
+    created_at datetime
+    updated_at datetime
+}
+
+Table Product {
+    id int [pk, increment]
+    web_id varchar(50) [unique]
+    slug varchar(255)
+    name varchar(255)
+    description text
+    brand_id int [ref: > Brand.id]
+    category_id int [ref: > Category.id]
+    is_active boolean
+    created_at datetime
+    updated_at datetime
+}
+
+Table Media {
+    id int [pk, increment]
+    product_id int [ref: > Product.id]
+    image varchar
+    is_feature boolean
+    ordering int
+    created_at datetime
+    updated_at datetime
+}
+
+Table ProductInventory {
+    id int [pk, increment]
+    sku varchar(20) [unique]
+    upc varchar(12) [unique]
+    product_type_id int [ref: > ProductType.id]
+    product_id int [ref: > Product.id]
+    stock int
+    is_active boolean
+    retail_price decimal
+    store_price decimal
+    sale_price decimal
+    weight decimal
+    created_at datetime
+    updated_at datetime
+}
+
+Table ProductReview {
+    id int [pk, increment]
+    user_id int [ref: > User.id]
+    product_id int [ref: > Product.id]
+    title varchar(255)
+    review text
+    rating int
+    date datetime
+    show_name boolean
+    is_approved boolean
+}
+
+Table Wishlist {
+    id int [pk, increment]
+    user_id int [ref: > User.id]
+    product_id int [ref: > Product.id]
+    added_at datetime
+}
+
+Table User {
+    id int [pk, increment]
+    username varchar(150) [unique]
+    email varchar(254) [unique]
+    first_name varchar(150)
+    last_name varchar(150)
+    password varchar(128)
+    is_active boolean
+    is_staff boolean
+    is_superuser boolean
+    date_joined datetime
+    last_login datetime
+}
+
+Ref: Category.parent_id > Category.id

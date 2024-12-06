@@ -3,37 +3,43 @@ from pathlib import Path
 
 from decouple import config
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# ---------------------------------------------------------
+# Base settings
+# ---------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
 
+SITE_URL = "http://127.0.0.1:8000"
 
-# Application definition
 
+# ---------------------------------------------------------
+# Installed Apps
+# ---------------------------------------------------------
 INSTALLED_APPS = [
+    # Default Django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # External apps (third-party or installed packages)
+    # Third-party apps
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
     "rest_framework_simplejwt.token_blacklist",
-    # Internal apps (developed in-house)
+    # Internal apps
     "authentication",
     "products",
 ]
 
+
+# ---------------------------------------------------------
+# Middleware
+# ---------------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -44,6 +50,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
+# ---------------------------------------------------------
+# URL & WSGI Configurations
+# ---------------------------------------------------------
 ROOT_URLCONF = "RadinGalleryAPI.urls"
 
 TEMPLATES = [
@@ -65,6 +75,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "RadinGalleryAPI.wsgi.application"
 
 
+# ---------------------------------------------------------
+# Database
+# ---------------------------------------------------------
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -76,12 +89,35 @@ DATABASES = {
     }
 }
 
+
+# ---------------------------------------------------------
+# Cache (Redis)
+# ---------------------------------------------------------
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis_cache:6379",
+        "OPTIONS": {
+            "DB": 0,
+        },
+    }
+}
+
+
+# ---------------------------------------------------------
+# Authentication & User Model
+# ---------------------------------------------------------
+AUTH_USER_MODEL = "authentication.User"
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 9,
+        },
     },
     {
         "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
@@ -92,21 +128,24 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# ---------------------------------------------------------
+# Internationalization & Timezone
+# ---------------------------------------------------------
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
 
+# ---------------------------------------------------------
+# Static & Media Files
+# ---------------------------------------------------------
 STATIC_URL = "static/"
 
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
+# ---------------------------------------------------------
+# Django REST Framework & JWT Settings
+# ---------------------------------------------------------
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -119,23 +158,22 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": "100/min",  # Rate limit for authenticated users
-        "anon": "50/min",  # Rate limit for unauthenticated (anonymous) users
+        "user": "100/min",
+        "anon": "50/min",
     },
 }
 
-# Redis cache configuration
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis_cache:6379",
-        "OPTIONS": {
-            "DB": 0,
-        },
-    }
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 
 
+# ---------------------------------------------------------
+# DRF Spectacular (Swagger) Settings
+# ---------------------------------------------------------
 SPECTACULAR_SETTINGS = {
     "TITLE": "My API",
     "DESCRIPTION": "This is the API documentation for my project.",
@@ -174,37 +212,15 @@ SPECTACULAR_SETTINGS = {
 }
 
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
-}
-
+# ---------------------------------------------------------
+# Email Settings
+# ---------------------------------------------------------
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "no-reply@example.com"
-
-
-AUTH_USER_MODEL = "authentication.User"
-
-SITE_URL = "http://127.0.0.1:8000"
-
 EMAIL_VERIFICATION_TOKEN_EXPIRY = 1
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {
-            "min_length": 9,
-        },
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
+
+# ---------------------------------------------------------
+# Default primary key field type
+# ---------------------------------------------------------
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
