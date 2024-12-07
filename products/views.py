@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny
 from .models import Media, Product, ProductAttribute, ProductInventory, ProductType
 from .serializers import (
     MediaSerializer,
+    ProductAttributeDetailSerializer,
     ProductAttributeSerializer,
     ProductDetailSerializer,
     ProductInventorySerializer,
@@ -79,4 +80,10 @@ class ProductTypeDetailView(RetrieveAPIView):
 class ProductAttributeListView(ListAPIView):
     queryset = ProductAttribute.objects.all()
     serializer_class = ProductAttributeSerializer
+    permission_classes = [AllowAny]
+
+
+class ProductAttributeDetailView(RetrieveAPIView):
+    queryset = ProductAttribute.objects.all()
+    serializer_class = ProductAttributeDetailSerializer
     permission_classes = [AllowAny]
