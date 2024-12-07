@@ -34,6 +34,10 @@ INSTALLED_APPS = [
     # Internal apps
     "authentication",
     "products",
+    "brands",
+    "categories",
+    "wishlist",
+    "reviews",
 ]
 
 

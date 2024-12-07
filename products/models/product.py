@@ -69,13 +69,13 @@ class Product(models.Model):
         help_text=_("Required"),
     )
     brand = models.ForeignKey(
-        "Brand",
+        "brands.Brand",
         related_name="products",
         on_delete=models.PROTECT,
         verbose_name=_("Brand"),
     )
     category = models.ForeignKey(
-        "Category",
+        "categories.Category",
         on_delete=models.CASCADE,
         related_name="products",
         verbose_name=_("Product Category"),
@@ -98,7 +98,7 @@ class Product(models.Model):
     )
     users_wishlist = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        through="Wishlist",
+        through="wishlist.Wishlist",
         related_name="wishlisted_products",
         blank=True,
         verbose_name=_("Users Wishlist"),
