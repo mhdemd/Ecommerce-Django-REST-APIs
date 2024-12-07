@@ -1,11 +1,12 @@
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
-from .models import Product
-from .serializers import ProductDetailSerializer, ProductSerializer
+from .models import Media, Product
+from .serializers import MediaSerializer, ProductDetailSerializer, ProductSerializer
 
 
 class ProductListView(ListAPIView):
@@ -29,3 +30,14 @@ class ProductDetailView(RetrieveAPIView):
     permission_classes = [AllowAny]
     # By default, RetrieveAPIView uses 'pk' lookup, so {id} will be interpreted as pk.
     # If needed, you can specify lookup_field = 'id'.
+
+
+class ProductMediaListView(ListAPIView):
+    serializer_class = MediaSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        product_id = self.kwargs.get("pk")
+        product = get_object_or_404(Product, pk=product_id, is_active=True)
+        # Return all media objects related to this product
+        return product.media.all().order_by("ordering")

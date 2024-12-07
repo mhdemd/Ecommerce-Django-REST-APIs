@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Product
+from .models import Media, Product
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -42,3 +42,9 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         ]
         # brand and category are included as IDs, but brand_name and category_name
         # provide a human-readable form.
+
+
+class MediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Media
+        fields = ["id", "image", "is_feature", "ordering", "created_at", "updated_at"]
