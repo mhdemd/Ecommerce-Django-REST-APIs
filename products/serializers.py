@@ -10,6 +10,9 @@ from .models import (
 )
 
 
+# ---------------------------------------------------------
+# User Endpoints (Products)
+# ---------------------------------------------------------
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -109,3 +112,8 @@ class ProductAttributeValueDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductAttributeValue
         fields = ["id", "attribute_value", "created_at", "updated_at"]
+
+
+# ---------------------------------------------------------
+# Admin Endpoints (Products)
+# ---------------------------------------------------------

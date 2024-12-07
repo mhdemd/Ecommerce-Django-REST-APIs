@@ -6,7 +6,6 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
 from .models import (
-    Media,
     Product,
     ProductAttribute,
     ProductAttributeValue,
@@ -27,6 +26,9 @@ from .serializers import (
 )
 
 
+# ---------------------------------------------------------
+# User Endpoints (Products)
+# ---------------------------------------------------------
 class ProductListView(ListAPIView):
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
@@ -123,3 +125,8 @@ class ProductAttributeValueDetailView(RetrieveAPIView):
         return get_object_or_404(
             ProductAttributeValue, pk=value_id, product_attribute=attribute
         )
+
+
+# ---------------------------------------------------------
+# Admin Endpoints (Products)
+# ---------------------------------------------------------
