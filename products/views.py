@@ -1,11 +1,11 @@
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
 from .models import Product
-from .serializers import ProductSerializer
+from .serializers import ProductDetailSerializer, ProductSerializer
 
 
 class ProductListView(ListAPIView):
@@ -21,3 +21,11 @@ class ProductListView(ListAPIView):
 
     # Search in name and description
     search_fields = ["name", "description"]
+
+
+class ProductDetailView(RetrieveAPIView):
+    queryset = Product.objects.filter(is_active=True)
+    serializer_class = ProductDetailSerializer
+    permission_classes = [AllowAny]
+    # By default, RetrieveAPIView uses 'pk' lookup, so {id} will be interpreted as pk.
+    # If needed, you can specify lookup_field = 'id'.
