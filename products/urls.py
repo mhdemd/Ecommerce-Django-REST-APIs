@@ -5,6 +5,7 @@ from .views import (
     ProductInventoryListView,
     ProductListView,
     ProductMediaListView,
+    ProductTypeListView,
 )
 
 urlpatterns = [
@@ -16,4 +17,5 @@ urlpatterns = [
         ProductInventoryListView.as_view(),
         name="product-inventory-list",
     ),
+    path("product-types/", ProductTypeListView.as_view(), name="product-type-list"),
 ]

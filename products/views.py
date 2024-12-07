@@ -5,12 +5,13 @@ from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
-from .models import Media, Product, ProductInventory
+from .models import Media, Product, ProductInventory, ProductType
 from .serializers import (
     MediaSerializer,
     ProductDetailSerializer,
     ProductInventorySerializer,
     ProductSerializer,
+    ProductTypeSerializer,
 )
 
 
@@ -56,3 +57,11 @@ class ProductInventoryListView(ListAPIView):
         product_id = self.kwargs.get("pk")
         product = get_object_or_404(Product, pk=product_id, is_active=True)
         return ProductInventory.objects.filter(product=product).order_by("created_at")
+
+
+class ProductTypeListView(ListAPIView):
+    serializer_class = ProductTypeSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return ProductType.objects.all().order_by("name")

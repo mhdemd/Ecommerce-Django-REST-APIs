@@ -19,6 +19,7 @@ class ProductType(models.Model):
     )
 
     class Meta:
+        ordering = ["name"]
         verbose_name = _("Product Type")
         verbose_name_plural = _("Product Types")
 

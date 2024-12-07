@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Media, Product, ProductInventory
+from .models import Media, Product, ProductInventory, ProductType
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -66,3 +66,9 @@ class ProductInventorySerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+
+class ProductTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductType
+        fields = ["id", "name", "slug"]
