@@ -1,6 +1,6 @@
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
@@ -29,6 +29,7 @@ from .serializers import (
 # ---------------------------------------------------------
 # User Endpoints (Products)
 # ---------------------------------------------------------
+@extend_schema(tags=["Product - List"])
 class ProductListView(ListAPIView):
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
@@ -44,6 +45,7 @@ class ProductListView(ListAPIView):
     search_fields = ["name", "description"]
 
 
+@extend_schema(tags=["Product - List"])
 class ProductDetailView(RetrieveAPIView):
     queryset = Product.objects.filter(is_active=True)
     serializer_class = ProductDetailSerializer
@@ -52,6 +54,7 @@ class ProductDetailView(RetrieveAPIView):
     # If needed, you can specify lookup_field = 'id'.
 
 
+@extend_schema(tags=["Product - Media"])
 class ProductMediaListView(ListAPIView):
     serializer_class = MediaSerializer
     permission_classes = [AllowAny]
@@ -63,6 +66,7 @@ class ProductMediaListView(ListAPIView):
         return product.media.all().order_by("ordering")
 
 
+@extend_schema(tags=["Product - Inventory"])
 class ProductInventoryListView(ListAPIView):
     serializer_class = ProductInventorySerializer
     permission_classes = [AllowAny]
@@ -73,6 +77,7 @@ class ProductInventoryListView(ListAPIView):
         return ProductInventory.objects.filter(product=product).order_by("created_at")
 
 
+@extend_schema(tags=["Product - Types"])
 class ProductTypeListView(ListAPIView):
     serializer_class = ProductTypeSerializer
     permission_classes = [AllowAny]
@@ -81,6 +86,7 @@ class ProductTypeListView(ListAPIView):
         return ProductType.objects.all().order_by("name")
 
 
+@extend_schema(tags=["Product - Types"])
 class ProductTypeDetailView(RetrieveAPIView):
     queryset = ProductType.objects.all()
     serializer_class = ProductTypeDetailSerializer
@@ -88,18 +94,21 @@ class ProductTypeDetailView(RetrieveAPIView):
     # By default, RetrieveAPIView uses "pk" as lookup_field, so {id} in the URL maps to the product type's primary key.
 
 
+@extend_schema(tags=["Product - Attributes"])
 class ProductAttributeListView(ListAPIView):
     queryset = ProductAttribute.objects.all()
     serializer_class = ProductAttributeSerializer
     permission_classes = [AllowAny]
 
 
+@extend_schema(tags=["Product - Attributes"])
 class ProductAttributeDetailView(RetrieveAPIView):
     queryset = ProductAttribute.objects.all()
     serializer_class = ProductAttributeDetailSerializer
     permission_classes = [AllowAny]
 
 
+@extend_schema(tags=["Product - Attributes"])
 class ProductAttributeValueListView(ListAPIView):
     serializer_class = ProductAttributeValueSerializer
     permission_classes = [AllowAny]
@@ -112,6 +121,7 @@ class ProductAttributeValueListView(ListAPIView):
         ).order_by("id")
 
 
+@extend_schema(tags=["Product - Attributes"])
 class ProductAttributeValueDetailView(RetrieveAPIView):
     serializer_class = ProductAttributeValueDetailSerializer
     permission_classes = [AllowAny]

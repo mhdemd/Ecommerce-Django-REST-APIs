@@ -162,8 +162,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": "10/min",
-        "anon": "5/min",
+        "user": "100/min",
+        "anon": "50/min",
     },
     # Filtering
     "DEFAULT_FILTER_BACKENDS": [
@@ -192,6 +192,7 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "TAGS": [
+        # Authentication Group
         {
             "name": "Auth - Registration",
             "description": "Endpoints related to user registration and email verification.",
@@ -220,9 +221,29 @@ SPECTACULAR_SETTINGS = {
             "name": "Auth - Session",
             "description": "Endpoints for managing user sessions, including session listing, deletion, and logout of all sessions.",
         },
+        # Products Group
+        {
+            "name": "Product - List",
+            "description": "Endpoints for listing products and retrieving product details.",
+        },
+        {
+            "name": "Product - Media",
+            "description": "Endpoints for managing product media, such as images and videos.",
+        },
+        {
+            "name": "Product - Inventory",
+            "description": "Endpoints for managing product inventory information.",
+        },
+        {
+            "name": "Product - Types",
+            "description": "Endpoints for managing product types and their details.",
+        },
+        {
+            "name": "Product - Attributes",
+            "description": "Endpoints for managing product attributes and their values.",
+        },
     ],
 }
-
 
 # ---------------------------------------------------------
 # Email Settings

@@ -783,6 +783,286 @@ paths:
               schema:
                 $ref: '#/components/schemas/VerifyOTP'
           description: ''
+  /products/{id}/:
+    get:
+      operationId: products_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Product - List
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetail'
+          description: ''
+  /products/{id}/inventory/:
+    get:
+      operationId: products_inventory_list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Product - Inventory
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductInventoryList'
+          description: ''
+  /products/{id}/media/:
+    get:
+      operationId: products_media_list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Product - Media
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMediaList'
+          description: ''
+  /products/attributes/:
+    get:
+      operationId: products_attributes_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Product - Attributes
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductAttributeList'
+          description: ''
+  /products/attributes/{attribute_id}/values/:
+    get:
+      operationId: products_attributes_values_list
+      parameters:
+      - in: path
+        name: attribute_id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Product - Attributes
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductAttributeValueList'
+          description: ''
+  /products/attributes/{attribute_id}/values/{value_id}/:
+    get:
+      operationId: products_attributes_values_retrieve
+      parameters:
+      - in: path
+        name: attribute_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: value_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Product - Attributes
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductAttributeValueDetail'
+          description: ''
+  /products/attributes/{id}/:
+    get:
+      operationId: products_attributes_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Product - Attributes
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductAttributeDetail'
+          description: ''
+  /products/product-types/:
+    get:
+      operationId: products_product_types_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Product - Types
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductTypeList'
+          description: ''
+  /products/product-types/{id}/:
+    get:
+      operationId: products_product_types_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Product - Types
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductTypeDetail'
+          description: ''
+  /products/products/:
+    get:
+      operationId: products_products_list
+      parameters:
+      - in: query
+        name: brand
+        schema:
+          type: integer
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Product - List
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductList'
+          description: ''
 components:
   schemas:
     ChangePassword:
@@ -859,6 +1139,43 @@ components:
           description: The refresh token to be blacklisted.
       required:
       - refresh
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          title: Product Image
+          description: 'Required, default: ''default.png'''
+        is_feature:
+          type: boolean
+          title: Product Default Image
+          description: 'Default: False, True = Default Image'
+        ordering:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Image Ordering
+          description: Define the order of images
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Image Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Image Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - created_at
+      - id
+      - updated_at
     MethodEnum:
       enum:
       - email
@@ -867,6 +1184,144 @@ components:
       description: |-
         * `email` - email
         * `sms` - sms
+    PaginatedMediaList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+    PaginatedProductAttributeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAttribute'
+    PaginatedProductAttributeValueList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAttributeValue'
+    PaginatedProductInventoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductInventory'
+    PaginatedProductList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    PaginatedProductTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductType'
     PatchedUpdateProfile:
       type: object
       properties:
@@ -881,6 +1336,339 @@ components:
         last_name:
           type: string
           maxLength: 150
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        web_id:
+          type: string
+          title: Product Website ID
+          description: Required, unique
+          maxLength: 50
+        slug:
+          type: string
+          title: Product Safe URL
+          description: Required, letters, numbers, underscores, or hyphens
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          title: Product Name
+          description: Required, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          title: Product Description
+          description: Required
+        brand:
+          type: integer
+        category:
+          type: integer
+          title: Product Category
+          description: Required
+        is_active:
+          type: boolean
+          title: Product Visibility
+          description: True = Product Visible
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Last Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - brand
+      - category
+      - created_at
+      - description
+      - id
+      - name
+      - slug
+      - updated_at
+      - web_id
+    ProductAttribute:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Product Attribute Name
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          title: Product Attribute Description
+          description: Optional
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - updated_at
+    ProductAttributeDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Product Attribute Name
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          title: Product Attribute Description
+          description: Optional
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - updated_at
+    ProductAttributeValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        attribute_value:
+          type: string
+          description: Required, max 255 characters
+          maxLength: 255
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attribute_value
+      - created_at
+      - id
+      - updated_at
+    ProductAttributeValueDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        attribute_value:
+          type: string
+          description: Required, max 255 characters
+          maxLength: 255
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attribute_value
+      - created_at
+      - id
+      - updated_at
+    ProductDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        web_id:
+          type: string
+          title: Product Website ID
+          description: Required, unique
+          maxLength: 50
+        slug:
+          type: string
+          title: Product Safe URL
+          description: Required, letters, numbers, underscores, or hyphens
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          title: Product Name
+          description: Required, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          title: Product Description
+          description: Required
+        brand:
+          type: integer
+        brand_name:
+          type: string
+          readOnly: true
+        category:
+          type: integer
+          title: Product Category
+          description: Required
+        category_name:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+          title: Product Visibility
+          description: True = Product Visible
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Last Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - brand
+      - brand_name
+      - category
+      - category_name
+      - created_at
+      - description
+      - id
+      - name
+      - slug
+      - updated_at
+      - web_id
+    ProductInventory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        sku:
+          type: string
+          title: Stock Keeping Unit (SKU)
+          description: Required, unique, max 20 characters
+          maxLength: 20
+        upc:
+          type: string
+          title: Universal Product Code (UPC)
+          description: Required, unique, max 12 characters
+          maxLength: 12
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        retail_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        store_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        sale_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        is_active:
+          type: boolean
+          title: Product Visibility
+          description: True = Product Visible
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Sub-Product Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Sub-Product Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - created_at
+      - id
+      - retail_price
+      - sku
+      - stock
+      - store_price
+      - upc
+      - updated_at
+      - weight
+    ProductType:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Type of Product
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        slug:
+          type: string
+          title: Product Type Slug
+          description: Unique URL identifier for product type.
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+      - slug
+    ProductTypeDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Type of Product
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        slug:
+          type: string
+          title: Product Type Slug
+          description: Unique URL identifier for product type.
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+      - slug
     Register:
       type: object
       properties:
@@ -1015,3 +1803,13 @@ tags:
 - name: Auth - Session
   description: Endpoints for managing user sessions, including session listing, deletion,
     and logout of all sessions.
+- name: Product - List
+  description: Endpoints for listing products and retrieving product details.
+- name: Product - Media
+  description: Endpoints for managing product media, such as images and videos.
+- name: Product - Inventory
+  description: Endpoints for managing product inventory information.
+- name: Product - Types
+  description: Endpoints for managing product types and their details.
+- name: Product - Attributes
+  description: Endpoints for managing product attributes and their values.
