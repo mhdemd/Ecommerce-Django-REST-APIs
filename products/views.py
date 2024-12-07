@@ -5,11 +5,19 @@ from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
-from .models import Media, Product, ProductAttribute, ProductInventory, ProductType
+from .models import (
+    Media,
+    Product,
+    ProductAttribute,
+    ProductAttributeValue,
+    ProductInventory,
+    ProductType,
+)
 from .serializers import (
     MediaSerializer,
     ProductAttributeDetailSerializer,
     ProductAttributeSerializer,
+    ProductAttributeValueSerializer,
     ProductDetailSerializer,
     ProductInventorySerializer,
     ProductSerializer,
@@ -87,3 +95,15 @@ class ProductAttributeDetailView(RetrieveAPIView):
     queryset = ProductAttribute.objects.all()
     serializer_class = ProductAttributeDetailSerializer
     permission_classes = [AllowAny]
+
+
+class ProductAttributeValueListView(ListAPIView):
+    serializer_class = ProductAttributeValueSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        attribute_id = self.kwargs.get("attribute_id")
+        attribute = get_object_or_404(ProductAttribute, pk=attribute_id)
+        return ProductAttributeValue.objects.filter(
+            product_attribute=attribute
+        ).order_by("id")

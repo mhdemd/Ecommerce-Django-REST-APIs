@@ -1,12 +1,9 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 
 from products.models import ProductAttribute
 
 
-@override_settings(
-    REST_FRAMEWORK={"DEFAULT_THROTTLE_CLASSES": [], "DEFAULT_THROTTLE_RATES": {}}
-)
 class ProductAttributeDetailViewTest(TestCase):
     def setUp(self):
         self.attr1 = ProductAttribute.objects.create(
