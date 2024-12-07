@@ -1,12 +1,19 @@
+import os
+import shutil
+
+from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from brands.models import Brand
 from categories.models import Category
 from products.models import Media, Product
 
+TEST_MEDIA_ROOT = os.path.join(settings.BASE_DIR, "test_media")
 
+
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
 class ProductMediaListViewTest(TestCase):
     def setUp(self):
         self.category = Category.objects.create(name="Category 1", slug="category-1")
@@ -32,6 +39,7 @@ class ProductMediaListViewTest(TestCase):
             is_active=False,
         )
 
+        # Create some media for the active product
         self.image_file = SimpleUploadedFile(
             "test_image.jpg", b"file_content", content_type="image/jpeg"
         )
@@ -57,6 +65,11 @@ class ProductMediaListViewTest(TestCase):
         self.url_non_existent_product = reverse(
             "product-media-list", kwargs={"pk": 9999}
         )
+
+    def tearDown(self):
+        # Remove all files and folders in the test media directory after each test
+        if os.path.exists(TEST_MEDIA_ROOT):
+            shutil.rmtree(TEST_MEDIA_ROOT)
 
     def test_get_media_for_active_product(self):
         response = self.client.get(self.url_active_product)
