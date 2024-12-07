@@ -11,6 +11,7 @@ from .serializers import (
     ProductDetailSerializer,
     ProductInventorySerializer,
     ProductSerializer,
+    ProductTypeDetailSerializer,
     ProductTypeSerializer,
 )
 
@@ -65,3 +66,10 @@ class ProductTypeListView(ListAPIView):
 
     def get_queryset(self):
         return ProductType.objects.all().order_by("name")
+
+
+class ProductTypeDetailView(RetrieveAPIView):
+    queryset = ProductType.objects.all()
+    serializer_class = ProductTypeDetailSerializer
+    permission_classes = [AllowAny]
+    # By default, RetrieveAPIView uses "pk" as lookup_field, so {id} in the URL maps to the product type's primary key.
