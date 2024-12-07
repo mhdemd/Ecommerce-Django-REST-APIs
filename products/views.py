@@ -5,9 +5,10 @@ from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
-from .models import Media, Product, ProductInventory, ProductType
+from .models import Media, Product, ProductAttribute, ProductInventory, ProductType
 from .serializers import (
     MediaSerializer,
+    ProductAttributeSerializer,
     ProductDetailSerializer,
     ProductInventorySerializer,
     ProductSerializer,
@@ -73,3 +74,9 @@ class ProductTypeDetailView(RetrieveAPIView):
     serializer_class = ProductTypeDetailSerializer
     permission_classes = [AllowAny]
     # By default, RetrieveAPIView uses "pk" as lookup_field, so {id} in the URL maps to the product type's primary key.
+
+
+class ProductAttributeListView(ListAPIView):
+    queryset = ProductAttribute.objects.all()
+    serializer_class = ProductAttributeSerializer
+    permission_classes = [AllowAny]

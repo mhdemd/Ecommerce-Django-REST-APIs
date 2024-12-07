@@ -47,6 +47,7 @@ class ProductAttribute(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        ordering = ["name"]
         verbose_name = _("Product Attribute")
         verbose_name_plural = _("Product Attributes")
 
