@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -35,44 +37,32 @@ class ProductInventory(models.Model):
         related_name="product_inventories",
         blank=True,
     )
-    stock = models.IntegerField(
-        default=0,
-        validators=[MinValueValidator(0)],
-    )
+    stock = models.IntegerField(validators=[MinValueValidator(0)])
     is_active = models.BooleanField(
         verbose_name=_("Product Visibility"),
         help_text=_("True = Product Visible"),
         default=True,
     )
     retail_price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name=_("Recommended Retail Price"),
-        help_text=_("Maximum price 99,999,999.99"),
-        validators=[MinValueValidator(0)],
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0"))]
     )
+
     store_price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name=_("Regular Store Price"),
-        help_text=_("Maximum price 99,999,999.99"),
-        validators=[MinValueValidator(0)],
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0"))]
     )
+
     sale_price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        verbose_name=_("Sale Price"),
-        help_text=_("Maximum price 99,999,999.99"),
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(Decimal("0"))],
         null=True,
         blank=True,
     )
+
     weight = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name=_("Product Weight"),
-        validators=[MinValueValidator(0)],
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0"))]
     )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name=_("Date Sub-Product Created"),
