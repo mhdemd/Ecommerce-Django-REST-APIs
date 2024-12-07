@@ -103,3 +103,9 @@ class ProductAttributeValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductAttributeValue
         fields = ["id", "attribute_value", "created_at", "updated_at"]
+
+
+class ProductAttributeValueDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductAttributeValue
+        fields = ["id", "attribute_value", "created_at", "updated_at"]
