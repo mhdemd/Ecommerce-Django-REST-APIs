@@ -17,6 +17,7 @@ from .serializers import (
     MediaSerializer,
     ProductAttributeDetailSerializer,
     ProductAttributeSerializer,
+    ProductAttributeValueDetailSerializer,
     ProductAttributeValueSerializer,
     ProductDetailSerializer,
     ProductInventorySerializer,
@@ -107,3 +108,18 @@ class ProductAttributeValueListView(ListAPIView):
         return ProductAttributeValue.objects.filter(
             product_attribute=attribute
         ).order_by("id")
+
+
+class ProductAttributeValueDetailView(RetrieveAPIView):
+    serializer_class = ProductAttributeValueDetailSerializer
+    permission_classes = [AllowAny]
+
+    def get_object(self):
+        attribute_id = self.kwargs.get("attribute_id")
+        value_id = self.kwargs.get("value_id")
+        # Ensure the attribute exists
+        attribute = get_object_or_404(ProductAttribute, pk=attribute_id)
+        # Then ensure the value belongs to this attribute
+        return get_object_or_404(
+            ProductAttributeValue, pk=value_id, product_attribute=attribute
+        )

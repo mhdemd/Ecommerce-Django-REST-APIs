@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     ProductAttributeDetailView,
     ProductAttributeListView,
+    ProductAttributeValueDetailView,
     ProductAttributeValueListView,
     ProductDetailView,
     ProductInventoryListView,
@@ -39,5 +40,10 @@ urlpatterns = [
         "attributes/<int:attribute_id>/values/",
         ProductAttributeValueListView.as_view(),
         name="product-attribute-value-list",
+    ),
+    path(
+        "attributes/<int:attribute_id>/values/<int:value_id>/",
+        ProductAttributeValueDetailView.as_view(),
+        name="product-attribute-value-detail",
     ),
 ]
