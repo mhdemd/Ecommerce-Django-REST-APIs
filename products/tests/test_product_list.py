@@ -46,10 +46,10 @@ class ProductListViewTest(TestCase):
     def test_get_product_list_without_filters(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        # چون پجینیشن فعال است، پاسخ یک دیکشنری خواهد بود
+        # Since pagination is active, the response will be a dictionary
         data = response.json()
         self.assertIn("results", data)
-        self.assertEqual(len(data["results"]), 3)  # همه محصولات برگردانده می‌شوند
+        self.assertEqual(len(data["results"]), 3)  # All products should be returned
 
     def test_get_product_list_with_search(self):
         response = self.client.get(self.url, {"search": "first"})
@@ -59,11 +59,11 @@ class ProductListViewTest(TestCase):
         self.assertEqual(data["results"][0]["name"], "Product One")
 
     def test_get_product_list_with_filter_brand(self):
-        # فقط محصولاتی که brand=brand1 دارند
+        # Filter by brand=brand1
         response = self.client.get(self.url, {"brand": self.brand1.id})
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        # انتظار می‌رود product1, product2 برگردند
+        # product1 and product2 should be returned
         self.assertEqual(len(data["results"]), 2)
         names = [p["name"] for p in data["results"]]
         self.assertIn("Product One", names)
@@ -71,11 +71,11 @@ class ProductListViewTest(TestCase):
         self.assertNotIn("Product Three", names)
 
     def test_get_product_list_with_filter_category(self):
-        # فقط محصولاتی که category=category1 دارند
+        # Filter by category=category1
         response = self.client.get(self.url, {"category": self.category1.id})
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        # انتظار می‌رود product1 و product3 برگردند
+        # product1 and product3 should be returned
         self.assertEqual(len(data["results"]), 2)
         names = [p["name"] for p in data["results"]]
         self.assertIn("Product One", names)
@@ -83,21 +83,17 @@ class ProductListViewTest(TestCase):
         self.assertNotIn("Product Two", names)
 
     def test_product_list_pagination(self):
-        # پیشفرض 10 تا در هر صفحه. ما سه محصول داریم پس همه تو صفحه 1 هستند
+        # By default PAGE_SIZE=10, we have only 3 products, so all are on page 1
         response = self.client.get(self.url, {"page": 1})
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data["results"]), 3)
 
-        # اگر 2 تا در هر صفحه می‌خواهیم، باید PAGE_SIZE را در تنظیمات کم کنیم
-        # یا از پارامترهای پجینیشن سفارشی استفاده کنیم.
-        # فرض کنیم PAGE_SIZE=2 باشد، آنگاه:
-        # با تنظیمات کنونی (در پاسخ اصلی PAGE_SIZE=10 است) این تست معنی ندارد
-        # ولی اگر PAGE_SIZE را روی 2 بگذارید، تست زیر باید 2 محصول در page=1 بدهد
-        # و 1 محصول در page=2
-        #
-        # این قسمت تست صرفاً برای نمایش است. اگر PAGE_SIZE=10 است تغییری نیاز نیست.
+        # If we want 2 per page, we need to adjust PAGE_SIZE in settings or use custom pagination parameters.
+        # Assuming PAGE_SIZE=2, then:
+        # With the current setup (PAGE_SIZE=10), this test is not meaningful.
+        # If PAGE_SIZE were 2:
         #
         # response = self.client.get(self.url, {"page": 2})
         # data = response.json()
-        # self.assertEqual(len(data['results']), 1)  # محصول سوم در صفحه دوم
+        # self.assertEqual(len(data["results"]), 1)  # The third product would be on the second page.
