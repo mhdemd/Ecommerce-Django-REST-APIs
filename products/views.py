@@ -1,4 +1,6 @@
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny
 
@@ -9,12 +11,13 @@ from .serializers import ProductSerializer
 class ProductListView(ListAPIView):
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
+    queryset = Product.objects.filter(is_active=True)
 
-    def get_queryset(self):
-        queryset = Product.objects.filter(is_active=True)
-        search_query = self.request.query_params.get("search")
-        if search_query:
-            queryset = queryset.filter(
-                Q(name__icontains=search_query) | Q(description__icontains=search_query)
-            )
-        return queryset
+    # Filter based on model fields:
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+
+    # Filter by brand and category
+    filterset_fields = ["brand", "category"]
+
+    # Search in name and description
+    search_fields = ["name", "description"]
