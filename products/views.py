@@ -2,7 +2,12 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    ListCreateAPIView,
+    RetrieveAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import AllowAny, IsAdminUser
 
 from products.models import Product
@@ -15,6 +20,7 @@ from .models import (
     ProductType,
 )
 from .serializers import (
+    AdminProductDetailSerializer,
     AdminProductSerializer,
     MediaSerializer,
     ProductAttributeDetailSerializer,
@@ -146,4 +152,10 @@ class ProductAttributeValueDetailView(RetrieveAPIView):
 class AdminProductListCreateView(ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = AdminProductSerializer
+    permission_classes = [IsAdminUser]
+
+
+class AdminProductDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = AdminProductDetailSerializer
     permission_classes = [IsAdminUser]
