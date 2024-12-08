@@ -870,6 +870,1060 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedMediaList'
           description: ''
+  /products/admin/attributes/:
+    get:
+      operationId: products_admin_attributes_list
+      summary: List or create product attributes
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Admin - Product Attributes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminProductAttributeList'
+          description: ''
+    post:
+      operationId: products_admin_attributes_create
+      summary: List or create product attributes
+      tags:
+      - Admin - Product Attributes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttribute'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttribute'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttribute'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductAttribute'
+          description: ''
+  /products/admin/attributes/{attribute_id}/values/:
+    get:
+      operationId: products_admin_attributes_values_list
+      summary: List or create attribute values for a specific product attribute
+      parameters:
+      - in: path
+        name: attribute_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: attribute_id
+        schema:
+          type: integer
+        description: ID of the product attribute
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Admin - Product Attributes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminProductAttributeValueList'
+          description: ''
+    post:
+      operationId: products_admin_attributes_values_create
+      summary: List or create attribute values for a specific product attribute
+      parameters:
+      - in: path
+        name: attribute_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: attribute_id
+        schema:
+          type: integer
+        description: ID of the product attribute
+        required: true
+      tags:
+      - Admin - Product Attributes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttributeValue'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttributeValue'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttributeValue'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductAttributeValue'
+          description: ''
+  /products/admin/attributes/{attribute_id}/values/{id}/:
+    get:
+      operationId: products_admin_attributes_values_retrieve
+      summary: View, update, or delete a specific attribute value
+      parameters:
+      - in: path
+        name: attribute_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: attribute_id
+        schema:
+          type: integer
+        description: ID of the product attribute
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: pk
+        schema:
+          type: integer
+        description: ID of the product attribute value
+        required: true
+      tags:
+      - Admin - Product Attributes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductAttributeValueDetail'
+          description: ''
+    put:
+      operationId: products_admin_attributes_values_update
+      summary: View, update, or delete a specific attribute value
+      parameters:
+      - in: path
+        name: attribute_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: attribute_id
+        schema:
+          type: integer
+        description: ID of the product attribute
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: pk
+        schema:
+          type: integer
+        description: ID of the product attribute value
+        required: true
+      tags:
+      - Admin - Product Attributes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttributeValueDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttributeValueDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttributeValueDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductAttributeValueDetail'
+          description: ''
+    patch:
+      operationId: products_admin_attributes_values_partial_update
+      summary: View, update, or delete a specific attribute value
+      parameters:
+      - in: path
+        name: attribute_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: attribute_id
+        schema:
+          type: integer
+        description: ID of the product attribute
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: pk
+        schema:
+          type: integer
+        description: ID of the product attribute value
+        required: true
+      tags:
+      - Admin - Product Attributes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductAttributeValueDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductAttributeValueDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductAttributeValueDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductAttributeValueDetail'
+          description: ''
+    delete:
+      operationId: products_admin_attributes_values_destroy
+      summary: View, update, or delete a specific attribute value
+      parameters:
+      - in: path
+        name: attribute_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: attribute_id
+        schema:
+          type: integer
+        description: ID of the product attribute
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: pk
+        schema:
+          type: integer
+        description: ID of the product attribute value
+        required: true
+      tags:
+      - Admin - Product Attributes
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /products/admin/attributes/{id}/:
+    get:
+      operationId: products_admin_attributes_retrieve
+      summary: View, update, or delete a product attribute
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Attributes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductAttributeDetail'
+          description: ''
+    put:
+      operationId: products_admin_attributes_update
+      summary: View, update, or delete a product attribute
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Attributes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttributeDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttributeDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductAttributeDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductAttributeDetail'
+          description: ''
+    patch:
+      operationId: products_admin_attributes_partial_update
+      summary: View, update, or delete a product attribute
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Attributes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductAttributeDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductAttributeDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductAttributeDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductAttributeDetail'
+          description: ''
+    delete:
+      operationId: products_admin_attributes_destroy
+      summary: View, update, or delete a product attribute
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Attributes
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /products/admin/inventories/:
+    get:
+      operationId: products_admin_inventories_list
+      summary: List or create product inventories
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Admin - Product Inventory
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminProductInventoryList'
+          description: ''
+    post:
+      operationId: products_admin_inventories_create
+      summary: List or create product inventories
+      tags:
+      - Admin - Product Inventory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductInventory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductInventory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductInventory'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductInventory'
+          description: ''
+  /products/admin/inventories/{sku}/:
+    get:
+      operationId: products_admin_inventories_retrieve
+      summary: View, update, or delete a specific product inventory
+      parameters:
+      - in: path
+        name: sku
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin - Product Inventory
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductInventoryDetail'
+          description: ''
+    put:
+      operationId: products_admin_inventories_update
+      summary: View, update, or delete a specific product inventory
+      parameters:
+      - in: path
+        name: sku
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin - Product Inventory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductInventoryDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductInventoryDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductInventoryDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductInventoryDetail'
+          description: ''
+    patch:
+      operationId: products_admin_inventories_partial_update
+      summary: View, update, or delete a specific product inventory
+      parameters:
+      - in: path
+        name: sku
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin - Product Inventory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductInventoryDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductInventoryDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductInventoryDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductInventoryDetail'
+          description: ''
+    delete:
+      operationId: products_admin_inventories_destroy
+      summary: View, update, or delete a specific product inventory
+      parameters:
+      - in: path
+        name: sku
+        schema:
+          type: string
+        required: true
+      tags:
+      - Admin - Product Inventory
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /products/admin/product-types/:
+    get:
+      operationId: products_admin_product_types_list
+      summary: List or create product types
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Admin - Product Types
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminProductTypeList'
+          description: ''
+    post:
+      operationId: products_admin_product_types_create
+      summary: List or create product types
+      tags:
+      - Admin - Product Types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductType'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductType'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductType'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductType'
+          description: ''
+  /products/admin/product-types/{id}/:
+    get:
+      operationId: products_admin_product_types_retrieve
+      summary: View, update, or delete a product type
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Types
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductTypeDetail'
+          description: ''
+    put:
+      operationId: products_admin_product_types_update
+      summary: View, update, or delete a product type
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductTypeDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductTypeDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductTypeDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductTypeDetail'
+          description: ''
+    patch:
+      operationId: products_admin_product_types_partial_update
+      summary: View, update, or delete a product type
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductTypeDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductTypeDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductTypeDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductTypeDetail'
+          description: ''
+    delete:
+      operationId: products_admin_product_types_destroy
+      summary: View, update, or delete a product type
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Types
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /products/admin/products/:
+    get:
+      operationId: products_admin_products_list
+      summary: List or create products
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number for pagination
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search products by name
+      tags:
+      - Admin - Product
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminProductList'
+          description: ''
+    post:
+      operationId: products_admin_products_create
+      summary: List or create products
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Page number for pagination
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search products by name
+      tags:
+      - Admin - Product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProduct'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProduct'
+          description: ''
+  /products/admin/products/{id}/media/:
+    get:
+      operationId: products_admin_products_media_list
+      summary: List or create product media
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Admin - Product Media
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminProductMediaList'
+          description: ''
+    post:
+      operationId: products_admin_products_media_create
+      summary: List or create product media
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Media
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductMedia'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductMedia'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductMedia'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductMedia'
+          description: ''
+  /products/admin/products/{id}/:
+    get:
+      operationId: products_admin_products_retrieve
+      summary: View, update, or delete a specific product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductDetail'
+          description: ''
+    put:
+      operationId: products_admin_products_update
+      summary: View, update, or delete a specific product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductDetail'
+          description: ''
+    patch:
+      operationId: products_admin_products_partial_update
+      summary: View, update, or delete a specific product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductDetail'
+          description: ''
+    delete:
+      operationId: products_admin_products_destroy
+      summary: View, update, or delete a specific product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /products/admin/products/{product_id}/media/{id}/:
+    get:
+      operationId: products_admin_products_media_retrieve
+      summary: View, update, or delete a specific product media
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: product_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Media
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductMediaDetail'
+          description: ''
+    put:
+      operationId: products_admin_products_media_update
+      summary: View, update, or delete a specific product media
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: product_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Media
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProductMediaDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdminProductMediaDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdminProductMediaDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductMediaDetail'
+          description: ''
+    patch:
+      operationId: products_admin_products_media_partial_update
+      summary: View, update, or delete a specific product media
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: product_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Media
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductMediaDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductMediaDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdminProductMediaDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminProductMediaDetail'
+          description: ''
+    delete:
+      operationId: products_admin_products_media_destroy
+      summary: View, update, or delete a specific product media
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: product_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Product Media
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
   /products/attributes/:
     get:
       operationId: products_attributes_list
@@ -1065,6 +2119,489 @@ paths:
           description: ''
 components:
   schemas:
+    AdminProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        web_id:
+          type: string
+          title: Product Website ID
+          description: Required, unique
+          maxLength: 50
+        slug:
+          type: string
+          title: Product Safe URL
+          description: Required, letters, numbers, underscores, or hyphens
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          title: Product Name
+          description: Required, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          title: Product Description
+          description: Required
+        brand:
+          type: integer
+        category:
+          type: integer
+          title: Product Category
+          description: Required
+        is_active:
+          type: boolean
+          title: Product Visibility
+          description: True = Product Visible
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Last Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - brand
+      - category
+      - created_at
+      - description
+      - id
+      - name
+      - slug
+      - updated_at
+      - web_id
+    AdminProductAttribute:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Product Attribute Name
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          title: Product Attribute Description
+          description: Optional
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - updated_at
+    AdminProductAttributeDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Product Attribute Name
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          title: Product Attribute Description
+          description: Optional
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - updated_at
+    AdminProductAttributeValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        attribute_value:
+          type: string
+          description: Required, max 255 characters
+          maxLength: 255
+      required:
+      - attribute_value
+      - id
+    AdminProductAttributeValueDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        attribute_value:
+          type: string
+          description: Required, max 255 characters
+          maxLength: 255
+        product_attribute:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attribute_value
+      - created_at
+      - id
+      - product_attribute
+      - updated_at
+    AdminProductDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        web_id:
+          type: string
+          title: Product Website ID
+          description: Required, unique
+          maxLength: 50
+        slug:
+          type: string
+          title: Product Safe URL
+          description: Required, letters, numbers, underscores, or hyphens
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          title: Product Name
+          description: Required, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          title: Product Description
+          description: Required
+        brand:
+          type: integer
+        category:
+          type: integer
+          title: Product Category
+          description: Required
+        is_active:
+          type: boolean
+          title: Product Visibility
+          description: True = Product Visible
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Last Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - brand
+      - category
+      - created_at
+      - description
+      - id
+      - name
+      - slug
+      - updated_at
+      - web_id
+    AdminProductInventory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        sku:
+          type: string
+          title: Stock Keeping Unit (SKU)
+          description: Required, unique, max 20 characters
+          maxLength: 20
+        upc:
+          type: string
+          title: Universal Product Code (UPC)
+          description: Required, unique, max 12 characters
+          maxLength: 12
+        product:
+          type: integer
+        product_type:
+          type: integer
+        attribute_values:
+          type: array
+          items:
+            type: integer
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        is_active:
+          type: boolean
+          title: Product Visibility
+          description: True = Product Visible
+        retail_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        store_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        sale_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Sub-Product Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Sub-Product Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - created_at
+      - id
+      - product
+      - product_type
+      - retail_price
+      - sku
+      - stock
+      - store_price
+      - upc
+      - updated_at
+      - weight
+    AdminProductInventoryDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        sku:
+          type: string
+          title: Stock Keeping Unit (SKU)
+          description: Required, unique, max 20 characters
+          maxLength: 20
+        upc:
+          type: string
+          title: Universal Product Code (UPC)
+          description: Required, unique, max 12 characters
+          maxLength: 12
+        product:
+          type: integer
+        product_type:
+          type: integer
+        attribute_values:
+          type: array
+          items:
+            type: integer
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        is_active:
+          type: boolean
+          title: Product Visibility
+          description: True = Product Visible
+        retail_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        store_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        sale_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Sub-Product Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Sub-Product Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - created_at
+      - id
+      - product
+      - product_type
+      - retail_price
+      - sku
+      - stock
+      - store_price
+      - upc
+      - updated_at
+      - weight
+    AdminProductMedia:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+        image:
+          type: string
+          format: uri
+          title: Product Image
+          description: 'Required, default: ''default.png'''
+        is_feature:
+          type: boolean
+          title: Product Default Image
+          description: 'Default: False, True = Default Image'
+        ordering:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Image Ordering
+          description: Define the order of images
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Image Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Image Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - created_at
+      - id
+      - product
+      - updated_at
+    AdminProductMediaDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          title: Product Image
+          description: 'Required, default: ''default.png'''
+        is_feature:
+          type: boolean
+          title: Product Default Image
+          description: 'Default: False, True = Default Image'
+        ordering:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Image Ordering
+          description: Define the order of images
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Image Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Image Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - created_at
+      - id
+      - product
+      - updated_at
+    AdminProductType:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Type of Product
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        slug:
+          type: string
+          title: Product Type Slug
+          description: Unique URL identifier for product type.
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+      - slug
+    AdminProductTypeDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Type of Product
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        slug:
+          type: string
+          title: Product Type Slug
+          description: Unique URL identifier for product type.
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - id
+      - name
+      - slug
     ChangePassword:
       type: object
       properties:
@@ -1184,6 +2721,144 @@ components:
       description: |-
         * `email` - email
         * `sms` - sms
+    PaginatedAdminProductAttributeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductAttribute'
+    PaginatedAdminProductAttributeValueList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductAttributeValue'
+    PaginatedAdminProductInventoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductInventory'
+    PaginatedAdminProductList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProduct'
+    PaginatedAdminProductMediaList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductMedia'
+    PaginatedAdminProductTypeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminProductType'
     PaginatedMediaList:
       type: object
       required:
@@ -1322,6 +2997,213 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductType'
+    PatchedAdminProductAttributeDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Product Attribute Name
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          title: Product Attribute Description
+          description: Optional
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedAdminProductAttributeValueDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        attribute_value:
+          type: string
+          description: Required, max 255 characters
+          maxLength: 255
+        product_attribute:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedAdminProductDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        web_id:
+          type: string
+          title: Product Website ID
+          description: Required, unique
+          maxLength: 50
+        slug:
+          type: string
+          title: Product Safe URL
+          description: Required, letters, numbers, underscores, or hyphens
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          title: Product Name
+          description: Required, max 255 characters
+          maxLength: 255
+        description:
+          type: string
+          title: Product Description
+          description: Required
+        brand:
+          type: integer
+        category:
+          type: integer
+          title: Product Category
+          description: Required
+        is_active:
+          type: boolean
+          title: Product Visibility
+          description: True = Product Visible
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Product Last Updated
+          description: 'Format: Y-m-d H:M:S'
+    PatchedAdminProductInventoryDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        sku:
+          type: string
+          title: Stock Keeping Unit (SKU)
+          description: Required, unique, max 20 characters
+          maxLength: 20
+        upc:
+          type: string
+          title: Universal Product Code (UPC)
+          description: Required, unique, max 12 characters
+          maxLength: 12
+        product:
+          type: integer
+        product_type:
+          type: integer
+        attribute_values:
+          type: array
+          items:
+            type: integer
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        is_active:
+          type: boolean
+          title: Product Visibility
+          description: True = Product Visible
+        retail_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        store_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        sale_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+        weight:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Sub-Product Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Sub-Product Updated
+          description: 'Format: Y-m-d H:M:S'
+    PatchedAdminProductMediaDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          title: Product Image
+          description: 'Required, default: ''default.png'''
+        is_feature:
+          type: boolean
+          title: Product Default Image
+          description: 'Default: False, True = Default Image'
+        ordering:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Image Ordering
+          description: Define the order of images
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Image Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Image Updated
+          description: 'Format: Y-m-d H:M:S'
+    PatchedAdminProductTypeDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Type of Product
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        slug:
+          type: string
+          title: Product Type Slug
+          description: Unique URL identifier for product type.
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
     PatchedUpdateProfile:
       type: object
       properties:
@@ -1813,3 +3695,13 @@ tags:
   description: Endpoints for managing product types and their details.
 - name: Product - Attributes
   description: Endpoints for managing product attributes and their values.
+- name: Admin - Product
+  description: Admin endpoints for managing products and their details.
+- name: Admin - Product Media
+  description: Admin endpoints for managing product media such as images and videos.
+- name: Admin - Product Inventory
+  description: Admin endpoints for managing product inventory.
+- name: Admin - Product Types
+  description: Admin endpoints for managing product types.
+- name: Admin - Product Attributes
+  description: Admin endpoints for managing product attributes and their values.
