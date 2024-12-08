@@ -1,7 +1,11 @@
 from rest_framework import serializers
 
 from products.models import Media, Product, ProductInventory
-from products.models.attribute import ProductAttribute, ProductType
+from products.models.attribute import (
+    ProductAttribute,
+    ProductAttributeValue,
+    ProductType,
+)
 
 from .models import (
     Media,
@@ -255,4 +259,17 @@ class AdminProductAttributeDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductAttribute
         fields = ["id", "name", "description", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class AdminProductAttributeValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductAttributeValue
+        fields = [
+            "id",
+            "attribute_value",
+            "product_attribute",
+            "created_at",
+            "updated_at",
+        ]
         read_only_fields = ["id", "created_at", "updated_at"]

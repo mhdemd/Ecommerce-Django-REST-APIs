@@ -11,7 +11,11 @@ from rest_framework.generics import (
 from rest_framework.permissions import AllowAny, IsAdminUser
 
 from products.models import Media, Product, ProductInventory
-from products.models.attribute import ProductAttribute, ProductType
+from products.models.attribute import (
+    ProductAttribute,
+    ProductAttributeValue,
+    ProductType,
+)
 
 from .models import (
     Product,
@@ -23,6 +27,7 @@ from .models import (
 from .serializers import (
     AdminProductAttributeDetailSerializer,
     AdminProductAttributeSerializer,
+    AdminProductAttributeValueSerializer,
     AdminProductDetailSerializer,
     AdminProductInventoryDetailSerializer,
     AdminProductInventorySerializer,
@@ -229,3 +234,17 @@ class AdminProductAttributeDetailView(RetrieveUpdateDestroyAPIView):
     queryset = ProductAttribute.objects.all()
     serializer_class = AdminProductAttributeDetailSerializer
     permission_classes = [IsAdminUser]
+
+
+class AdminProductAttributeValueListCreateView(ListCreateAPIView):
+    serializer_class = AdminProductAttributeValueSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        attribute_id = self.kwargs["attribute_id"]
+        return ProductAttributeValue.objects.filter(product_attribute_id=attribute_id)
+
+    def perform_create(self, serializer):
+        attribute_id = self.kwargs["attribute_id"]
+        product_attribute = ProductAttribute.objects.get(id=attribute_id)
+        serializer.save(product_attribute=product_attribute)
