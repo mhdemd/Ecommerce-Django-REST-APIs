@@ -249,3 +249,10 @@ class AdminProductAttributeSerializer(serializers.ModelSerializer):
         model = ProductAttribute
         fields = ["id", "name", "description", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class AdminProductAttributeDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductAttribute
+        fields = ["id", "name", "description", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]

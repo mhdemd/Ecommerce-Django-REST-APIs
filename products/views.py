@@ -21,6 +21,7 @@ from .models import (
     ProductType,
 )
 from .serializers import (
+    AdminProductAttributeDetailSerializer,
     AdminProductAttributeSerializer,
     AdminProductDetailSerializer,
     AdminProductInventoryDetailSerializer,
@@ -221,4 +222,10 @@ class AdminProductTypeDetailView(RetrieveUpdateDestroyAPIView):
 class AdminProductAttributeListCreateView(ListCreateAPIView):
     queryset = ProductAttribute.objects.all()
     serializer_class = AdminProductAttributeSerializer
+    permission_classes = [IsAdminUser]
+
+
+class AdminProductAttributeDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = ProductAttribute.objects.all()
+    serializer_class = AdminProductAttributeDetailSerializer
     permission_classes = [IsAdminUser]
