@@ -235,3 +235,10 @@ class AdminProductTypeSerializer(serializers.ModelSerializer):
         model = ProductType
         fields = ["id", "name", "slug"]
         read_only_fields = ["id"]
+
+
+class AdminProductTypeDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductType
+        fields = ["id", "name", "slug"]
+        read_only_fields = ["id"]

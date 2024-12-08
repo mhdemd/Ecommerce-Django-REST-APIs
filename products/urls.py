@@ -7,6 +7,7 @@ from .views import (
     AdminProductListCreateView,
     AdminProductMediaDetailView,
     AdminProductMediaListCreateView,
+    AdminProductTypeDetailView,
     AdminProductTypeListCreateView,
     ProductAttributeDetailView,
     ProductAttributeListView,
@@ -89,5 +90,10 @@ urlpatterns = [
         "admin/product-types/",
         AdminProductTypeListCreateView.as_view(),
         name="admin-product-type-list-create",
+    ),
+    path(
+        "admin/product-types/<int:pk>/",
+        AdminProductTypeDetailView.as_view(),
+        name="admin-product-type-detail",
     ),
 ]

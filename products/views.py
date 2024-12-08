@@ -27,6 +27,7 @@ from .serializers import (
     AdminProductMediaDetailSerializer,
     AdminProductMediaSerializer,
     AdminProductSerializer,
+    AdminProductTypeDetailSerializer,
     AdminProductTypeSerializer,
     MediaSerializer,
     ProductAttributeDetailSerializer,
@@ -207,4 +208,10 @@ class AdminProductInventoryDetailView(RetrieveUpdateDestroyAPIView):
 class AdminProductTypeListCreateView(ListCreateAPIView):
     queryset = ProductType.objects.all()
     serializer_class = AdminProductTypeSerializer
+    permission_classes = [IsAdminUser]
+
+
+class AdminProductTypeDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = ProductType.objects.all()
+    serializer_class = AdminProductTypeDetailSerializer
     permission_classes = [IsAdminUser]
