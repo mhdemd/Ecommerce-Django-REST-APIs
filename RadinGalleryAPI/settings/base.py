@@ -242,9 +242,30 @@ SPECTACULAR_SETTINGS = {
             "name": "Product - Attributes",
             "description": "Endpoints for managing product attributes and their values.",
         },
-        # Products Adimn Group
+        # Products Admin Group
+        {
+            "name": "Admin - Product",
+            "description": "Admin endpoints for managing products and their details.",
+        },
+        {
+            "name": "Admin - Product Media",
+            "description": "Admin endpoints for managing product media such as images and videos.",
+        },
+        {
+            "name": "Admin - Product Inventory",
+            "description": "Admin endpoints for managing product inventory.",
+        },
+        {
+            "name": "Admin - Product Types",
+            "description": "Admin endpoints for managing product types.",
+        },
+        {
+            "name": "Admin - Product Attributes",
+            "description": "Admin endpoints for managing product attributes and their values.",
+        },
     ],
 }
+
 
 # ---------------------------------------------------------
 # Email Settings
