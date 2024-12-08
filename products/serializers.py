@@ -168,3 +168,18 @@ class AdminProductMediaSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class AdminProductMediaDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Media
+        fields = [
+            "id",
+            "product",
+            "image",
+            "is_feature",
+            "ordering",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "product", "created_at", "updated_at"]

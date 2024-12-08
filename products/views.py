@@ -21,6 +21,7 @@ from .models import (
 )
 from .serializers import (
     AdminProductDetailSerializer,
+    AdminProductMediaDetailSerializer,
     AdminProductMediaSerializer,
     AdminProductSerializer,
     MediaSerializer,
@@ -174,3 +175,13 @@ class AdminProductMediaListCreateView(ListCreateAPIView):
         product_id = self.kwargs.get("id")
         product = Product.objects.get(pk=product_id)
         serializer.save(product=product)
+
+
+class AdminProductMediaDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Media.objects.all()
+    serializer_class = AdminProductMediaDetailSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        product_id = self.kwargs.get("product_id")
+        return Media.objects.filter(product_id=product_id)
