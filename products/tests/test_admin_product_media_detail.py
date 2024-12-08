@@ -1,10 +1,9 @@
 import os
 import shutil
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -16,7 +15,11 @@ from products.models import Media, Product
 
 User = get_user_model()
 
+# Custom test media root
+TEST_MEDIA_ROOT = os.path.join(os.path.dirname(__file__), "test_media")
 
+
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
 class AdminProductMediaDetailViewTest(TestCase):
     def setUp(self):
         Media.objects.all().delete()
@@ -65,10 +68,9 @@ class AdminProductMediaDetailViewTest(TestCase):
         )
 
     def tearDown(self):
-        # Clean up media files
-        media_root = settings.MEDIA_ROOT
-        if os.path.exists(media_root):
-            shutil.rmtree(media_root)
+        # Remove all files and folders in the test media directory after each test
+        if os.path.exists(TEST_MEDIA_ROOT):
+            shutil.rmtree(TEST_MEDIA_ROOT)
 
     def test_get_media_as_admin(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {self.admin_token}")
