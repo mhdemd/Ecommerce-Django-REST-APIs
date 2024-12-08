@@ -10,7 +10,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import AllowAny, IsAdminUser
 
-from products.models import Media, Product
+from products.models import Media, Product, ProductInventory
 
 from .models import (
     Product,
@@ -21,6 +21,7 @@ from .models import (
 )
 from .serializers import (
     AdminProductDetailSerializer,
+    AdminProductInventorySerializer,
     AdminProductMediaDetailSerializer,
     AdminProductMediaSerializer,
     AdminProductSerializer,
@@ -185,3 +186,9 @@ class AdminProductMediaDetailView(RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         product_id = self.kwargs.get("product_id")
         return Media.objects.filter(product_id=product_id)
+
+
+class AdminProductInventoryListCreateView(ListCreateAPIView):
+    queryset = ProductInventory.objects.all()
+    serializer_class = AdminProductInventorySerializer
+    permission_classes = [IsAdminUser]
