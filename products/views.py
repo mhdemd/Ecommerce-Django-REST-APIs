@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import generics, permissions
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
@@ -165,18 +165,44 @@ class ProductAttributeValueDetailView(RetrieveAPIView):
 # ---------------------------------------------------------
 # Admin Endpoints (Products)
 # ---------------------------------------------------------
+@extend_schema(
+    tags=["Admin - Product"],
+    summary="List or create products",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            description="Search products by name",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="page",
+            description="Page number for pagination",
+            required=False,
+            type=int,
+        ),
+    ],
+)
 class AdminProductListCreateView(ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = AdminProductSerializer
     permission_classes = [IsAdminUser]
 
 
+@extend_schema(
+    tags=["Admin - Product"],
+    summary="View, update, or delete a specific product",
+)
 class AdminProductDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = AdminProductDetailSerializer
     permission_classes = [IsAdminUser]
 
 
+@extend_schema(
+    tags=["Admin - Product Media"],
+    summary="List or create product media",
+)
 class AdminProductMediaListCreateView(ListCreateAPIView):
     serializer_class = AdminProductMediaSerializer
     permission_classes = [IsAdminUser]
@@ -191,6 +217,10 @@ class AdminProductMediaListCreateView(ListCreateAPIView):
         serializer.save(product=product)
 
 
+@extend_schema(
+    tags=["Admin - Product Media"],
+    summary="View, update, or delete a specific product media",
+)
 class AdminProductMediaDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Media.objects.all()
     serializer_class = AdminProductMediaDetailSerializer
@@ -201,12 +231,20 @@ class AdminProductMediaDetailView(RetrieveUpdateDestroyAPIView):
         return Media.objects.filter(product_id=product_id)
 
 
+@extend_schema(
+    tags=["Admin - Product Inventory"],
+    summary="List or create product inventories",
+)
 class AdminProductInventoryListCreateView(ListCreateAPIView):
     queryset = ProductInventory.objects.all()
     serializer_class = AdminProductInventorySerializer
     permission_classes = [IsAdminUser]
 
 
+@extend_schema(
+    tags=["Admin - Product Inventory"],
+    summary="View, update, or delete a specific product inventory",
+)
 class AdminProductInventoryDetailView(RetrieveUpdateDestroyAPIView):
     queryset = ProductInventory.objects.all()
     serializer_class = AdminProductInventoryDetailSerializer
@@ -214,30 +252,58 @@ class AdminProductInventoryDetailView(RetrieveUpdateDestroyAPIView):
     lookup_field = "sku"  # Retrieve inventory by SKU
 
 
+@extend_schema(
+    tags=["Admin - Product Types"],
+    summary="List or create product types",
+)
 class AdminProductTypeListCreateView(ListCreateAPIView):
     queryset = ProductType.objects.all()
     serializer_class = AdminProductTypeSerializer
     permission_classes = [IsAdminUser]
 
 
+@extend_schema(
+    tags=["Admin - Product Types"],
+    summary="View, update, or delete a product type",
+)
 class AdminProductTypeDetailView(RetrieveUpdateDestroyAPIView):
     queryset = ProductType.objects.all()
     serializer_class = AdminProductTypeDetailSerializer
     permission_classes = [IsAdminUser]
 
 
+@extend_schema(
+    tags=["Admin - Product Attributes"],
+    summary="List or create product attributes",
+)
 class AdminProductAttributeListCreateView(ListCreateAPIView):
     queryset = ProductAttribute.objects.all()
     serializer_class = AdminProductAttributeSerializer
     permission_classes = [IsAdminUser]
 
 
+@extend_schema(
+    tags=["Admin - Product Attributes"],
+    summary="View, update, or delete a product attribute",
+)
 class AdminProductAttributeDetailView(RetrieveUpdateDestroyAPIView):
     queryset = ProductAttribute.objects.all()
     serializer_class = AdminProductAttributeDetailSerializer
     permission_classes = [IsAdminUser]
 
 
+@extend_schema(
+    tags=["Admin - Product Attributes"],
+    summary="List or create attribute values for a specific product attribute",
+    parameters=[
+        OpenApiParameter(
+            name="attribute_id",
+            description="ID of the product attribute",
+            required=True,
+            type=int,
+        )
+    ],
+)
 class AdminProductAttributeValueListCreateView(generics.ListCreateAPIView):
     serializer_class = AdminProductAttributeValueSerializer
     permission_classes = [permissions.IsAdminUser]
@@ -254,6 +320,24 @@ class AdminProductAttributeValueListCreateView(generics.ListCreateAPIView):
         return context
 
 
+@extend_schema(
+    tags=["Admin - Product Attributes"],
+    summary="View, update, or delete a specific attribute value",
+    parameters=[
+        OpenApiParameter(
+            name="attribute_id",
+            description="ID of the product attribute",
+            required=True,
+            type=int,
+        ),
+        OpenApiParameter(
+            name="pk",
+            description="ID of the product attribute value",
+            required=True,
+            type=int,
+        ),
+    ],
+)
 class AdminProductAttributeValueDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = AdminProductAttributeValueDetailSerializer
     permission_classes = [IsAdminUser]
