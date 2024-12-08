@@ -75,6 +75,7 @@ class ProductInventory(models.Model):
     )
 
     class Meta:
+        ordering = ["sku"]
         indexes = [
             models.Index(fields=["sku"]),
             models.Index(fields=["upc"]),
