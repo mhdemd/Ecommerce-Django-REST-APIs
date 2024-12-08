@@ -288,3 +288,16 @@ class AdminProductAttributeValueSerializer(serializers.ModelSerializer):
         return ProductAttributeValue.objects.create(
             product_attribute=product_attribute, **validated_data
         )
+
+
+class AdminProductAttributeValueDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductAttributeValue
+        fields = [
+            "id",
+            "attribute_value",
+            "product_attribute",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "product_attribute", "created_at", "updated_at"]

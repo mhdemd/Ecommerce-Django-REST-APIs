@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     AdminProductAttributeDetailView,
     AdminProductAttributeListCreateView,
+    AdminProductAttributeValueDetailView,
     AdminProductAttributeValueListCreateView,
     AdminProductDetailView,
     AdminProductInventoryDetailView,
@@ -113,5 +114,10 @@ urlpatterns = [
         "admin/attributes/<int:attribute_id>/values/",
         AdminProductAttributeValueListCreateView.as_view(),
         name="admin-product-attribute-value-list-create",
+    ),
+    path(
+        "admin/attributes/<int:attribute_id>/values/<int:pk>/",
+        AdminProductAttributeValueDetailView.as_view(),
+        name="admin-product-attribute-value-detail",
     ),
 ]

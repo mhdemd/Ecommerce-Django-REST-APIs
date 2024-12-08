@@ -28,6 +28,7 @@ from .models import (
 from .serializers import (
     AdminProductAttributeDetailSerializer,
     AdminProductAttributeSerializer,
+    AdminProductAttributeValueDetailSerializer,
     AdminProductAttributeValueSerializer,
     AdminProductDetailSerializer,
     AdminProductInventoryDetailSerializer,
@@ -251,3 +252,12 @@ class AdminProductAttributeValueListCreateView(generics.ListCreateAPIView):
         context = super().get_serializer_context()
         context["attribute_id"] = self.kwargs.get("attribute_id")
         return context
+
+
+class AdminProductAttributeValueDetailView(RetrieveUpdateDestroyAPIView):
+    serializer_class = AdminProductAttributeValueDetailSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        attribute_id = self.kwargs["attribute_id"]
+        return ProductAttributeValue.objects.filter(product_attribute_id=attribute_id)
