@@ -265,11 +265,26 @@ class AdminProductAttributeDetailSerializer(serializers.ModelSerializer):
 class AdminProductAttributeValueSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductAttributeValue
-        fields = [
-            "id",
-            "attribute_value",
-            "product_attribute",
-            "created_at",
-            "updated_at",
-        ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        fields = ["id", "attribute_value"]
+        read_only_fields = ["id"]
+
+    def validate_attribute_value(self, value):
+        """
+        Ensure that the attribute_value is unique within the scope of the product_attribute.
+        """
+        attribute_id = self.context.get("attribute_id")
+        if ProductAttributeValue.objects.filter(
+            product_attribute_id=attribute_id, attribute_value=value
+        ).exists():
+            raise serializers.ValidationError("This attribute value already exists.")
+        return value
+
+    def create(self, validated_data):
+        attribute_id = self.context.get("attribute_id")
+        try:
+            product_attribute = ProductAttribute.objects.get(id=attribute_id)
+        except ProductAttribute.DoesNotExist:
+            raise serializers.ValidationError("ProductAttribute does not exist.")
+        return ProductAttributeValue.objects.create(
+            product_attribute=product_attribute, **validated_data
+        )

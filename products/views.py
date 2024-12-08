@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
+from rest_framework import generics, permissions
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
     ListAPIView,
@@ -236,15 +237,17 @@ class AdminProductAttributeDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
 
 
-class AdminProductAttributeValueListCreateView(ListCreateAPIView):
+class AdminProductAttributeValueListCreateView(generics.ListCreateAPIView):
     serializer_class = AdminProductAttributeValueSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [permissions.IsAdminUser]
 
     def get_queryset(self):
-        attribute_id = self.kwargs["attribute_id"]
-        return ProductAttributeValue.objects.filter(product_attribute_id=attribute_id)
+        attribute_id = self.kwargs.get("attribute_id")
+        return ProductAttributeValue.objects.filter(
+            product_attribute_id=attribute_id
+        ).order_by("id")
 
-    def perform_create(self, serializer):
-        attribute_id = self.kwargs["attribute_id"]
-        product_attribute = ProductAttribute.objects.get(id=attribute_id)
-        serializer.save(product_attribute=product_attribute)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["attribute_id"] = self.kwargs.get("attribute_id")
+        return context
