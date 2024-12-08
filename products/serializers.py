@@ -205,3 +205,25 @@ class AdminProductInventorySerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class AdminProductInventoryDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductInventory
+        fields = [
+            "id",
+            "sku",
+            "upc",
+            "product",
+            "product_type",
+            "attribute_values",
+            "stock",
+            "is_active",
+            "retail_price",
+            "store_price",
+            "sale_price",
+            "weight",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]

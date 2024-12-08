@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import (
     AdminProductDetailView,
+    AdminProductInventoryDetailView,
     AdminProductInventoryListCreateView,
     AdminProductListCreateView,
     AdminProductMediaDetailView,
@@ -77,5 +78,10 @@ urlpatterns = [
         "admin/inventories/",
         AdminProductInventoryListCreateView.as_view(),
         name="admin-product-inventory-list-create",
+    ),
+    path(
+        "admin/inventories/<str:sku>/",
+        AdminProductInventoryDetailView.as_view(),
+        name="admin-product-inventory-detail",
     ),
 ]

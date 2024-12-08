@@ -21,6 +21,7 @@ from .models import (
 )
 from .serializers import (
     AdminProductDetailSerializer,
+    AdminProductInventoryDetailSerializer,
     AdminProductInventorySerializer,
     AdminProductMediaDetailSerializer,
     AdminProductMediaSerializer,
@@ -192,3 +193,10 @@ class AdminProductInventoryListCreateView(ListCreateAPIView):
     queryset = ProductInventory.objects.all()
     serializer_class = AdminProductInventorySerializer
     permission_classes = [IsAdminUser]
+
+
+class AdminProductInventoryDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = ProductInventory.objects.all()
+    serializer_class = AdminProductInventoryDetailSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = "sku"  # Retrieve inventory by SKU
