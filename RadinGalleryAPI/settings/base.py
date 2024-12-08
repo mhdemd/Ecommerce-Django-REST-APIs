@@ -242,6 +242,7 @@ SPECTACULAR_SETTINGS = {
             "name": "Product - Attributes",
             "description": "Endpoints for managing product attributes and their values.",
         },
+        # Products Adimn Group
     ],
 }
 
