@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from products.models import Media, Product, ProductInventory
+from products.models.attribute import ProductType
 
 from .models import (
     Media,
@@ -227,3 +228,10 @@ class AdminProductInventoryDetailSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class AdminProductTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductType
+        fields = ["id", "name", "slug"]
+        read_only_fields = ["id"]

@@ -11,6 +11,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import AllowAny, IsAdminUser
 
 from products.models import Media, Product, ProductInventory
+from products.models.attribute import ProductType
 
 from .models import (
     Product,
@@ -26,6 +27,7 @@ from .serializers import (
     AdminProductMediaDetailSerializer,
     AdminProductMediaSerializer,
     AdminProductSerializer,
+    AdminProductTypeSerializer,
     MediaSerializer,
     ProductAttributeDetailSerializer,
     ProductAttributeSerializer,
@@ -200,3 +202,9 @@ class AdminProductInventoryDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = AdminProductInventoryDetailSerializer
     permission_classes = [IsAdminUser]
     lookup_field = "sku"  # Retrieve inventory by SKU
+
+
+class AdminProductTypeListCreateView(ListCreateAPIView):
+    queryset = ProductType.objects.all()
+    serializer_class = AdminProductTypeSerializer
+    permission_classes = [IsAdminUser]
