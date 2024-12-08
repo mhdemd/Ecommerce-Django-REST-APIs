@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from products.models import Product
+from products.models import Media, Product
 
 from .models import (
     Media,
@@ -149,6 +149,21 @@ class AdminProductDetailSerializer(serializers.ModelSerializer):
             "brand",
             "category",
             "is_active",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class AdminProductMediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Media
+        fields = [
+            "id",
+            "product",
+            "image",
+            "is_feature",
+            "ordering",
             "created_at",
             "updated_at",
         ]
