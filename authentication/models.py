@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.contrib.sessions.models import Session
 from django.db import models
 from django.utils.timezone import now
 
@@ -20,15 +21,33 @@ class User(AbstractUser):
     otp_expiry = models.DateTimeField(blank=True, null=True)  # OTP expiration time
 
 
-class Session(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sessions"
+class SessionInfo(models.Model):
+    session = models.OneToOneField(
+        Session, on_delete=models.CASCADE, related_name="info"
     )
-    token = models.CharField(max_length=255, unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="session_infos",
+        null=True,  # Sessions might not always be tied to a user
+    )
     device = models.CharField(max_length=100, null=True, blank=True)
     location = models.CharField(max_length=100, null=True, blank=True)
-    created_at = models.DateTimeField(default=now)
-    last_activity = models.DateTimeField(auto_now=True)
+    last_activity = models.DateTimeField(default=now)
 
     def __str__(self):
-        return f"Session for {self.user.username} - {self.device or 'Unknown Device'}"
+        return f"SessionInfo for {self.user.username if self.user else 'Anonymous'} - {self.device or 'Unknown Device'}"
+
+
+# class Session(models.Model):
+#     user = models.ForeignKey(
+#         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sessions"
+#     )
+#     token = models.CharField(max_length=255, unique=True)
+#     device = models.CharField(max_length=100, null=True, blank=True)
+#     location = models.CharField(max_length=100, null=True, blank=True)
+#     created_at = models.DateTimeField(default=now)
+#     last_activity = models.DateTimeField(auto_now=True)
+
+#     def __str__(self):
+#         return f"Session for {self.user.username} - {self.device or 'Unknown Device'}"
