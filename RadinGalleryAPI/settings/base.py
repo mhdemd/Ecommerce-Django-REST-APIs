@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework_simplejwt.token_blacklist",
     # Internal apps
-    "authentication.apps.AuthConfig",
+    "authentication",
     "products",
     "brands",
     "categories",
