@@ -46,7 +46,7 @@ urlpatterns = [
     # Sessions endpoints
     path("api/sessions/", ListSessionsView.as_view(), name="list_sessions"),
     path(
-        "api/sessions/<int:session_id>/delete/",
+        "api/sessions/delete/<str:session_key>/",
         DeleteSessionView.as_view(),
         name="delete_session",
     ),
