@@ -207,8 +207,7 @@ def test_delete_session_invalid_session_key(api_client, create_user):
     # Make POST request to delete_session
     response = api_client.post(reverse("delete_session", args=[invalid_session_key]))
 
-    # Depending on implementation, this might return 404 or a validation error
-    # Here, assuming it returns 404
+    # Assuming it returns 404
     assert response.status_code == 404
     assert response.data["error"] == "Session not found."
 
@@ -225,8 +224,16 @@ def test_logout_all_sessions_success(api_client, create_user):
     # Authenticate the client
     api_client.force_authenticate(user=user)
 
+    # Check the number of sessions before logout
+    active_sessions_before = SessionInfo.objects.filter(user=user).count()
+    print(f"Active sessions before logout: {active_sessions_before}")  # Debugging
+
     # Make POST request to logout_all_sessions
     response = api_client.post(reverse("logout_all_sessions"))
+
+    # Check the number of sessions after logout
+    active_sessions_after = SessionInfo.objects.filter(user=user).count()
+    print(f"Active sessions after logout: {active_sessions_after}")  # Debugging
 
     assert response.status_code == 200
     assert response.data["message"] == "All 2 sessions logged out successfully."
@@ -267,7 +274,7 @@ def test_logout_all_sessions_unauthorized(api_client):
 
 @pytest.mark.django_db
 def test_list_sessions_with_expired_session(api_client, create_user):
-    """Test that expired sessions are listed (assuming your system does not auto-clean)."""
+    """Test that expired sessions are still listed."""
     user = create_user
 
     # Create an expired session using helper function

@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class AuthenticationConfig(AppConfig):
+class AuthConfig(AppConfig):
     name = "authentication"
 
     def ready(self):
