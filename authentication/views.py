@@ -778,25 +778,7 @@ class UpdateProfileView(generics.UpdateAPIView):
         )
 
 
-from datetime import timedelta
-
-from django.core.mail import send_mail
-from django.utils.crypto import get_random_string
-from django.utils.timezone import now
-
 # ---------------------------- OTP Endpoints ----------------------------
-from drf_spectacular.utils import extend_schema
-from rest_framework import generics, permissions, status
-from rest_framework.response import Response
-
-from authentication.models import User
-
-from .serializers import (
-    Disable2FASerializer,
-    Enable2FASerializer,
-    GenerateOTPSerializer,
-    VerifyOTPSerializer,
-)
 
 
 # ---------------------------- Enable 2FA ----------------------------
