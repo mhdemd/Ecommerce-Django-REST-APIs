@@ -39,8 +39,7 @@ def create_session(user, device="Unknown Device", location="Unknown Location"):
         expire_date=timezone.now() + timezone.timedelta(days=1),
     )
 
-    # The signal handler automatically creates a SessionInfo instance
-    # Retrieve and update the SessionInfo
+    # Retrieve the automatically created SessionInfo instance
     try:
         session_info = SessionInfo.objects.get(session=session)
     except SessionInfo.DoesNotExist:
@@ -268,22 +267,21 @@ def test_logout_all_sessions_unauthorized(api_client):
 
 @pytest.mark.django_db
 def test_list_sessions_with_expired_session(api_client, create_user):
-    """Test that expired sessions are not listed."""
+    """Test that expired sessions are listed (assuming your system does not auto-clean)."""
     user = create_user
 
-    # Create an expired session
-    expired_session = Session.objects.create(
-        session_key=uuid.uuid4().hex,
-        session_data="{}",
-        expire_date=timezone.now() - timezone.timedelta(days=1),  # Expired
+    # Create an expired session using helper function
+    expired_session = create_session(
+        user, device="Old Browser", location="Old Location"
     )
-    SessionInfo.objects.create(
-        session=expired_session,
-        user=user,
-        device="Old Browser",
-        location="Old Location",
-        last_activity=timezone.now() - timezone.timedelta(days=2),
-    )
+    # Manually set expire_date to past
+    expired_session.expire_date = timezone.now() - timezone.timedelta(days=1)
+    expired_session.save()
+
+    # Update the corresponding SessionInfo
+    session_info = SessionInfo.objects.get(session=expired_session)
+    session_info.last_activity = timezone.now() - timezone.timedelta(days=2)
+    session_info.save()
 
     # Create a valid session
     valid_session = create_session(user, device="Chrome", location="New York")
@@ -296,9 +294,7 @@ def test_list_sessions_with_expired_session(api_client, create_user):
 
     assert response.status_code == 200
     assert "sessions" in response.data
-    # Depending on your implementation, expired sessions might still be listed
-    # If expired sessions are not automatically cleaned up, they will appear
-    # Here, assuming they are still listed
+    # Assuming expired sessions are still listed
     assert len(response.data["sessions"]) == 2
     session_keys = {expired_session.session_key, valid_session.session_key}
     returned_keys = {session["session_key"] for session in response.data["sessions"]}
