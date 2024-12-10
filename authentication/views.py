@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 
 from django.conf import settings
+from django.contrib.sessions.models import Session
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -21,6 +22,7 @@ from rest_framework_simplejwt.views import (
 from authentication.models import Session, User
 from authentication.serializers import Disable2FASerializer
 
+from .models import SessionInfo
 from .serializers import (
     ChangePasswordSerializer,
     Disable2FASerializer,
@@ -944,36 +946,50 @@ class ListSessionsView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        sessions = Session.objects.filter(user=request.user)
-        session_data = [
-            {
-                "id": session.id,
-                "device": session.device or "Unknown Device",
-                "location": session.location or "Unknown Location",
-                "created_at": session.created_at,
-                "last_activity": session.last_activity,
-            }
-            for session in sessions
-        ]
-        return Response({"sessions": session_data})
+        # Retrieve all SessionInfo instances linked to the authenticated user
+        session_infos = SessionInfo.objects.filter(user=request.user)
+
+        session_data = []
+        for session_info in session_infos:
+            session = session_info.session  # Access the related Session object
+            session_data.append(
+                {
+                    "session_key": session.session_key,
+                    "device": session_info.device or "Unknown Device",
+                    "location": session_info.location or "Unknown Location",
+                    "created_at": session_info.session.expire_date,  # Adjust as needed
+                    "last_activity": session_info.last_activity,
+                }
+            )
+
+        return Response({"sessions": session_data}, status=status.HTTP_200_OK)
 
 
 @extend_schema(
     tags=["Auth - Session"],
     summary="Delete a Specific Session",
-    description="Deletes a specific session of the authenticated user by session ID.",
+    description="Deletes a specific session of the authenticated user by session key.",
 )
 class DeleteSessionView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, session_id):
-        session = Session.objects.filter(user=request.user, id=session_id).first()
-        if not session:
+    def post(self, request, session_key):
+        try:
+            # Retrieve the SessionInfo linked to the given session_key and user
+            session_info = SessionInfo.objects.get(
+                session__session_key=session_key, user=request.user
+            )
+        except SessionInfo.DoesNotExist:
             return Response(
                 {"error": "Session not found."}, status=status.HTTP_404_NOT_FOUND
             )
-        session.delete()
-        return Response({"message": "Session deleted successfully."})
+
+        # Delete the associated Session object, which will also delete SessionInfo due to CASCADE
+        session_info.session.delete()
+
+        return Response(
+            {"message": "Session deleted successfully."}, status=status.HTTP_200_OK
+        )
 
 
 @extend_schema(
@@ -985,5 +1001,15 @@ class LogoutAllSessionsView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        Session.objects.filter(user=request.user).delete()
-        return Response({"message": "All sessions logged out successfully."})
+        # Retrieve all SessionInfo instances linked to the authenticated user
+        session_infos = SessionInfo.objects.filter(user=request.user)
+
+        # Delete all associated Session objects
+        sessions_deleted, _ = Session.objects.filter(
+            session_key__in=session_infos.values_list("session__session_key", flat=True)
+        ).delete()
+
+        return Response(
+            {"message": f"All {sessions_deleted} sessions logged out successfully."},
+            status=status.HTTP_200_OK,
+        )
