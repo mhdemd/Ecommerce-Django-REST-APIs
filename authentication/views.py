@@ -11,6 +11,7 @@ from django.utils.timezone import now, timedelta
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import (
@@ -997,19 +998,24 @@ class DeleteSessionView(generics.GenericAPIView):
     summary="Logout from All Sessions",
     description="Logs out the user from all active sessions.",
 )
-class LogoutAllSessionsView(generics.GenericAPIView):
+class LogoutAllSessionsView(GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         # Retrieve all SessionInfo instances linked to the authenticated user
         session_infos = SessionInfo.objects.filter(user=request.user)
 
+        # Count the sessions linked to the user
+        session_count = session_infos.count()
+
         # Delete all associated Session objects
-        sessions_deleted, _ = Session.objects.filter(
-            session_key__in=session_infos.values_list("session__session_key", flat=True)
-        ).delete()
+        session_keys = session_infos.values_list("session__session_key", flat=True)
+        Session.objects.filter(session_key__in=session_keys).delete()
+
+        # Delete the SessionInfo entries
+        session_infos.delete()
 
         return Response(
-            {"message": f"All {sessions_deleted} sessions logged out successfully."},
+            {"message": f"All {session_count} sessions logged out successfully."},
             status=status.HTTP_200_OK,
         )
