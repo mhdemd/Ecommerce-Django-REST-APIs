@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import (
 
 from authentication.models import Session, User
 from authentication.serializers import Disable2FASerializer
-from authentication.tasks import send_verification_email
+from authentication.tasks import send_reset_password_email, send_verification_email
 
 from .models import SessionInfo
 from .serializers import (
@@ -614,21 +614,16 @@ class ResendEmailView(TokenMixin, generics.GenericAPIView):
                 f"Please verify your email by clicking the link below:\n\n{verification_link}\n\nThank you!"
             )
 
-            try:
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
-                logger.info(f"Verification email resent to {user.email}.")
-                return Response(
-                    {"message": "Verification email resent successfully."},
-                    status=status.HTTP_200_OK,
-                )
-            except Exception as e:
-                logger.error(
-                    f"Failed to resend verification email to {user.email}: {e}"
-                )
-                return Response(
-                    {"error": "Failed to send email. Please try again later."},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+            # Use Celery task for sending verification email
+            send_verification_email.delay(
+                subject, message, settings.DEFAULT_FROM_EMAIL, [user.email]
+            )
+            logger.info(f"Verification email task queued for {user.email}.")
+
+            return Response(
+                {"message": "Verification email resent successfully."},
+                status=status.HTTP_200_OK,
+            )
 
         elif email_type == "reset_password":
             # Generate reset token and link
@@ -641,21 +636,16 @@ class ResendEmailView(TokenMixin, generics.GenericAPIView):
                 f"This link will expire in 1 hour."
             )
 
-            try:
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
-                logger.info(f"Password reset email resent to {user.email}.")
-                return Response(
-                    {"message": "Password reset email resent successfully."},
-                    status=status.HTTP_200_OK,
-                )
-            except Exception as e:
-                logger.error(
-                    f"Failed to resend password reset email to {user.email}: {e}"
-                )
-                return Response(
-                    {"error": "Failed to send email. Please try again later."},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+            # Use Celery task for sending reset password email
+            send_reset_password_email.delay(
+                subject, message, settings.DEFAULT_FROM_EMAIL, [user.email]
+            )
+            logger.info(f"Password reset email task queued for {user.email}.")
+
+            return Response(
+                {"message": "Password reset email resent successfully."},
+                status=status.HTTP_200_OK,
+            )
 
 
 # ---------------------------- Profile Management Endpoints ----------------------------
