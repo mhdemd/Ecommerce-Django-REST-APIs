@@ -97,6 +97,10 @@ DATABASES = {
 # ---------------------------------------------------------
 # Cache (Redis)
 # ---------------------------------------------------------
+# Use Redis as the session engine
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",

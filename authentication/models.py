@@ -37,17 +37,3 @@ class SessionInfo(models.Model):
 
     def __str__(self):
         return f"SessionInfo for {self.user.username if self.user else 'Anonymous'} - {self.device or 'Unknown Device'}"
-
-
-# class Session(models.Model):
-#     user = models.ForeignKey(
-#         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sessions"
-#     )
-#     token = models.CharField(max_length=255, unique=True)
-#     device = models.CharField(max_length=100, null=True, blank=True)
-#     location = models.CharField(max_length=100, null=True, blank=True)
-#     created_at = models.DateTimeField(default=now)
-#     last_activity = models.DateTimeField(auto_now=True)
-
-#     def __str__(self):
-#         return f"Session for {self.user.username} - {self.device or 'Unknown Device'}"
