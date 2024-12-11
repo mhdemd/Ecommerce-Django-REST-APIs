@@ -97,7 +97,6 @@ DATABASES = {
 # ---------------------------------------------------------
 # Cache (Redis)
 # ---------------------------------------------------------
-# Use Redis as the session engine
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
@@ -283,3 +282,18 @@ EMAIL_VERIFICATION_TOKEN_EXPIRY = 1
 # Default primary key field type
 # ---------------------------------------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# ---------------------------------------------------------
+# CELERY
+# ---------------------------------------------------------
+# Redis as broker
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+
+# Store task results in Django database
+CELERY_RESULT_BACKEND = "django-db"
+
+# Optional: Enable Celery task result tracking
+INSTALLED_APPS += [
+    "django_celery_results",
+]
