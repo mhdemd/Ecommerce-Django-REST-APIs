@@ -412,6 +412,7 @@ class ForgotPasswordView(TokenMixin, generics.GenericAPIView):
     )
     def post(self, request):
         logger.info("Received forgot password request.")
+
         # Validate data
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -430,18 +431,15 @@ class ForgotPasswordView(TokenMixin, generics.GenericAPIView):
         reset_link = f"{settings.SITE_URL}/auth/api/reset-password/?token={token}"
         logger.info(f"Reset link generated: {reset_link}")
 
-        # Send reset password email
+        # Send reset password email using Celery
         subject = "Reset your password"
         message = f"Click the link to reset your password: {reset_link}\nThis link will expire in 1 hour."
-        try:
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
-            logger.info(f"Password reset email sent to: {email}")
-        except Exception as e:
-            logger.error(f"Failed to send password reset email to {email}: {e}")
-            return Response(
-                {"error": "Failed to send email. Please try again later."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+
+        # Call the Celery task
+        send_reset_password_email.delay(
+            subject, message, settings.DEFAULT_FROM_EMAIL, [email]
+        )
+        logger.info(f"Password reset email task queued for: {email}")
 
         return Response(
             {"message": "Password reset link sent."}, status=status.HTTP_200_OK
