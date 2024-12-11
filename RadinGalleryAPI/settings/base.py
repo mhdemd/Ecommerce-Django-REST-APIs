@@ -288,7 +288,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # CELERY
 # ---------------------------------------------------------
 # Redis as broker
-CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_BROKER_URL = "redis://redis_cache:6379/0"
 
 # Store task results in Django database
 CELERY_RESULT_BACKEND = "django-db"

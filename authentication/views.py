@@ -22,6 +22,7 @@ from rest_framework_simplejwt.views import (
 
 from authentication.models import Session, User
 from authentication.serializers import Disable2FASerializer
+from authentication.tasks import send_verification_email
 
 from .models import SessionInfo
 from .serializers import (
@@ -144,17 +145,14 @@ class RegisterView(generics.GenericAPIView):
         verification_link = f"{settings.SITE_URL}/auth/api/verify-email/?token={token}"
         logger.info(f"Generated verification link: {verification_link}")
 
-        # Send the verification email
+        # Send the verification email using Celery
         subject = "Email Verification"
         message = f"Hi {user.username},\n\nPlease verify your email by clicking the link below:\n\n{verification_link}\n\nThank you!"
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [user.email]
 
-        try:
-            send_mail(subject, message, from_email, recipient_list)
-            logger.info(f"Verification email sent to {user.email}.")
-        except Exception as e:
-            logger.error(f"Failed to send verification email to {user.email}: {e}")
+        # Call the Celery task
+        send_verification_email.delay(subject, message, from_email, recipient_list)
 
         return Response(
             {"message": "User registered successfully. Please verify your email."},
