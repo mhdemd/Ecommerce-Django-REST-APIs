@@ -3,7 +3,6 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
-from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -22,7 +21,12 @@ from rest_framework_simplejwt.views import (
 
 from authentication.models import Session, User
 from authentication.serializers import Disable2FASerializer
-from authentication.tasks import send_reset_password_email, send_verification_email
+from authentication.tasks import (
+    send_otp_via_email,
+    send_otp_via_sms,
+    send_reset_password_email,
+    send_verification_email,
+)
 
 from .models import SessionInfo
 from .serializers import (
@@ -832,15 +836,15 @@ class GenerateOTPView(generics.GenericAPIView):
 
         # Send OTP
         if method == "email":
-            send_mail(
+            send_otp_via_email.delay(
                 "Your OTP Code",
                 f"Your OTP code is: {otp}. It will expire in 5 minutes.",
                 "no-reply@example.com",
                 [user.email],
             )
         elif method == "sms":
-            # Placeholder for future SMS integration
-            print(f"Send this OTP via SMS: {otp}")
+            # Call SMS task
+            send_otp_via_sms.delay(user.phone_number, otp)
 
         return Response(
             {"message": f"OTP sent via {method}."},
