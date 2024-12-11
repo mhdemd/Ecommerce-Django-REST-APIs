@@ -768,8 +768,6 @@ class UpdateProfileView(generics.UpdateAPIView):
 
 
 # ---------------------------- OTP Endpoints ----------------------------
-
-
 # ---------------------------- Enable 2FA ----------------------------
 @extend_schema(
     tags=["Auth - OTP"],
