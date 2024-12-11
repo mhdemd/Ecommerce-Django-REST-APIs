@@ -1,8 +1,7 @@
-from datetime import timedelta
+from unittest.mock import patch
 
 import pytest
 from django.urls import reverse
-from django.utils.timezone import now
 from rest_framework import status
 
 from authentication.models import User
@@ -41,7 +40,8 @@ class TestResendEmailView:
             "active@example.com", "active_user", is_active=True
         )
 
-    def test_resend_verification_email_success(self, api_client):
+    @patch("authentication.views.send_verification_email.delay")
+    def test_resend_verification_email_success(self, mock_send_email, api_client):
         """Test successful resend of verification email for inactive user."""
         url = reverse("resend_email")
         data = {"email": "registered@example.com", "email_type": "verification"}
@@ -49,6 +49,7 @@ class TestResendEmailView:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data["message"] == "Verification email resent successfully."
+        mock_send_email.assert_called_once()
 
     def test_resend_verification_email_already_verified(self, api_client):
         """Test resend of verification email for already verified user."""
@@ -59,7 +60,8 @@ class TestResendEmailView:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["error"] == "User is already verified."
 
-    def test_resend_reset_password_email_success(self, api_client):
+    @patch("authentication.views.send_reset_password_email.delay")
+    def test_resend_reset_password_email_success(self, mock_send_email, api_client):
         """Test successful resend of password reset email."""
         url = reverse("resend_email")
         data = {"email": "registered@example.com", "email_type": "reset_password"}
@@ -67,6 +69,7 @@ class TestResendEmailView:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data["message"] == "Password reset email resent successfully."
+        mock_send_email.assert_called_once()
 
     def test_resend_email_user_not_found(self, api_client):
         """Test resend email for non-existent user."""
