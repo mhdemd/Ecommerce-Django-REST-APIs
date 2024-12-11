@@ -36,6 +36,19 @@ services:
     volumes:
       - redis_data:/data
 
+  celery:
+    build:
+      context: .
+    container_name: celery_worker
+    command: celery -A RadinGalleryAPI worker --loglevel=info
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+
 volumes:
   postgres_data:
   redis_data:
