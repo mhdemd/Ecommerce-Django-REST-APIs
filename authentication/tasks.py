@@ -39,5 +39,7 @@ def send_otp_via_email(subject, message, from_email, recipient_list):
 # ---------------------------------------------------------
 @shared_task
 def send_otp_via_sms(phone_number, otp):
+    # Masking phone number (e.g., showing only last 4 digits)
+    masked_phone = f"*******{phone_number[-4:]}"
     # This section is for integration with the SMS service.
-    print(f"Send SMS to {phone_number} with OTP: {otp}")
+    print(f"Send SMS to {masked_phone} with OTP")
