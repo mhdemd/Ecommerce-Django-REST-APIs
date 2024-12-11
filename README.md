@@ -12,7 +12,10 @@ You can view the latest API documentation, including the current status of all e
 - User authentication and authorization.
 - Integration with Swagger for easy documentation and seamless API interaction.
 - Dockerized application setup with Django and PostgreSQL for the database.
-- Use of Redis for caching data, such as session data and request throttling.
+- Use of Redis for:
+  - Caching data, including storing user click counts for throttling purposes.
+  - Storing Django's default session data.
+  - Managing task queues as a message broker for Celery.
 
 ## Contribute
 We welcome contributors to help enhance this project! Whether you have ideas for new features, bug fixes, or improvements, your help would be greatly appreciated.
