@@ -6,6 +6,8 @@ from django.utils.timezone import now
 
 
 class User(AbstractUser):
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+
     verification_token = models.CharField(max_length=32, blank=True, null=True)
     token_expiration = models.DateTimeField(blank=True, null=True)
 
