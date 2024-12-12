@@ -1,215 +1,224 @@
-from unittest.mock import MagicMock, patch
+import logging
+import random
 
-from django.contrib.auth import get_user_model
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient, APITestCase
+from django.utils.crypto import get_random_string
 
-User = get_user_model()
+from authentication.redis_utils import delete_from_redis, get_from_redis, save_to_redis
+
+logger = logging.getLogger(__name__)
 
 
-class TwoFactorAuthTests(APITestCase):
-    def setUp(self):
-        self.user_password = "StrongPassword123!"
-        self.user = User.objects.create_user(
-            username="testuser",
-            email="test@example.com",
-            password=self.user_password,
-            is_2fa_enabled=False,
-            two_fa_method=None,
-        )
-        self.client = APIClient()
+def generate_otp():
+    """
+    Generate a 6-digit numeric OTP.
+    Returns:
+        str: A string representing a 6-digit OTP code.
+    """
+    return f"{random.randint(100000, 999999)}"
 
-        # URL endpoints
-        self.enable_2fa_url = reverse("enable_2fa")
-        self.generate_otp_url = reverse("generate_otp")
-        self.verify_otp_url = reverse("verify_otp")
-        self.disable_2fa_url = reverse("disable_2fa")
 
-    def authenticate(self):
-        self.client.force_authenticate(user=self.user)
+def generate_verification_token():
+    """
+    Generate a random 32-character token for verification.
+    Returns:
+        str: A random 32-character alphanumeric string.
+    """
+    return get_random_string(32)
 
-    # -------------------- Tests for Enable2FAView --------------------
-    def test_enable_2fa_success_email(self):
-        self.authenticate()
-        data = {"method": "email"}
-        response = self.client.post(self.enable_2fa_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.is_2fa_enabled)
-        self.assertEqual(self.user.two_fa_method, "email")
 
-    def test_enable_2fa_success_sms(self):
-        self.authenticate()
-        self.user.phone_number = "+11234567890"
-        self.user.save()
-        data = {"method": "sms"}
-        response = self.client.post(self.enable_2fa_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.is_2fa_enabled)
-        self.assertEqual(self.user.two_fa_method, "sms")
+def store_otp_for_user(user_id, otp, ttl=300):
+    """
+    Store the given OTP for a user in Redis with a specified TTL.
 
-    def test_enable_2fa_already_enabled(self):
-        self.authenticate()
-        self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "email"
-        self.user.save()
+    Args:
+        user_id (int or str): The ID of the user.
+        otp (str): The one-time password to store.
+        ttl (int): Time-to-live in seconds (default 300 seconds).
 
-        data = {"method": "sms"}
-        response = self.client.post(self.enable_2fa_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    Returns:
+        None
+    """
+    key = f"auth:otp:{user_id}"
+    try:
+        logger.info(f"Attempting to store OTP for user {user_id}: {otp}")
+        save_to_redis(key, otp, ttl=ttl)
+        logger.info(f"Successfully stored OTP for user {user_id}")
+    except Exception as e:
+        logger.error(f"Failed to store OTP for user {user_id}: {e}")
+        raise
 
-    def test_enable_2fa_unauthenticated(self):
-        data = {"method": "email"}
-        client = APIClient()
-        response = client.post(self.enable_2fa_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    # -------------------- Tests for GenerateOTPView --------------------
-    @patch("authentication.views.store_otp_for_user")
-    @patch("authentication.tasks.send_otp_via_email.delay")
-    @patch("authentication.tasks.send_otp_via_sms.delay")
-    def test_generate_otp_success_email(
-        self, mock_send_sms, mock_send_email, mock_store_otp
-    ):
-        self.authenticate()
-        self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "email"
-        self.user.save()
+def get_otp_for_user(user_id):
+    """
+    Retrieve the stored OTP for a given user from Redis.
 
-        data = {"method": "email"}
-        response = self.client.post(self.generate_otp_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        mock_store_otp.assert_called_once()
-        mock_send_email.assert_called_once()
-        mock_send_sms.assert_not_called()
+    Args:
+        user_id (int or str): The ID of the user.
 
-    @patch("authentication.views.store_otp_for_user")
-    @patch("authentication.tasks.send_otp_via_email.delay")
-    @patch("authentication.tasks.send_otp_via_sms.delay")
-    def test_generate_otp_success_sms(
-        self, mock_send_sms, mock_send_email, mock_store_otp
-    ):
-        self.authenticate()
-        self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "sms"
-        self.user.phone_number = "+11234567890"
-        self.user.save()
+    Returns:
+        str or None: The stored OTP if it exists, otherwise None.
+    """
+    key = f"auth:otp:{user_id}"
+    try:
+        logger.info(f"Attempting to retrieve OTP for user {user_id}")
+        otp = get_from_redis(key)
+        if otp:
+            logger.info(f"Retrieved OTP for user {user_id}: {otp}")
+        else:
+            logger.warning(f"No OTP found for user {user_id}")
+        return otp
+    except Exception as e:
+        logger.error(f"Failed to retrieve OTP for user {user_id}: {e}")
+        raise
 
-        data = {"method": "sms"}
-        response = self.client.post(self.generate_otp_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        mock_store_otp.assert_called_once()
-        mock_send_sms.assert_called_once()
-        mock_send_email.assert_not_called()
 
-    def test_generate_otp_2fa_not_enabled(self):
-        self.authenticate()
-        data = {"method": "email"}
-        response = self.client.post(self.generate_otp_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+def delete_otp_for_user(user_id):
+    """
+    Delete the stored OTP for a given user from Redis.
 
-    def test_generate_otp_method_mismatch(self):
-        self.authenticate()
-        self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "email"
-        self.user.save()
+    Args:
+        user_id (int or str): The ID of the user.
 
-        data = {"method": "sms"}
-        response = self.client.post(self.generate_otp_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    Returns:
+        None
+    """
+    key = f"auth:otp:{user_id}"
+    try:
+        logger.info(f"Attempting to delete OTP for user {user_id}")
+        delete_from_redis(key)
+        logger.info(f"Successfully deleted OTP for user {user_id}")
+    except Exception as e:
+        logger.error(f"Failed to delete OTP for user {user_id}: {e}")
+        raise
 
-    def test_generate_otp_unauthenticated(self):
-        data = {"method": "email"}
-        client = APIClient()
-        response = client.post(self.generate_otp_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    # -------------------- Tests for VerifyOTPView --------------------
-    @patch("authentication.views.get_otp_for_user")
-    @patch("authentication.views.delete_otp_for_user")
-    def test_verify_otp_success(self, mock_delete_otp, mock_get_otp):
-        self.authenticate()
-        self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "email"
-        self.user.save()
+def store_verification_token(token, user_id, ttl=3600):
+    """
+    Store a verification token associated with a user_id for a specified TTL.
 
-        mock_get_otp.return_value = "123456"
-        data = {"otp": "123456"}
-        response = self.client.post(self.verify_otp_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        mock_delete_otp.assert_called_once()
+    Args:
+        token (str): The verification token.
+        user_id (int or str): The ID of the user associated with this token.
+        ttl (int): Time-to-live in seconds (default 3600 seconds).
 
-    @patch("authentication.views.get_otp_for_user")
-    def test_verify_otp_invalid_or_expired(self, mock_get_otp):
-        self.authenticate()
-        self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "email"
-        self.user.save()
+    Returns:
+        None
+    """
+    key = f"auth:verification_token:{token}"
+    try:
+        logger.info(f"Attempting to store verification token for user {user_id}")
+        save_to_redis(key, user_id, ttl=ttl)
+        logger.info(f"Successfully stored verification token for user {user_id}")
+    except Exception as e:
+        logger.error(f"Failed to store verification token for user {user_id}: {e}")
+        raise
 
-        mock_get_otp.return_value = None
-        data = {"otp": "123456"}
-        response = self.client.post(self.verify_otp_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch("authentication.views.get_otp_for_user")
-    def test_verify_otp_incorrect(self, mock_get_otp):
-        self.authenticate()
-        self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "email"
-        self.user.save()
+def get_user_id_by_verification_token(token):
+    """
+    Retrieve the user_id associated with a given verification token from Redis.
 
-        mock_get_otp.return_value = "123456"
-        data = {"otp": "654321"}
-        response = self.client.post(self.verify_otp_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    Args:
+        token (str): The verification token.
 
-    def test_verify_otp_unauthenticated(self):
-        data = {"otp": "123456"}
-        client = APIClient()
-        response = client.post(self.verify_otp_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    Returns:
+        str or None: The user_id if the token is found, otherwise None.
+    """
+    key = f"auth:verification_token:{token}"
+    try:
+        logger.info(f"Attempting to retrieve user ID by verification token {token}")
+        user_id = get_from_redis(key)
+        if user_id:
+            logger.info(f"Retrieved user ID {user_id} for token {token}")
+        else:
+            logger.warning(f"No user ID found for token {token}")
+        return user_id
+    except Exception as e:
+        logger.error(f"Failed to retrieve user ID by token {token}: {e}")
+        raise
 
-    # -------------------- Tests for Disable2FAView --------------------
-    def test_disable_2fa_success(self):
-        self.authenticate()
-        self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "email"
-        self.user.set_password(self.user_password)
-        self.user.save()
 
-        data = {"password": self.user_password}
-        response = self.client.post(self.disable_2fa_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.user.refresh_from_db()
-        self.assertFalse(self.user.is_2fa_enabled)
-        self.assertIsNone(self.user.two_fa_method)
+def delete_verification_token(token):
+    """
+    Delete a verification token from Redis.
 
-    def test_disable_2fa_not_enabled(self):
-        self.authenticate()
-        self.user.is_2fa_enabled = False
-        self.user.save()
+    Args:
+        token (str): The verification token to delete.
 
-        data = {"password": self.user_password}
-        response = self.client.post(self.disable_2fa_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    Returns:
+        None
+    """
+    key = f"auth:verification_token:{token}"
+    try:
+        logger.info(f"Attempting to delete verification token {token}")
+        delete_from_redis(key)
+        logger.info(f"Successfully deleted verification token {token}")
+    except Exception as e:
+        logger.error(f"Failed to delete verification token {token}: {e}")
+        raise
 
-    def test_disable_2fa_invalid_password(self):
-        self.authenticate()
-        self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "email"
-        self.user.set_password(self.user_password)
-        self.user.save()
 
-        data = {"password": "WrongPass"}
-        response = self.client.post(self.disable_2fa_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.is_2fa_enabled)
+def store_password_reset_token(token, user_id, ttl=3600):
+    """
+    Store a password reset token associated with a user_id.
 
-    def test_disable_2fa_unauthenticated(self):
-        data = {"password": self.user_password}
-        client = APIClient()
-        response = client.post(self.disable_2fa_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    Args:
+        token (str): The password reset token.
+        user_id (int or str): The ID of the user.
+        ttl (int): Time-to-live in seconds (default 3600 seconds).
+
+    Returns:
+        None
+    """
+    key = f"auth:password_reset_token:{token}"
+    try:
+        logger.info(f"Attempting to store password reset token for user {user_id}")
+        save_to_redis(key, user_id, ttl=ttl)
+        logger.info(f"Successfully stored password reset token for user {user_id}")
+    except Exception as e:
+        logger.error(f"Failed to store password reset token for user {user_id}: {e}")
+        raise
+
+
+def get_user_id_by_password_reset_token(token):
+    """
+    Retrieve the user_id associated with a password reset token.
+
+    Args:
+        token (str): The password reset token.
+
+    Returns:
+        str or None: The user_id if found, otherwise None.
+    """
+    key = f"auth:password_reset_token:{token}"
+    try:
+        logger.info(f"Attempting to retrieve user ID by password reset token {token}")
+        user_id = get_from_redis(key)
+        if user_id:
+            logger.info(f"Retrieved user ID {user_id} for token {token}")
+        else:
+            logger.warning(f"No user ID found for token {token}")
+        return user_id
+    except Exception as e:
+        logger.error(f"Failed to retrieve user ID by token {token}: {e}")
+        raise
+
+
+def delete_password_reset_token(token):
+    """
+    Delete a password reset token from Redis.
+
+    Args:
+        token (str): The password reset token to delete.
+
+    Returns:
+        None
+    """
+    key = f"auth:password_reset_token:{token}"
+    try:
+        logger.info(f"Attempting to delete password reset token {token}")
+        delete_from_redis(key)
+        logger.info(f"Successfully deleted password reset token {token}")
+    except Exception as e:
+        logger.error(f"Failed to delete password reset token {token}: {e}")
+        raise

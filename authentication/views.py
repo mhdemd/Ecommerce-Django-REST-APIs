@@ -33,7 +33,12 @@ from .serializers import (
     UpdateProfileSerializer,
     VerifyOTPSerializer,
 )
-from .tasks import send_otp_via_email, send_otp_via_sms
+from .tasks import (
+    send_otp_via_email,
+    send_otp_via_sms,
+    send_reset_password_email,
+    send_verification_email,
+)
 from .token_mixin import TokenMixin
 from .utils_otp_and_tokens import (
     delete_otp_for_user,

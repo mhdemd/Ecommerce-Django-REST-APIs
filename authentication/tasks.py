@@ -1,4 +1,3 @@
-# tasks.py (assuming already defined tasks for sending emails and SMS)
 from celery import shared_task
 from django.core.mail import send_mail
 
@@ -15,3 +14,13 @@ def send_otp_via_sms(phone_number, otp):
     # Integration with an SMS service should be done here.
     # Do not print sensitive info in production logs.
     pass
+
+
+@shared_task
+def send_verification_email(subject, message, from_email, recipient_list):
+    send_mail(subject, message, from_email, recipient_list)
+
+
+@shared_task
+def send_reset_password_email(subject, message, from_email, recipient_list):
+    send_mail(subject, message, from_email, recipient_list)

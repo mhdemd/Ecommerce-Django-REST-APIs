@@ -40,7 +40,7 @@ class TestResendEmailView:
             "active@example.com", "active_user", is_active=True
         )
 
-    @patch("authentication.views.send_verification_email.delay")
+    @patch("authentication.tasks.send_verification_email.delay")
     def test_resend_verification_email_success(self, mock_send_email, api_client):
         """Test successful resend of verification email for inactive user."""
         url = reverse("resend_email")
@@ -60,7 +60,7 @@ class TestResendEmailView:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["error"] == "User is already verified."
 
-    @patch("authentication.views.send_reset_password_email.delay")
+    @patch("authentication.tasks.send_reset_password_email.delay")
     def test_resend_reset_password_email_success(self, mock_send_email, api_client):
         """Test successful resend of password reset email."""
         url = reverse("resend_email")
