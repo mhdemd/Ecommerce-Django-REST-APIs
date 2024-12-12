@@ -337,17 +337,25 @@ LOGGING = {
             "filename": os.path.join(BASE_DIR, "debug.log"),
             "formatter": "verbose",
         },
+        "null": {  # اضافه کردن NullHandler
+            "class": "logging.NullHandler",
+        },
     },
     "loggers": {
         "django": {
             "handlers": ["file"],
             "level": "DEBUG",
-            "propagate": True,
+            "propagate": False,
         },
-        "authentication": {  # Replace with your app's name
+        "authentication": {
             "handlers": ["file"],
             "level": "DEBUG",
-            "propagate": True,
+            "propagate": False,
+        },
+        "console": {
+            "handlers": ["null"],
+            "level": "DEBUG",
+            "propagate": False,
         },
     },
 }

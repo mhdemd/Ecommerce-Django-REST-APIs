@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -471,49 +471,59 @@ class ForgotPasswordView(TokenMixin, generics.GenericAPIView):
 class ResetPasswordView(generics.GenericAPIView):
     serializer_class = ResetPasswordSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
+    def post(self, request):
+        """
+        Handle password reset requests with token validation.
+        """
+        # Validate token from query parameters
         token = request.query_params.get("token")
         if not token:
-            logger.warning("Reset password attempt without token.")
             return Response(
                 {"error": "Token is required in query parameters."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Get user_id from Redis by token
+        # Retrieve user ID associated with the token
         user_id = get_user_id_by_password_reset_token(token)
         if not user_id:
-            logger.error("No user_id found with the given token in Redis.")
             return Response(
-                {"error": "User not found with the given token."},
-                status=status.HTTP_404_NOT_FOUND,
+                {"error": "Token is invalid or expired."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Check if user exists
+        # Retrieve and validate the user object
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            logger.error("User does not exist in DB.")
             return Response(
-                {"error": "User not found with the given token."},
+                {"error": "No user found for the given token."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # If token is in Redis, it is not expired yet.
-        # Set the new password
+        # Validate the password data using serializer
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Check if passwords match
         new_password = serializer.validated_data["new_password"]
+        new_password2 = serializer.validated_data["new_password2"]
+
+        if new_password != new_password2:
+            return Response(
+                {"error": "Passwords do not match."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Update the user's password securely
         user.set_password(new_password)
         user.save()
 
-        # Delete token from Redis
+        # Delete the token from Redis after successful password reset
         delete_password_reset_token(token)
 
-        logger.info(f"Password reset successfully for user {user.id}.")
         return Response(
-            {"message": "Password reset successfully."}, status=status.HTTP_200_OK
+            {"message": "Password reset successful."},
+            status=status.HTTP_200_OK,
         )
 
 

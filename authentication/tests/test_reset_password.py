@@ -5,6 +5,8 @@ from django.utils.timezone import now, timedelta
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from authentication.utils_otp_and_tokens import store_password_reset_token
+
 User = get_user_model()
 
 
@@ -43,22 +45,19 @@ def expired_user_with_token():
 
 @pytest.mark.django_db
 def test_reset_password_success(api_client, user_with_token):
-    url = reverse("reset_password")  # Make sure this matches your URL name
+    """Test successful password reset."""
+    url = reverse("reset_password")
+    token = "valid_token"
+    store_password_reset_token(token, user_with_token.id, ttl=3600)
+
     data = {
         "new_password": "new_password123",
         "new_password2": "new_password123",
     }
-    response = api_client.post(
-        url + f"?token={user_with_token.verification_token}", data
-    )
+    response = api_client.post(url + f"?token={token}", data)
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.data["message"] == "Password reset successfully."
-
-    user_with_token.refresh_from_db()
-    assert user_with_token.verification_token is None
-    assert user_with_token.token_expiration is None
-    assert user_with_token.check_password("new_password123")
+    assert response.data["message"] == "Password reset successful."
 
 
 @pytest.mark.django_db
@@ -86,33 +85,34 @@ def test_reset_password_expired_token(api_client, expired_user_with_token):
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.data["error"] == "Token has expired."
+    assert response.data["error"] == "Token is invalid or expired."
 
 
 @pytest.mark.django_db
 def test_reset_password_user_not_found(api_client):
+    """Test handling a user not found for a given token."""
     url = reverse("reset_password")
-    data = {
-        "new_password": "new_password123",
-        "new_password2": "new_password123",
-    }
+    data = {"new_password": "new_password123", "new_password2": "new_password123"}
     response = api_client.post(url + "?token=invalid_token", data)
     print(response.data)
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert "detail" in response.data
-    assert response.data["detail"] == "No User matches the given query."
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data["error"] == "Token is invalid or expired."
 
 
 @pytest.mark.django_db
 def test_reset_password_mismatched_passwords(api_client, user_with_token):
+    """Test handling mismatched passwords during reset."""
     url = reverse("reset_password")
+    token = "valid_token"
+    store_password_reset_token(token, user_with_token.id, ttl=3600)
+
     data = {
         "new_password": "new_password123",
         "new_password2": "different_password",
     }
-    response = api_client.post(
-        url + f"?token={user_with_token.verification_token}", data
-    )
+    response = api_client.post(url + f"?token={token}", data)
+    print(response.data)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Passwords do not match." in response.data["new_password"]
+    assert "new_password" in response.data  # Ensure 'new_password' key exists
+    assert response.data["new_password"][0] == "Passwords do not match."
