@@ -15,3 +15,9 @@ def generate_otp():
 def generate_verification_token():
     # Generate a random 32-char token
     return get_random_string(32)
+
+
+def store_otp_for_user(user_id, otp, ttl=300):
+    # Store OTP with TTL of 5 minutes for the given user_id
+    key = f"otp:{user_id}"
+    save_to_redis(key, otp, ttl=ttl)
