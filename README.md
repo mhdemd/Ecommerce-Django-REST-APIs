@@ -16,6 +16,7 @@ You can view the latest API documentation, including the current status of all e
   - Caching data, including storing user click counts for throttling purposes.
   - Storing Django's default session data.
   - Managing task queues as a message broker for Celery.
+  - **Storing temporary tokens** for email verification and OTPs for enhanced security and performance.
 
 ## Contribute
 We welcome contributors to help enhance this project! Whether you have ideas for new features, bug fixes, or improvements, your help would be greatly appreciated.
