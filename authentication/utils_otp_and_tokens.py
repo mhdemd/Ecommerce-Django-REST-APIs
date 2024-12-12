@@ -21,3 +21,9 @@ def store_otp_for_user(user_id, otp, ttl=300):
     # Store OTP with TTL of 5 minutes for the given user_id
     key = f"otp:{user_id}"
     save_to_redis(key, otp, ttl=ttl)
+
+
+def get_otp_for_user(user_id):
+    # Retrieve OTP for the given user_id
+    key = f"otp:{user_id}"
+    return get_from_redis(key)
