@@ -1,8 +1,6 @@
 import random
-import uuid
 
 from django.utils.crypto import get_random_string
-from django.utils.timezone import now, timedelta
 
 from .redis_utils import delete_from_redis, get_from_redis, save_to_redis
 
@@ -50,4 +48,20 @@ def get_user_id_by_verification_token(token):
 def delete_verification_token(token):
     # Delete the token after it is used or expired
     key = f"verification_token:{token}"
+    delete_from_redis(key)
+
+
+def store_password_reset_token(token, user_id, ttl=3600):
+    # Store password reset token for 1 hour
+    key = f"password_reset_token:{token}"
+    save_to_redis(key, user_id, ttl=ttl)
+
+
+def get_user_id_by_password_reset_token(token):
+    key = f"password_reset_token:{token}"
+    return get_from_redis(key)
+
+
+def delete_password_reset_token(token):
+    key = f"password_reset_token:{token}"
     delete_from_redis(key)
