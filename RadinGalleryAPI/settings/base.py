@@ -95,7 +95,21 @@ DATABASES = {
 
 
 # ---------------------------------------------------------
-# Cache (Redis)
+# Redis
+# ---------------------------------------------------------
+REDIS_HOST = "redis_cache"
+REDIS_PORT = 6379
+REDIS_DB = 0
+
+import redis
+
+redis_instance = redis.StrictRedis(
+    host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True
+)
+
+
+# ---------------------------------------------------------
+# Cache
 # ---------------------------------------------------------
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
