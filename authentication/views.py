@@ -28,7 +28,7 @@ from authentication.tasks import (
     send_verification_email,
 )
 
-from .models import SessionInfo
+from .models import SessionInfo, User
 from .serializers import (
     ChangePasswordSerializer,
     Disable2FASerializer,
@@ -44,40 +44,21 @@ from .serializers import (
     VerifyOTPSerializer,
 )
 from .tasks import send_otp_via_email, send_otp_via_sms
+from .token_mixin import TokenMixin
 from .utils_otp_and_tokens import (
     delete_otp_for_user,
+    delete_password_reset_token,
+    delete_verification_token,
+    generate_verification_token,
     get_otp_for_user,
+    get_user_id_by_password_reset_token,
+    get_user_id_by_verification_token,
     store_otp_for_user,
+    store_password_reset_token,
+    store_verification_token,
 )
 
 logger = logging.getLogger(__name__)
-
-
-# ---------------------------- Mixin ----------------------------
-class TokenMixin:
-    def generate_token(self, user, expiry_hours=1):
-        """
-        Generate a secure token and save it to the user model with an expiration time.
-        """
-        # Generate the token
-        token = get_random_string(32)
-        token_expiration = now() + timedelta(hours=expiry_hours)
-
-        # Log the token generation process
-        logger.info(
-            f"Generating token for user {user.id} with expiration at {token_expiration}."
-        )
-
-        # Save the token and expiration time to the user's model
-        user.verification_token = token
-        user.token_expiration = token_expiration
-        user.save()
-
-        logger.info(
-            f"Token for user {user.id} saved successfully with expiration at {token_expiration}."
-        )
-
-        return token
 
 
 # ---------------------------- JWT endpoints ----------------------------
@@ -910,13 +891,11 @@ class Disable2FAView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Check if 2FA is enabled
         if not user.is_2fa_enabled:
             return Response(
                 {"error": "2FA is not enabled."}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Verify password or OTP
         if not user.check_password(serializer.validated_data["password"]):
             return Response(
                 {"error": "Invalid password."}, status=status.HTTP_400_BAD_REQUEST
@@ -925,8 +904,7 @@ class Disable2FAView(generics.GenericAPIView):
         # Disable 2FA
         user.is_2fa_enabled = False
         user.two_fa_method = None
-        user.otp_code = None
-        user.otp_expiry = None
+        # No OTP to delete from Redis since user didn't provide OTP here
         user.save()
 
         return Response(
