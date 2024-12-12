@@ -27,3 +27,9 @@ def get_otp_for_user(user_id):
     # Retrieve OTP for the given user_id
     key = f"otp:{user_id}"
     return get_from_redis(key)
+
+
+def delete_otp_for_user(user_id):
+    # Delete OTP after verification
+    key = f"otp:{user_id}"
+    delete_from_redis(key)
