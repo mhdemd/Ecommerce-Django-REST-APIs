@@ -8,9 +8,6 @@ from django.utils.timezone import now
 class User(AbstractUser):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
-    verification_token = models.CharField(max_length=32, blank=True, null=True)
-    token_expiration = models.DateTimeField(blank=True, null=True)
-
     # Fields for 2FA
     is_2fa_enabled = models.BooleanField(default=False)  # Whether 2FA is enabled
     two_fa_method = models.CharField(  # Method of 2FA (email or SMS)
@@ -19,8 +16,6 @@ class User(AbstractUser):
         blank=True,
         null=True,
     )
-    otp_code = models.CharField(max_length=6, blank=True, null=True)  # OTP code
-    otp_expiry = models.DateTimeField(blank=True, null=True)  # OTP expiration time
 
 
 class SessionInfo(models.Model):
