@@ -33,3 +33,9 @@ def delete_otp_for_user(user_id):
     # Delete OTP after verification
     key = f"otp:{user_id}"
     delete_from_redis(key)
+
+
+def store_verification_token(token, user_id, ttl=3600):
+    # Store a verification token associated with a user_id for 1 hour
+    key = f"verification_token:{token}"
+    save_to_redis(key, user_id, ttl=ttl)
