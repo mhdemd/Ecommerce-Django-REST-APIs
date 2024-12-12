@@ -1,12 +1,9 @@
 import logging
-from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from django.utils.crypto import get_random_string
-from django.utils.timezone import now, timedelta
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
@@ -19,14 +16,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
-from authentication.models import Session, User
 from authentication.serializers import Disable2FASerializer
-from authentication.tasks import (
-    send_otp_via_email,
-    send_otp_via_sms,
-    send_reset_password_email,
-    send_verification_email,
-)
 
 from .models import SessionInfo, User
 from .serializers import (
@@ -49,13 +39,10 @@ from .utils_otp_and_tokens import (
     delete_otp_for_user,
     delete_password_reset_token,
     delete_verification_token,
-    generate_verification_token,
     get_otp_for_user,
     get_user_id_by_password_reset_token,
     get_user_id_by_verification_token,
     store_otp_for_user,
-    store_password_reset_token,
-    store_verification_token,
 )
 
 logger = logging.getLogger(__name__)
@@ -78,7 +65,7 @@ class CustomTokenVerifyView(TokenVerifyView):
 
 
 # ---------------------------- Authentication Endpoints ----------------------------
-class RegisterView(generics.GenericAPIView):
+class RegisterView(TokenMixin, generics.GenericAPIView):
     serializer_class = RegisterSerializer
 
     @extend_schema(
