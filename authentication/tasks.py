@@ -1,45 +1,17 @@
+# tasks.py (assuming already defined tasks for sending emails and SMS)
 from celery import shared_task
 from django.core.mail import send_mail
 
 
-# ---------------------------------------------------------
-# RegisterView
-# ---------------------------------------------------------
-@shared_task
-def send_verification_email(subject, message, from_email, recipient_list):
-    try:
-        send_mail(subject, message, from_email, recipient_list)
-        return f"Email sent to {recipient_list}"
-    except Exception as e:
-        return f"Failed to send email: {e}"
-
-
-# ---------------------------------------------------------
-# ForgotPasswordView
-# ---------------------------------------------------------
-@shared_task
-def send_reset_password_email(subject, message, from_email, recipient_list):
-    try:
-        send_mail(subject, message, from_email, recipient_list)
-        return f"Password reset email sent to {recipient_list}"
-    except Exception as e:
-        return f"Failed to send email: {e}"
-
-
-# ---------------------------------------------------------
-# GenerateOTPView with Email
-# ---------------------------------------------------------
 @shared_task
 def send_otp_via_email(subject, message, from_email, recipient_list):
+    # Sends the OTP via email asynchronously
     send_mail(subject, message, from_email, recipient_list)
 
 
-# ---------------------------------------------------------
-# GenerateOTPView with SMS
-# ---------------------------------------------------------
 @shared_task
 def send_otp_via_sms(phone_number, otp):
-    # Masking phone number (e.g., showing only last 4 digits)
-    masked_phone = f"*******{phone_number[-4:]}"
-    # This section is for integration with the SMS service.
-    print(f"Send SMS to {masked_phone} with OTP")
+    # Placeholder for sending OTP via SMS
+    # Integration with an SMS service should be done here.
+    # Do not print sensitive info in production logs.
+    pass
