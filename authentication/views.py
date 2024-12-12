@@ -828,6 +828,7 @@ class GenerateOTPView(generics.GenericAPIView):
         method = serializer.validated_data["method"]
         user = request.user
 
+        # Check if 2FA is enabled and the method matches
         if not user.is_2fa_enabled or user.two_fa_method != method:
             return Response(
                 {"error": "2FA is not enabled or method mismatch."},
@@ -836,11 +837,10 @@ class GenerateOTPView(generics.GenericAPIView):
 
         # Generate OTP
         otp = get_random_string(6, allowed_chars="0123456789")
-        user.otp_code = otp
-        user.otp_expiry = now() + timedelta(minutes=5)
-        user.save()
+        # Store OTP in Redis with a TTL of 5 minutes
+        store_otp_for_user(user.id, otp, ttl=300)
 
-        # Send OTP
+        # Send OTP via selected method
         if method == "email":
             send_otp_via_email.delay(
                 "Your OTP Code",
@@ -849,7 +849,6 @@ class GenerateOTPView(generics.GenericAPIView):
                 [user.email],
             )
         elif method == "sms":
-            # Call SMS task
             send_otp_via_sms.delay(user.phone_number, otp)
 
         return Response(
