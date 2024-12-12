@@ -151,49 +151,47 @@ class RegisterView(generics.GenericAPIView):
         )
 
 
-class VerifyEmailView(generics.GenericAPIView):
-
-    @extend_schema(
-        tags=["Auth - Registration"],
-        summary="Verify Email",
-        description=(
-            "# Activates a user account after email verification.\n"
-            "- When the user clicks on the link sent to their email, this API is called.\n"
-            "- The link contains a temporary token that is valid for one hour.\n"
-            "- Without the temporary token, you cannot access this API.\n"
-        ),
-        responses={
-            200: {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string",
-                        "example": "Email verified successfully.",
-                    }
-                },
-            },
-            400: {
-                "type": "object",
-                "properties": {
-                    "error": {
-                        "type": "string",
-                        "example": "Invalid token.",
-                    }
-                },
-            },
-            401: {
-                "type": "object",
-                "properties": {
-                    "error": {
-                        "type": "string",
-                        "example": "Token has expired.",
-                    }
-                },
+@extend_schema(
+    tags=["Auth - Registration"],
+    summary="Verify Email",
+    description=(
+        "# Activates a user account after email verification.\n"
+        "- When the user clicks on the link sent to their email, this API is called.\n"
+        "- The link contains a temporary token that is valid for one hour.\n"
+        "- Without the temporary token, you cannot access this API.\n"
+    ),
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Email verified successfully.",
+                }
             },
         },
-    )
+        400: {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Invalid token.",
+                }
+            },
+        },
+        401: {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Token has expired.",
+                }
+            },
+        },
+    },
+)
+class VerifyEmailView(generics.GenericAPIView):
     def get(self, request):
-        # Get the token directly from query parameters
         token = request.query_params.get("token")
 
         if not token:
@@ -202,32 +200,33 @@ class VerifyEmailView(generics.GenericAPIView):
                 {"error": "Token is required."}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        try:
-            user = User.objects.get(verification_token=token)
-            logger.info(f"Found user {user.id} for token verification.")
-
-            # Check if the token is expired
-            if user.token_expiration < timezone.now():
-                logger.warning(f"Token for user {user.id} has expired.")
-                return Response(
-                    {"error": "Token has expired."}, status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Activate the user and clear the token
-            user.is_active = True
-            user.verification_token = None  # Remove the token after verification
-            user.token_expiration = None
-            user.save()
-
-            logger.info(f"User {user.id} email verified successfully.")
-            return Response(
-                {"message": "Email verified successfully."}, status=status.HTTP_200_OK
-            )
-        except User.DoesNotExist:
-            logger.error("Invalid token provided, user not found.")
+        # Get user_id from token in Redis
+        user_id = get_user_id_by_verification_token(token)
+        if not user_id:
+            logger.error("Invalid token provided, user not found in Redis.")
             return Response(
                 {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
             )
+
+        # If user_id found, get the user from DB
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            logger.error("User does not exist in DB.")
+            return Response(
+                {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # If token is in Redis, it hasn't expired yet (Redis handles expiration)
+        # Activate user and delete token
+        user.is_active = True
+        user.save()
+        delete_verification_token(token)
+
+        logger.info(f"User {user.id} email verified successfully.")
+        return Response(
+            {"message": "Email verified successfully."}, status=status.HTTP_200_OK
+        )
 
 
 class LogoutView(generics.GenericAPIView):
@@ -437,61 +436,53 @@ class ForgotPasswordView(TokenMixin, generics.GenericAPIView):
         )
 
 
+@extend_schema(
+    tags=["Auth - Password"],
+    summary="Reset Password",
+    description=(
+        "# Resets the user's password using the provided token and new password.\n"
+        "- This is used when the user doesn't remember the old password.\n"
+        "- The token is sent via email with a link.\n"
+        "- The user provides the new password here.\n"
+        "- Token expiration and validity are handled by Redis.\n"
+    ),
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Password reset successfully.",
+                }
+            },
+        },
+        400: {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Token is required in query parameters.",
+                }
+            },
+        },
+        404: {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "User not found with the given token.",
+                }
+            },
+        },
+    },
+)
 class ResetPasswordView(generics.GenericAPIView):
     serializer_class = ResetPasswordSerializer
 
-    @extend_schema(
-        tags=["Auth - Password"],
-        summary="Reset Password",
-        description=(
-            "# Resets the user's password using the provided token and new password.\n"
-            "- This is used in cases where, unlike the ChangePasswordView, the previous password is not available. Instead, the user provides their email address, and a link containing a temporary token is sent to them. The user's identity is determined based on the token.\n"
-            "- The user then enters a new password, which replaces their old password in the database.\n"
-            "- The token is automatically retrieved from the query parameters of the request.\n"
-            "- The password validation rules from the ChangePasswordView are applied to ensure the new passwords meet the required standards.\n"
-        ),
-        responses={
-            200: {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string",
-                        "example": "Password reset successfully.",
-                    }
-                },
-            },
-            400: {
-                "type": "object",
-                "properties": {
-                    "error": {
-                        "type": "string",
-                        "example": "Token is required in query parameters.",
-                    }
-                },
-            },
-            404: {
-                "type": "object",
-                "properties": {
-                    "error": {
-                        "type": "string",
-                        "example": "User not found with the given token.",
-                    }
-                },
-            },
-            422: {
-                "type": "object",
-                "properties": {
-                    "error": {"type": "string", "example": "Token has expired."}
-                },
-            },
-        },
-    )
     def post(self, request, *args, **kwargs):
-        # Validate the serializer data
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Get the token from query_params
         token = request.query_params.get("token")
         if not token:
             logger.warning("Reset password attempt without token.")
@@ -500,32 +491,33 @@ class ResetPasswordView(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Find the user associated with the token
-        try:
-            user = get_object_or_404(User, verification_token=token)
-            logger.info(f"Found user {user.id} for token reset.")
-        except User.DoesNotExist:
-            logger.error(f"No user found with the given token.")
+        # Get user_id from Redis by token
+        user_id = get_user_id_by_password_reset_token(token)
+        if not user_id:
+            logger.error("No user_id found with the given token in Redis.")
             return Response(
                 {"error": "User not found with the given token."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Check if the token is expired
-        if user.token_expiration < now():
-            logger.warning(f"Token for user {user.id} has expired.")
+        # Check if user exists
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            logger.error("User does not exist in DB.")
             return Response(
-                {"error": "Token has expired."}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "User not found with the given token."},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
+        # If token is in Redis, it is not expired yet.
         # Set the new password
         new_password = serializer.validated_data["new_password"]
         user.set_password(new_password)
-
-        # Clear the token and expiration
-        user.verification_token = None
-        user.token_expiration = None
         user.save()
+
+        # Delete token from Redis
+        delete_password_reset_token(token)
 
         logger.info(f"Password reset successfully for user {user.id}.")
         return Response(
