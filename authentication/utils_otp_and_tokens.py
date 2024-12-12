@@ -39,3 +39,9 @@ def store_verification_token(token, user_id, ttl=3600):
     # Store a verification token associated with a user_id for 1 hour
     key = f"verification_token:{token}"
     save_to_redis(key, user_id, ttl=ttl)
+
+
+def get_user_id_by_verification_token(token):
+    # Retrieve user_id associated with this token
+    key = f"verification_token:{token}"
+    return get_from_redis(key)
