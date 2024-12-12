@@ -43,6 +43,12 @@ from .serializers import (
     UpdateProfileSerializer,
     VerifyOTPSerializer,
 )
+from .tasks import send_otp_via_email, send_otp_via_sms
+from .utils_otp_and_tokens import (
+    delete_otp_for_user,
+    get_otp_for_user,
+    store_otp_for_user,
+)
 
 logger = logging.getLogger(__name__)
 
