@@ -1,89 +1,215 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
-from django.utils.timezone import now
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
 
-from authentication.models import User
-
-
-@pytest.fixture
-def create_user(db):
-    """Fixture to create a test user."""
-    return User.objects.create_user(
-        username="testuser",
-        email="testuser@example.com",
-        password="testpassword",
-        phone_number="1234567890",  # Add phone number
-    )
+User = get_user_model()
 
 
-@pytest.fixture
-def api_client():
-    """Fixture to provide API client."""
-    from rest_framework.test import APIClient
-
-    return APIClient()
-
-
-@pytest.mark.django_db
-class Test2FA:
-    @pytest.fixture(autouse=True)
-    def setup(self, create_user):
-        self.user = create_user
-
-    def authenticate(self, client):
-        """Helper method to authenticate the test user."""
-        response = client.post(
-            reverse("token_obtain_pair"),
-            {"username": self.user.username, "password": "testpassword"},
+class TwoFactorAuthTests(APITestCase):
+    def setUp(self):
+        self.user_password = "StrongPassword123!"
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="test@example.com",
+            password=self.user_password,
+            is_2fa_enabled=False,
+            two_fa_method=None,
         )
-        assert response.status_code == 200
-        token = response.data["access"]
-        client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        self.client = APIClient()
 
-    @patch("authentication.tasks.send_otp_via_email.delay")
-    def test_generate_otp_success_email(self, mock_send_email, api_client):
-        """Test successful generation of OTP with email."""
+        # URL endpoints
+        self.enable_2fa_url = reverse("enable_2fa")
+        self.generate_otp_url = reverse("generate_otp")
+        self.verify_otp_url = reverse("verify_otp")
+        self.disable_2fa_url = reverse("disable_2fa")
+
+    def authenticate(self):
+        self.client.force_authenticate(user=self.user)
+
+    # -------------------- Tests for Enable2FAView --------------------
+    def test_enable_2fa_success_email(self):
+        self.authenticate()
+        data = {"method": "email"}
+        response = self.client.post(self.enable_2fa_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_2fa_enabled)
+        self.assertEqual(self.user.two_fa_method, "email")
+
+    def test_enable_2fa_success_sms(self):
+        self.authenticate()
+        self.user.phone_number = "+11234567890"
+        self.user.save()
+        data = {"method": "sms"}
+        response = self.client.post(self.enable_2fa_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_2fa_enabled)
+        self.assertEqual(self.user.two_fa_method, "sms")
+
+    def test_enable_2fa_already_enabled(self):
+        self.authenticate()
         self.user.is_2fa_enabled = True
         self.user.two_fa_method = "email"
         self.user.save()
 
-        self.authenticate(api_client)
-        url = reverse("generate_otp")
+        data = {"method": "sms"}
+        response = self.client.post(self.enable_2fa_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_enable_2fa_unauthenticated(self):
         data = {"method": "email"}
-        response = api_client.post(url, data)
+        client = APIClient()
+        response = client.post(self.enable_2fa_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        assert response.status_code == 200
-        assert response.data["message"] == "OTP sent via email."
-        self.user.refresh_from_db()
-        assert self.user.otp_code is not None
-        assert self.user.otp_expiry > now()
-        mock_send_email.assert_called_once_with(
-            "Your OTP Code",
-            f"Your OTP code is: {self.user.otp_code}. It will expire in 5 minutes.",
-            "no-reply@example.com",
-            [self.user.email],
-        )
-
+    # -------------------- Tests for GenerateOTPView --------------------
+    @patch("authentication.views.store_otp_for_user")
+    @patch("authentication.tasks.send_otp_via_email.delay")
     @patch("authentication.tasks.send_otp_via_sms.delay")
-    def test_generate_otp_success_sms(self, mock_send_sms, api_client):
-        """Test successful generation of OTP with SMS."""
+    def test_generate_otp_success_email(
+        self, mock_send_sms, mock_send_email, mock_store_otp
+    ):
+        self.authenticate()
         self.user.is_2fa_enabled = True
-        self.user.two_fa_method = "sms"
-        self.user.phone_number = "1234567890"  # Add a phone number field to User model
+        self.user.two_fa_method = "email"
         self.user.save()
 
-        self.authenticate(api_client)
-        url = reverse("generate_otp")
-        data = {"method": "sms"}
-        response = api_client.post(url, data)
+        data = {"method": "email"}
+        response = self.client.post(self.generate_otp_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        mock_store_otp.assert_called_once()
+        mock_send_email.assert_called_once()
+        mock_send_sms.assert_not_called()
 
-        assert response.status_code == 200
-        assert response.data["message"] == "OTP sent via sms."
+    @patch("authentication.views.store_otp_for_user")
+    @patch("authentication.tasks.send_otp_via_email.delay")
+    @patch("authentication.tasks.send_otp_via_sms.delay")
+    def test_generate_otp_success_sms(
+        self, mock_send_sms, mock_send_email, mock_store_otp
+    ):
+        self.authenticate()
+        self.user.is_2fa_enabled = True
+        self.user.two_fa_method = "sms"
+        self.user.phone_number = "+11234567890"
+        self.user.save()
+
+        data = {"method": "sms"}
+        response = self.client.post(self.generate_otp_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        mock_store_otp.assert_called_once()
+        mock_send_sms.assert_called_once()
+        mock_send_email.assert_not_called()
+
+    def test_generate_otp_2fa_not_enabled(self):
+        self.authenticate()
+        data = {"method": "email"}
+        response = self.client.post(self.generate_otp_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_generate_otp_method_mismatch(self):
+        self.authenticate()
+        self.user.is_2fa_enabled = True
+        self.user.two_fa_method = "email"
+        self.user.save()
+
+        data = {"method": "sms"}
+        response = self.client.post(self.generate_otp_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_generate_otp_unauthenticated(self):
+        data = {"method": "email"}
+        client = APIClient()
+        response = client.post(self.generate_otp_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    # -------------------- Tests for VerifyOTPView --------------------
+    @patch("authentication.views.get_otp_for_user")
+    @patch("authentication.views.delete_otp_for_user")
+    def test_verify_otp_success(self, mock_delete_otp, mock_get_otp):
+        self.authenticate()
+        self.user.is_2fa_enabled = True
+        self.user.two_fa_method = "email"
+        self.user.save()
+
+        mock_get_otp.return_value = "123456"
+        data = {"otp": "123456"}
+        response = self.client.post(self.verify_otp_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        mock_delete_otp.assert_called_once()
+
+    @patch("authentication.views.get_otp_for_user")
+    def test_verify_otp_invalid_or_expired(self, mock_get_otp):
+        self.authenticate()
+        self.user.is_2fa_enabled = True
+        self.user.two_fa_method = "email"
+        self.user.save()
+
+        mock_get_otp.return_value = None
+        data = {"otp": "123456"}
+        response = self.client.post(self.verify_otp_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @patch("authentication.views.get_otp_for_user")
+    def test_verify_otp_incorrect(self, mock_get_otp):
+        self.authenticate()
+        self.user.is_2fa_enabled = True
+        self.user.two_fa_method = "email"
+        self.user.save()
+
+        mock_get_otp.return_value = "123456"
+        data = {"otp": "654321"}
+        response = self.client.post(self.verify_otp_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_verify_otp_unauthenticated(self):
+        data = {"otp": "123456"}
+        client = APIClient()
+        response = client.post(self.verify_otp_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    # -------------------- Tests for Disable2FAView --------------------
+    def test_disable_2fa_success(self):
+        self.authenticate()
+        self.user.is_2fa_enabled = True
+        self.user.two_fa_method = "email"
+        self.user.set_password(self.user_password)
+        self.user.save()
+
+        data = {"password": self.user_password}
+        response = self.client.post(self.disable_2fa_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
-        assert self.user.otp_code is not None
-        assert self.user.otp_expiry > now()
-        mock_send_sms.assert_called_once_with(
-            self.user.phone_number, self.user.otp_code
-        )
+        self.assertFalse(self.user.is_2fa_enabled)
+        self.assertIsNone(self.user.two_fa_method)
+
+    def test_disable_2fa_not_enabled(self):
+        self.authenticate()
+        self.user.is_2fa_enabled = False
+        self.user.save()
+
+        data = {"password": self.user_password}
+        response = self.client.post(self.disable_2fa_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_disable_2fa_invalid_password(self):
+        self.authenticate()
+        self.user.is_2fa_enabled = True
+        self.user.two_fa_method = "email"
+        self.user.set_password(self.user_password)
+        self.user.save()
+
+        data = {"password": "WrongPass"}
+        response = self.client.post(self.disable_2fa_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_2fa_enabled)
+
+    def test_disable_2fa_unauthenticated(self):
+        data = {"password": self.user_password}
+        client = APIClient()
+        response = client.post(self.disable_2fa_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
