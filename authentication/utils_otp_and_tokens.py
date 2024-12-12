@@ -45,3 +45,9 @@ def get_user_id_by_verification_token(token):
     # Retrieve user_id associated with this token
     key = f"verification_token:{token}"
     return get_from_redis(key)
+
+
+def delete_verification_token(token):
+    # Delete the token after it is used or expired
+    key = f"verification_token:{token}"
+    delete_from_redis(key)
