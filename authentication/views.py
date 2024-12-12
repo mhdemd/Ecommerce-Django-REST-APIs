@@ -871,19 +871,24 @@ class VerifyOTPView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         user = request.user
-        otp = serializer.validated_data["otp"]
+        entered_otp = serializer.validated_data["otp"]
 
-        # Check if OTP is valid
-        if not user.otp_code or user.otp_expiry < now() or user.otp_code != otp:
+        # Retrieve OTP from Redis
+        stored_otp = get_otp_for_user(user.id)
+        if not stored_otp:
             return Response(
                 {"error": "Invalid or expired OTP."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # OTP is valid, clear it
-        user.otp_code = None
-        user.otp_expiry = None
-        user.save()
+        if entered_otp != stored_otp:
+            return Response(
+                {"error": "Invalid or expired OTP."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # If OTP is valid, delete it from Redis
+        delete_otp_for_user(user.id)
 
         return Response(
             {"message": "OTP verified successfully."},
