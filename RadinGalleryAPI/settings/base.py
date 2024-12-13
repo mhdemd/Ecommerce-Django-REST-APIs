@@ -180,8 +180,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": "100/min",
-        "anon": "50/min",
+        "user": "20/min",
+        "anon": "10/min",
     },
     # Filtering
     "DEFAULT_FILTER_BACKENDS": [
@@ -337,7 +337,7 @@ LOGGING = {
             "filename": os.path.join(BASE_DIR, "debug.log"),
             "formatter": "verbose",
         },
-        "null": {  # اضافه کردن NullHandler
+        "null": {
             "class": "logging.NullHandler",
         },
     },
