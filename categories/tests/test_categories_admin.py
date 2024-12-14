@@ -56,3 +56,11 @@ def test_admin_can_retrieve_update_delete_category(admin_api_client, category_ac
     # Delete
     response = admin_api_client.delete(detail_url)
     assert response.status_code == 204
+
+
+@pytest.mark.django_db
+def test_non_admin_cannot_access_admin_endpoints(api_client, user, category_active):
+    api_client.force_authenticate(user=user)
+    url = reverse("admin-category-list-create")
+    response = api_client.get(url)
+    assert response.status_code == 403
