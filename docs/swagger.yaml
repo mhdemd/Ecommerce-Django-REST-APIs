@@ -523,10 +523,10 @@ paths:
       operationId: auth_api_reset_password_create
       description: |
         # Resets the user's password using the provided token and new password.
-        - This is used in cases where, unlike the ChangePasswordView, the previous password is not available. Instead, the user provides their email address, and a link containing a temporary token is sent to them. The user's identity is determined based on the token.
-        - The user then enters a new password, which replaces their old password in the database.
-        - The token is automatically retrieved from the query parameters of the request.
-        - The password validation rules from the ChangePasswordView are applied to ensure the new passwords meet the required standards.
+        - This is used when the user doesn't remember the old password.
+        - The token is sent via email with a link.
+        - The user provides the new password here.
+        - Token expiration and validity are handled by Redis.
       summary: Reset Password
       tags:
       - Auth - Password
@@ -576,16 +576,6 @@ paths:
                     type: string
                     example: User not found with the given token.
           description: ''
-        '422':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Token has expired.
-          description: ''
   /auth/api/sessions/:
     get:
       operationId: auth_api_sessions_retrieve
@@ -598,17 +588,17 @@ paths:
       responses:
         '200':
           description: No response body
-  /auth/api/sessions/{session_id}/delete/:
+  /auth/api/sessions/delete/{session_key}/:
     post:
       operationId: auth_api_sessions_delete_create
       description: Deletes a specific session of the authenticated user by session
-        ID.
+        key.
       summary: Delete a Specific Session
       parameters:
       - in: path
-        name: session_id
+        name: session_key
         schema:
-          type: integer
+          type: string
         required: true
       tags:
       - Auth - Session
@@ -782,6 +772,226 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VerifyOTP'
+          description: ''
+  /categories/admin/categories/:
+    get:
+      operationId: categories_admin_categories_list
+      description: |-
+        Allows admin to list and create categories.
+        Requires admin privileges.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Admin - Category
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryList'
+          description: ''
+    post:
+      operationId: categories_admin_categories_create
+      description: |-
+        Allows admin to list and create categories.
+        Requires admin privileges.
+      tags:
+      - Admin - Category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /categories/admin/categories/{id}/:
+    get:
+      operationId: categories_admin_categories_retrieve
+      description: |-
+        Allows admin to retrieve, update or delete a specific category by pk.
+        Requires admin privileges.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Category
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    put:
+      operationId: categories_admin_categories_update
+      description: |-
+        Allows admin to retrieve, update or delete a specific category by pk.
+        Requires admin privileges.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    patch:
+      operationId: categories_admin_categories_partial_update
+      description: |-
+        Allows admin to retrieve, update or delete a specific category by pk.
+        Requires admin privileges.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    delete:
+      operationId: categories_admin_categories_destroy
+      description: |-
+        Allows admin to retrieve, update or delete a specific category by pk.
+        Requires admin privileges.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Category
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /categories/categories/:
+    get:
+      operationId: categories_categories_list
+      description: |-
+        Returns a list of all active categories.
+        Only active categories are visible to the end user.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Category - List
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryList'
+          description: ''
+  /categories/categories/{id}/:
+    get:
+      operationId: categories_categories_retrieve
+      description: Returns the details of a single active category by its primary
+        key (pk).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Category - Detail
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
           description: ''
   /products/{id}/:
     get:
@@ -2602,6 +2812,47 @@ components:
       - id
       - name
       - slug
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Category Name
+          description: Required, max 100 characters
+          maxLength: 100
+        slug:
+          type: string
+          title: Category Safe URL
+          description: Required, letters, numbers, underscore, or hyphens
+          maxLength: 150
+          pattern: ^[-a-zA-Z0-9_]+$
+        is_active:
+          type: boolean
+          description: Designates whether this category is active.
+        parent:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Category Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Category Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - created_at
+      - id
+      - name
+      - slug
+      - updated_at
     ChangePassword:
       type: object
       properties:
@@ -2859,6 +3110,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AdminProductType'
+    PaginatedCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
     PaginatedMediaList:
       type: object
       required:
@@ -3204,6 +3478,41 @@ components:
           description: Unique URL identifier for product type.
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
+    PatchedCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Category Name
+          description: Required, max 100 characters
+          maxLength: 100
+        slug:
+          type: string
+          title: Category Safe URL
+          description: Required, letters, numbers, underscore, or hyphens
+          maxLength: 150
+          pattern: ^[-a-zA-Z0-9_]+$
+        is_active:
+          type: boolean
+          description: Designates whether this category is active.
+        parent:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Category Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Category Updated
+          description: 'Format: Y-m-d H:M:S'
     PatchedUpdateProfile:
       type: object
       properties:
@@ -3705,3 +4014,11 @@ tags:
   description: Admin endpoints for managing product types.
 - name: Admin - Product Attributes
   description: Admin endpoints for managing product attributes and their values.
+- name: Category - List
+  description: Endpoints for listing all active categories accessible to users.
+- name: Category - Detail
+  description: Endpoint for retrieving the details of a single active category by
+    pk.
+- name: Admin - Category
+  description: Admin endpoints for managing categories, including listing, creating,
+    updating, and deleting categories.
