@@ -59,6 +59,9 @@ This repository incorporates multiple layers of security to protect the applicat
 ### 11. **Logging**
 - Centralized logging of critical operations, including login attempts, password changes, and session management, for auditing and monitoring purposes.
 
+## License
+This project is licensed under the [MIT License](./LICENSE.md). By using this software, you agree to the terms and conditions outlined in the License.
+
 ## Contribute
 We welcome contributors to help enhance this project! Whether you have ideas for new features, bug fixes, or improvements, your help would be greatly appreciated.
 
