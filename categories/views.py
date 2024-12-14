@@ -17,3 +17,18 @@ class CategoryListView(generics.ListAPIView):
 
     serializer_class = CategorySerializer
     queryset = Category.objects.filter(is_active=True)
+
+
+class CategoryDetailView(generics.RetrieveAPIView):
+    """
+    Returns the details of a single active category by its primary key (pk).
+    """
+
+    serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        return Category.objects.filter(is_active=True)
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        return get_object_or_404(queryset, pk=self.kwargs.get("pk"))
