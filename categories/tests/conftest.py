@@ -12,3 +12,10 @@ def user(db):
     return User.objects.create_user(
         email="user@example.com", password="testpassword", is_active=True
     )
+
+
+@pytest.fixture
+def admin_user(db):
+    return User.objects.create_superuser(
+        email="admin@example.com", password="adminpassword", is_active=True
+    )
