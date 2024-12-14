@@ -30,3 +30,17 @@ def api_client():
 def admin_api_client(admin_user, api_client):
     api_client.force_authenticate(user=admin_user)
     return api_client
+
+
+@pytest.fixture
+def category_active(db):
+    return Category.objects.create(
+        name="Active Category", slug="active-category", is_active=True
+    )
+
+
+@pytest.fixture
+def category_inactive(db):
+    return Category.objects.create(
+        name="Inactive Category", slug="inactive-category", is_active=False
+    )
