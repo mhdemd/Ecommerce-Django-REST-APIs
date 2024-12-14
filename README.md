@@ -37,29 +37,26 @@ This repository incorporates multiple layers of security to protect the applicat
 ### 4. **Two-Factor Authentication (2FA)**
 - OTP-based 2FA implemented to enhance login security using email or SMS.
 
-### 5. **CSRF Protection**
-- Enabled CSRF middleware to safeguard against **Cross-Site Request Forgery (CSRF)** attacks.
-
-### 6. **Session Management**
+### 5. **Session Management**
 - Sessions are managed and stored securely in Redis, providing protection against **Session Hijacking**.
 - Features to list and terminate active sessions for enhanced control.
 
-### 7. **Email Verification**
+### 6. **Email Verification**
 - Temporary tokens with a 1-hour expiration for email verification and password reset, reducing the risk of **Token Replay** and **Phishing**.
 
-### 8. **Input Validation**
+### 7. **Input Validation**
 - Comprehensive input validation using DRF serializers to prevent **SQL Injection** and **XSS (Cross-Site Scripting)**.
 
-### 9. **Redis for Temporary Data**
+### 8. **Redis for Temporary Data**
 - Secure storage of temporary tokens and OTPs in Redis with short TTLs to minimize exposure.
 
-### 10. **Throttling**
+### 9. **Throttling**
 - User and anonymous throttling configured to limit abusive or excessive API requests.
 
-### 11. **Database Security**
+### 10. **Database Security**
 - PostgreSQL is used for its robust security features, reducing vulnerabilities associated with other database systems.
 
-### 12. **Logging**
+### 11. **Logging**
 - Centralized logging of critical operations, including login attempts, password changes, and session management, for auditing and monitoring purposes.
 
 ## Contribute
