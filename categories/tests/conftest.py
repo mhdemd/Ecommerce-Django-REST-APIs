@@ -19,3 +19,14 @@ def admin_user(db):
     return User.objects.create_superuser(
         email="admin@example.com", password="adminpassword", is_active=True
     )
+
+
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@pytest.fixture
+def admin_api_client(admin_user, api_client):
+    api_client.force_authenticate(user=admin_user)
+    return api_client
