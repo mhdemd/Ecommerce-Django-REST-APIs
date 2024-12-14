@@ -32,3 +32,20 @@ class CategoryDetailView(generics.RetrieveAPIView):
     def get_object(self):
         queryset = self.get_queryset()
         return get_object_or_404(queryset, pk=self.kwargs.get("pk"))
+
+
+# -------------------------
+# Admin Endpoints
+# -------------------------
+class AdminCategoryListCreateView(generics.ListCreateAPIView):
+    """
+    Allows admin to list and create categories.
+    Requires admin privileges.
+    """
+
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    permission_classes = [permissions.IsAdminUser]
+
+    def perform_create(self, serializer):
+        serializer.save()
