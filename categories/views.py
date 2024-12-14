@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions
 
 from .models import Category
@@ -8,6 +9,7 @@ from .serializers import CategorySerializer
 # -------------------------
 # User Endpoints
 # -------------------------
+@extend_schema(tags=["Category - List"])
 class CategoryListView(generics.ListAPIView):
     """
     Returns a list of all active categories.
@@ -18,6 +20,7 @@ class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.filter(is_active=True)
 
 
+@extend_schema(tags=["Category - Detail"])
 class CategoryDetailView(generics.RetrieveAPIView):
     """
     Returns the details of a single active category by its primary key (pk).
@@ -36,6 +39,7 @@ class CategoryDetailView(generics.RetrieveAPIView):
 # -------------------------
 # Admin Endpoints
 # -------------------------
+@extend_schema(tags=["Admin - Category"])
 class AdminCategoryListCreateView(generics.ListCreateAPIView):
     """
     Allows admin to list and create categories.
@@ -50,6 +54,7 @@ class AdminCategoryListCreateView(generics.ListCreateAPIView):
         serializer.save()
 
 
+@extend_schema(tags=["Admin - Category"])
 class AdminCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Allows admin to retrieve, update or delete a specific category by pk.

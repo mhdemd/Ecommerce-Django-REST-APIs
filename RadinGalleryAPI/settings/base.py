@@ -281,6 +281,19 @@ SPECTACULAR_SETTINGS = {
             "name": "Admin - Product Attributes",
             "description": "Admin endpoints for managing product attributes and their values.",
         },
+        # Category Group
+        {
+            "name": "Category - List",
+            "description": "Endpoints for listing all active categories accessible to users.",
+        },
+        {
+            "name": "Category - Detail",
+            "description": "Endpoint for retrieving the details of a single active category by pk.",
+        },
+        {
+            "name": "Admin - Category",
+            "description": "Admin endpoints for managing categories, including listing, creating, updating, and deleting categories.",
+        },
     ],
 }
 
