@@ -23,3 +23,10 @@ def test_user_can_get_active_category_detail(api_client, category_active):
     data = response.json()
     assert data["id"] == category_active.id
     assert data["name"] == "Active Category"
+
+
+@pytest.mark.django_db
+def test_user_cannot_get_inactive_category_detail(api_client, category_inactive):
+    url = reverse("category-detail", args=[category_inactive.id])
+    response = api_client.get(url)
+    assert response.status_code == 404
