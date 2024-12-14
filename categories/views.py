@@ -49,3 +49,14 @@ class AdminCategoryListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save()
+
+
+class AdminCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Allows admin to retrieve, update or delete a specific category by pk.
+    Requires admin privileges.
+    """
+
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    permission_classes = [permissions.IsAdminUser]
