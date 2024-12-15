@@ -1,36 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>API Documentation Home</title>
+    <!-- Roboto Font -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        margin-top: 50px;
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(135deg, #ffffff, #e6f5f3);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
       }
+
+      h1 {
+        color: #2a7a2a;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: #444;
+        font-size: 1.1em;
+        margin-bottom: 30px;
+      }
+
       .link-container {
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 300px;
       }
-      a {
-        text-decoration: none;
-        color: #007BFF;
-        font-size: 18px;
+
+      .link-card {
+        background-color: #fff;
+        width: 100%;
         margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
+
+      .link-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      a {
+        display: block;
+        text-decoration: none;
+        color: #333;
+        font-size: 1.1em;
+        font-weight: 500;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
       a:hover {
-        color: #0056b3;
+        background-color: #e0ffe0;
+        color: #2a7a2a;
+      }
+
+      /* Matching Swagger Green Color */
+      a:hover {
+        background-color: #c9ffc9;
       }
     </style>
   </head>
   <body>
     <h1>API Documentation</h1>
-    <p>Select an application to view its API documentation:</p>
+    <p>Select an application to view its documentation:</p>
     <div class="link-container">
-      <a href="auth-docs.html">Authentication App</a>
-      <a href="products-docs.html">Products App</a>
-      <a href="orders-docs.html">Orders App</a>
+      <div class="link-card">
+        <a href="auth-docs.html">Authentication App</a>
+      </div>
+      <div class="link-card">
+        <a href="products-docs.html">Products App</a>
+      </div>
+      <div class="link-card">
+        <a href="orders-docs.html">Orders App</a>
+      </div>
     </div>
   </body>
 </html>

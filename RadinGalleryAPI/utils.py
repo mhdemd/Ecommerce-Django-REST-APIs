@@ -1,3 +1,4 @@
+# Remove empty tag from swagger schema
 def remove_empty_tags(result, generator, request, public):
     """
     Remove empty tags that do not have any associated paths in the schema.
