@@ -4,998 +4,9 @@ info:
   version: 1.0.0
   description: This is the API documentation for my project.
 paths:
-  /auth/api/change-password/:
-    post:
-      operationId: auth_api_change_password_create
-      description: |
-        # Allows a logged-in user to change their password.
-        - To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.
-        - For validation, we specifically used the validate method in the serializer during the RegisterView process.
-      summary: Change Password
-      tags:
-      - Auth - Password
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChangePassword'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ChangePassword'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ChangePassword'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Password changed successfully.
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Old password is incorrect.
-          description: ''
-        '422':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Password does not meet validation criteria.
-          description: ''
-  /auth/api/disable-2fa/:
-    post:
-      operationId: auth_api_disable_2fa_create
-      description: Disables two-factor authentication (2FA) for the user after verifying
-        the password.
-      summary: Disable 2FA
-      tags:
-      - Auth - OTP
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Disable2FA'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Disable2FA'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Disable2FA'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Disable2FA'
-          description: ''
-  /auth/api/enable-2fa/:
-    post:
-      operationId: auth_api_enable_2fa_create
-      description: Enables two-factor authentication (2FA) for the user using the
-        specified method (email or SMS).
-      summary: Enable 2FA
-      tags:
-      - Auth - OTP
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Enable2FA'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Enable2FA'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Enable2FA'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Enable2FA'
-          description: ''
-  /auth/api/forgot-password/:
-    post:
-      operationId: auth_api_forgot_password_create
-      description: |
-        # Sends a password reset link to the user's email.
-        - First, the email is checked to see if it exists in the database. If it does not, an error is raised.
-        - The email format is validated using EmailField.
-        - The website URL and the sender's email address are configured in the settings under SITE_URL and DEFAULT_FROM_EMAIL.
-      summary: Forgot Password
-      tags:
-      - Auth - Password
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ForgotPassword'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ForgotPassword'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ForgotPassword'
-        required: true
-      security:
-      - jwtAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Password reset link sent.
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: User with this email does not exist.
-          description: ''
-        '422':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid email format.
-          description: ''
-  /auth/api/generate-otp/:
-    post:
-      operationId: auth_api_generate_otp_create
-      description: Generates a one-time password (OTP) for the user, which is sent
-        via the selected method (email or SMS).
-      summary: Generate OTP
-      tags:
-      - Auth - OTP
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GenerateOTP'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/GenerateOTP'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/GenerateOTP'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenerateOTP'
-          description: ''
-  /auth/api/logout/:
-    post:
-      operationId: auth_api_logout_create
-      description: |
-        # Logs out a user by blacklisting the refresh token.
-        - You need to authorize yourself from the Swagger UI before accessing this endpoint.
-        - Send the refresh token in the request body; it will be added to the blacklist and invalidated.
-        - Note that the access token will remain valid until it expires.
-      summary: Logout
-      tags:
-      - Auth - Logout
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Logout'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Logout'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Logout'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Logged out successfully.
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid token.
-          description: ''
-  /auth/api/profile/:
+  /{id}/:
     get:
-      operationId: auth_api_profile_retrieve
-      description: |
-        # Fetches the profile details of the logged-in user.
-        - To use this endpoint, you first need to authorize yourself from the top of the Swagger UI page.
-      summary: Get Profile
-      tags:
-      - Auth - Profile
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  username:
-                    type: string
-                    example: johndoe
-                  email:
-                    type: string
-                    example: johndoe@example.com
-                  first_name:
-                    type: string
-                    example: John
-                  last_name:
-                    type: string
-                    example: Doe
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Authentication credentials were not provided.
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: User account is disabled.
-          description: ''
-  /auth/api/profile/update/:
-    put:
-      operationId: auth_api_profile_update_update
-      description: '# Updates the profile information of the logged-in user.'
-      summary: Update Profile
-      tags:
-      - Auth - Profile
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateProfile'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/UpdateProfile'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/UpdateProfile'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                description: Profile updated successfully.
-                content:
-                  application/json:
-                    example:
-                      message: Profile updated successfully.
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                description: Bad request. Validation errors or invalid data provided.
-                content:
-                  application/json:
-                    example:
-                      error: Invalid data provided.
-                      details:
-                        field_name:
-                        - error message
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                description: Unauthorized. Authentication credentials were not provided
-                  or are invalid.
-                content:
-                  application/json:
-                    example:
-                      error: Authentication credentials were not provided.
-          description: ''
-    patch:
-      operationId: auth_api_profile_update_partial_update
-      description: '# Updates the profile information of the logged-in user.'
-      summary: Update Profile
-      tags:
-      - Auth - Profile
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedUpdateProfile'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedUpdateProfile'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedUpdateProfile'
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                description: Profile updated successfully.
-                content:
-                  application/json:
-                    example:
-                      message: Profile updated successfully.
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                description: Bad request. Validation errors or invalid data provided.
-                content:
-                  application/json:
-                    example:
-                      error: Invalid data provided.
-                      details:
-                        field_name:
-                        - error message
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                description: Unauthorized. Authentication credentials were not provided
-                  or are invalid.
-                content:
-                  application/json:
-                    example:
-                      error: Authentication credentials were not provided.
-          description: ''
-  /auth/api/register/:
-    post:
-      operationId: auth_api_register_create
-      description: |-
-        # Registers a new user and sends a verification link.
-        - The serializer includes built-in validations to prevent XSS attacks.
-        - Email and password fields are validated.
-        - Rate limiting is implemented.
-        - 'verification_token' and 'token_expiration' fields secure the email verification link.
-        - Token is cleared after verification.
-      summary: User Registration
-      tags:
-      - Auth - Registration
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Register'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Register'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Register'
-        required: true
-      security:
-      - jwtAuth: []
-      - {}
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User registered successfully. Please verify your email.
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  detail:
-                    type: string
-                    example: Validation error details.
-          description: ''
-  /auth/api/resend-email/:
-    post:
-      operationId: auth_api_resend_email_create
-      description: |-
-        Resends an email for either verification or password reset.
-        - If `email_type` is 'verification', a verification email is resent.
-        - If `email_type` is 'reset_password', a password reset email is resent.
-      summary: Resend Email
-      tags:
-      - Auth - Password
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResendEmail'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ResendEmail'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ResendEmail'
-        required: true
-      security:
-      - jwtAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Email resent successfully.
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: User not found.
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid email type.
-          description: ''
-  /auth/api/reset-password/:
-    post:
-      operationId: auth_api_reset_password_create
-      description: |
-        # Resets the user's password using the provided token and new password.
-        - This is used when the user doesn't remember the old password.
-        - The token is sent via email with a link.
-        - The user provides the new password here.
-        - Token expiration and validity are handled by Redis.
-      summary: Reset Password
-      tags:
-      - Auth - Password
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResetPassword'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ResetPassword'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ResetPassword'
-        required: true
-      security:
-      - jwtAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Password reset successfully.
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Token is required in query parameters.
-          description: ''
-        '404':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: User not found with the given token.
-          description: ''
-  /auth/api/sessions/:
-    get:
-      operationId: auth_api_sessions_retrieve
-      description: Fetches a list of all active sessions for the authenticated user.
-      summary: List Active Sessions
-      tags:
-      - Auth - Session
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /auth/api/sessions/delete/{session_key}/:
-    post:
-      operationId: auth_api_sessions_delete_create
-      description: Deletes a specific session of the authenticated user by session
-        key.
-      summary: Delete a Specific Session
-      parameters:
-      - in: path
-        name: session_key
-        schema:
-          type: string
-        required: true
-      tags:
-      - Auth - Session
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /auth/api/sessions/logout-all/:
-    post:
-      operationId: auth_api_sessions_logout_all_create
-      description: Logs out the user from all active sessions.
-      summary: Logout from All Sessions
-      tags:
-      - Auth - Session
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /auth/api/token/:
-    post:
-      operationId: auth_api_token_create
-      description: |-
-        Takes a set of user credentials and returns an access and refresh JSON web
-        token pair to prove the authentication of those credentials.
-      tags:
-      - Auth - Token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TokenObtainPair'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/TokenObtainPair'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/TokenObtainPair'
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TokenObtainPair'
-          description: ''
-  /auth/api/token/refresh/:
-    post:
-      operationId: auth_api_token_refresh_create
-      description: |-
-        Takes a refresh type JSON web token and returns an access type JSON web
-        token if the refresh token is valid.
-      tags:
-      - Auth - Token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TokenRefresh'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/TokenRefresh'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/TokenRefresh'
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TokenRefresh'
-          description: ''
-  /auth/api/token/verify/:
-    post:
-      operationId: auth_api_token_verify_create
-      description: |-
-        Takes a token and indicates if it is valid.  This view provides no
-        information about a token's fitness for a particular use.
-      tags:
-      - Auth - Token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TokenVerify'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/TokenVerify'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/TokenVerify'
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TokenVerify'
-          description: ''
-  /auth/api/verify-email/:
-    get:
-      operationId: auth_api_verify_email_retrieve
-      description: |
-        # Activates a user account after email verification.
-        - When the user clicks on the link sent to their email, this API is called.
-        - The link contains a temporary token that is valid for one hour.
-        - Without the temporary token, you cannot access this API.
-      summary: Verify Email
-      tags:
-      - Auth - Registration
-      security:
-      - jwtAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Email verified successfully.
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Invalid token.
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: Token has expired.
-          description: ''
-  /auth/api/verify-otp/:
-    post:
-      operationId: auth_api_verify_otp_create
-      description: Verifies the one-time password (OTP) entered by the user.
-      summary: Verify OTP
-      tags:
-      - Auth - OTP
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/VerifyOTP'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/VerifyOTP'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/VerifyOTP'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VerifyOTP'
-          description: ''
-  /categories/admin/categories/:
-    get:
-      operationId: categories_admin_categories_list
-      description: |-
-        Allows admin to list and create categories.
-        Requires admin privileges.
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      tags:
-      - Admin - Category
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedCategoryList'
-          description: ''
-    post:
-      operationId: categories_admin_categories_create
-      description: |-
-        Allows admin to list and create categories.
-        Requires admin privileges.
-      tags:
-      - Admin - Category
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Category'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Category'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Category'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-          description: ''
-  /categories/admin/categories/{id}/:
-    get:
-      operationId: categories_admin_categories_retrieve
-      description: |-
-        Allows admin to retrieve, update or delete a specific category by pk.
-        Requires admin privileges.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - Admin - Category
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-          description: ''
-    put:
-      operationId: categories_admin_categories_update
-      description: |-
-        Allows admin to retrieve, update or delete a specific category by pk.
-        Requires admin privileges.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - Admin - Category
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Category'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Category'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Category'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-          description: ''
-    patch:
-      operationId: categories_admin_categories_partial_update
-      description: |-
-        Allows admin to retrieve, update or delete a specific category by pk.
-        Requires admin privileges.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - Admin - Category
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedCategory'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedCategory'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedCategory'
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-          description: ''
-    delete:
-      operationId: categories_admin_categories_destroy
-      description: |-
-        Allows admin to retrieve, update or delete a specific category by pk.
-        Requires admin privileges.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - Admin - Category
-      security:
-      - jwtAuth: []
-      responses:
-        '204':
-          description: No response body
-  /categories/categories/:
-    get:
-      operationId: categories_categories_list
-      description: |-
-        Returns a list of all active categories.
-        Only active categories are visible to the end user.
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      tags:
-      - Category - List
-      security:
-      - jwtAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedCategoryList'
-          description: ''
-  /categories/categories/{id}/:
-    get:
-      operationId: categories_categories_retrieve
-      description: Returns the details of a single active category by its primary
-        key (pk).
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - Category - Detail
-      security:
-      - jwtAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-          description: ''
-  /products/{id}/:
-    get:
-      operationId: products_retrieve
+      operationId: root_retrieve
       parameters:
       - in: path
         name: id
@@ -1014,9 +25,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductDetail'
           description: ''
-  /products/{id}/inventory/:
+  /{id}/inventory/:
     get:
-      operationId: products_inventory_list
+      operationId: inventory_list
       parameters:
       - in: path
         name: id
@@ -1047,9 +58,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedProductInventoryList'
           description: ''
-  /products/{id}/media/:
+  /{id}/media/:
     get:
-      operationId: products_media_list
+      operationId: media_list
       parameters:
       - in: path
         name: id
@@ -1080,9 +91,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedMediaList'
           description: ''
-  /products/admin/attributes/:
+  /admin/attributes/:
     get:
-      operationId: products_admin_attributes_list
+      operationId: admin_attributes_list
       summary: List or create product attributes
       parameters:
       - name: page
@@ -1109,7 +120,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedAdminProductAttributeList'
           description: ''
     post:
-      operationId: products_admin_attributes_create
+      operationId: admin_attributes_create
       summary: List or create product attributes
       tags:
       - Admin - Product Attributes
@@ -1134,9 +145,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminProductAttribute'
           description: ''
-  /products/admin/attributes/{attribute_id}/values/:
+  /admin/attributes/{attribute_id}/values/:
     get:
-      operationId: products_admin_attributes_values_list
+      operationId: admin_attributes_values_list
       summary: List or create attribute values for a specific product attribute
       parameters:
       - in: path
@@ -1174,7 +185,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedAdminProductAttributeValueList'
           description: ''
     post:
-      operationId: products_admin_attributes_values_create
+      operationId: admin_attributes_values_create
       summary: List or create attribute values for a specific product attribute
       parameters:
       - in: path
@@ -1211,9 +222,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminProductAttributeValue'
           description: ''
-  /products/admin/attributes/{attribute_id}/values/{id}/:
+  /admin/attributes/{attribute_id}/values/{id}/:
     get:
-      operationId: products_admin_attributes_values_retrieve
+      operationId: admin_attributes_values_retrieve
       summary: View, update, or delete a specific attribute value
       parameters:
       - in: path
@@ -1250,7 +261,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductAttributeValueDetail'
           description: ''
     put:
-      operationId: products_admin_attributes_values_update
+      operationId: admin_attributes_values_update
       summary: View, update, or delete a specific attribute value
       parameters:
       - in: path
@@ -1299,7 +310,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductAttributeValueDetail'
           description: ''
     patch:
-      operationId: products_admin_attributes_values_partial_update
+      operationId: admin_attributes_values_partial_update
       summary: View, update, or delete a specific attribute value
       parameters:
       - in: path
@@ -1347,7 +358,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductAttributeValueDetail'
           description: ''
     delete:
-      operationId: products_admin_attributes_values_destroy
+      operationId: admin_attributes_values_destroy
       summary: View, update, or delete a specific attribute value
       parameters:
       - in: path
@@ -1379,9 +390,9 @@ paths:
       responses:
         '204':
           description: No response body
-  /products/admin/attributes/{id}/:
+  /admin/attributes/{id}/:
     get:
-      operationId: products_admin_attributes_retrieve
+      operationId: admin_attributes_retrieve
       summary: View, update, or delete a product attribute
       parameters:
       - in: path
@@ -1401,7 +412,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductAttributeDetail'
           description: ''
     put:
-      operationId: products_admin_attributes_update
+      operationId: admin_attributes_update
       summary: View, update, or delete a product attribute
       parameters:
       - in: path
@@ -1433,7 +444,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductAttributeDetail'
           description: ''
     patch:
-      operationId: products_admin_attributes_partial_update
+      operationId: admin_attributes_partial_update
       summary: View, update, or delete a product attribute
       parameters:
       - in: path
@@ -1464,7 +475,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductAttributeDetail'
           description: ''
     delete:
-      operationId: products_admin_attributes_destroy
+      operationId: admin_attributes_destroy
       summary: View, update, or delete a product attribute
       parameters:
       - in: path
@@ -1479,9 +490,9 @@ paths:
       responses:
         '204':
           description: No response body
-  /products/admin/inventories/:
+  /admin/inventories/:
     get:
-      operationId: products_admin_inventories_list
+      operationId: admin_inventories_list
       summary: List or create product inventories
       parameters:
       - name: page
@@ -1508,7 +519,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedAdminProductInventoryList'
           description: ''
     post:
-      operationId: products_admin_inventories_create
+      operationId: admin_inventories_create
       summary: List or create product inventories
       tags:
       - Admin - Product Inventory
@@ -1533,9 +544,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminProductInventory'
           description: ''
-  /products/admin/inventories/{sku}/:
+  /admin/inventories/{sku}/:
     get:
-      operationId: products_admin_inventories_retrieve
+      operationId: admin_inventories_retrieve
       summary: View, update, or delete a specific product inventory
       parameters:
       - in: path
@@ -1555,7 +566,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductInventoryDetail'
           description: ''
     put:
-      operationId: products_admin_inventories_update
+      operationId: admin_inventories_update
       summary: View, update, or delete a specific product inventory
       parameters:
       - in: path
@@ -1587,7 +598,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductInventoryDetail'
           description: ''
     patch:
-      operationId: products_admin_inventories_partial_update
+      operationId: admin_inventories_partial_update
       summary: View, update, or delete a specific product inventory
       parameters:
       - in: path
@@ -1618,7 +629,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductInventoryDetail'
           description: ''
     delete:
-      operationId: products_admin_inventories_destroy
+      operationId: admin_inventories_destroy
       summary: View, update, or delete a specific product inventory
       parameters:
       - in: path
@@ -1633,9 +644,9 @@ paths:
       responses:
         '204':
           description: No response body
-  /products/admin/product-types/:
+  /admin/product-types/:
     get:
-      operationId: products_admin_product_types_list
+      operationId: admin_product_types_list
       summary: List or create product types
       parameters:
       - name: page
@@ -1662,7 +673,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedAdminProductTypeList'
           description: ''
     post:
-      operationId: products_admin_product_types_create
+      operationId: admin_product_types_create
       summary: List or create product types
       tags:
       - Admin - Product Types
@@ -1687,9 +698,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminProductType'
           description: ''
-  /products/admin/product-types/{id}/:
+  /admin/product-types/{id}/:
     get:
-      operationId: products_admin_product_types_retrieve
+      operationId: admin_product_types_retrieve
       summary: View, update, or delete a product type
       parameters:
       - in: path
@@ -1709,7 +720,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductTypeDetail'
           description: ''
     put:
-      operationId: products_admin_product_types_update
+      operationId: admin_product_types_update
       summary: View, update, or delete a product type
       parameters:
       - in: path
@@ -1741,7 +752,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductTypeDetail'
           description: ''
     patch:
-      operationId: products_admin_product_types_partial_update
+      operationId: admin_product_types_partial_update
       summary: View, update, or delete a product type
       parameters:
       - in: path
@@ -1772,7 +783,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductTypeDetail'
           description: ''
     delete:
-      operationId: products_admin_product_types_destroy
+      operationId: admin_product_types_destroy
       summary: View, update, or delete a product type
       parameters:
       - in: path
@@ -1787,9 +798,9 @@ paths:
       responses:
         '204':
           description: No response body
-  /products/admin/products/:
+  /admin/products/:
     get:
-      operationId: products_admin_products_list
+      operationId: admin_products_list
       summary: List or create products
       parameters:
       - in: query
@@ -1814,7 +825,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedAdminProductList'
           description: ''
     post:
-      operationId: products_admin_products_create
+      operationId: admin_products_create
       summary: List or create products
       parameters:
       - in: query
@@ -1850,9 +861,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminProduct'
           description: ''
-  /products/admin/products/{id}/media/:
+  /admin/products/{id}/media/:
     get:
-      operationId: products_admin_products_media_list
+      operationId: admin_products_media_list
       summary: List or create product media
       parameters:
       - in: path
@@ -1884,7 +895,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedAdminProductMediaList'
           description: ''
     post:
-      operationId: products_admin_products_media_create
+      operationId: admin_products_media_create
       summary: List or create product media
       parameters:
       - in: path
@@ -1915,9 +926,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminProductMedia'
           description: ''
-  /products/admin/products/{id}/:
+  /admin/products/{id}/:
     get:
-      operationId: products_admin_products_retrieve
+      operationId: admin_products_retrieve
       summary: View, update, or delete a specific product
       parameters:
       - in: path
@@ -1937,7 +948,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductDetail'
           description: ''
     put:
-      operationId: products_admin_products_update
+      operationId: admin_products_update
       summary: View, update, or delete a specific product
       parameters:
       - in: path
@@ -1969,7 +980,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductDetail'
           description: ''
     patch:
-      operationId: products_admin_products_partial_update
+      operationId: admin_products_partial_update
       summary: View, update, or delete a specific product
       parameters:
       - in: path
@@ -2000,7 +1011,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductDetail'
           description: ''
     delete:
-      operationId: products_admin_products_destroy
+      operationId: admin_products_destroy
       summary: View, update, or delete a specific product
       parameters:
       - in: path
@@ -2015,9 +1026,9 @@ paths:
       responses:
         '204':
           description: No response body
-  /products/admin/products/{product_id}/media/{id}/:
+  /admin/products/{product_id}/media/{id}/:
     get:
-      operationId: products_admin_products_media_retrieve
+      operationId: admin_products_media_retrieve
       summary: View, update, or delete a specific product media
       parameters:
       - in: path
@@ -2042,7 +1053,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductMediaDetail'
           description: ''
     put:
-      operationId: products_admin_products_media_update
+      operationId: admin_products_media_update
       summary: View, update, or delete a specific product media
       parameters:
       - in: path
@@ -2078,7 +1089,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductMediaDetail'
           description: ''
     patch:
-      operationId: products_admin_products_media_partial_update
+      operationId: admin_products_media_partial_update
       summary: View, update, or delete a specific product media
       parameters:
       - in: path
@@ -2114,7 +1125,7 @@ paths:
                 $ref: '#/components/schemas/AdminProductMediaDetail'
           description: ''
     delete:
-      operationId: products_admin_products_media_destroy
+      operationId: admin_products_media_destroy
       summary: View, update, or delete a specific product media
       parameters:
       - in: path
@@ -2134,9 +1145,9 @@ paths:
       responses:
         '204':
           description: No response body
-  /products/attributes/:
+  /attributes/:
     get:
-      operationId: products_attributes_list
+      operationId: attributes_list
       parameters:
       - name: page
         required: false
@@ -2162,9 +1173,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedProductAttributeList'
           description: ''
-  /products/attributes/{attribute_id}/values/:
+  /attributes/{attribute_id}/values/:
     get:
-      operationId: products_attributes_values_list
+      operationId: attributes_values_list
       parameters:
       - in: path
         name: attribute_id
@@ -2195,9 +1206,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedProductAttributeValueList'
           description: ''
-  /products/attributes/{attribute_id}/values/{value_id}/:
+  /attributes/{attribute_id}/values/{value_id}/:
     get:
-      operationId: products_attributes_values_retrieve
+      operationId: attributes_values_retrieve
       parameters:
       - in: path
         name: attribute_id
@@ -2221,9 +1232,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductAttributeValueDetail'
           description: ''
-  /products/attributes/{id}/:
+  /attributes/{id}/:
     get:
-      operationId: products_attributes_retrieve
+      operationId: attributes_retrieve
       parameters:
       - in: path
         name: id
@@ -2242,9 +1253,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductAttributeDetail'
           description: ''
-  /products/product-types/:
+  /product-types/:
     get:
-      operationId: products_product_types_list
+      operationId: product_types_list
       parameters:
       - name: page
         required: false
@@ -2270,9 +1281,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedProductTypeList'
           description: ''
-  /products/product-types/{id}/:
+  /product-types/{id}/:
     get:
-      operationId: products_product_types_retrieve
+      operationId: product_types_retrieve
       parameters:
       - in: path
         name: id
@@ -2291,9 +1302,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductTypeDetail'
           description: ''
-  /products/products/:
+  /products/:
     get:
-      operationId: products_products_list
+      operationId: products_list
       parameters:
       - in: query
         name: brand
@@ -2812,121 +1823,6 @@ components:
       - id
       - name
       - slug
-    Category:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          title: Category Name
-          description: Required, max 100 characters
-          maxLength: 100
-        slug:
-          type: string
-          title: Category Safe URL
-          description: Required, letters, numbers, underscore, or hyphens
-          maxLength: 150
-          pattern: ^[-a-zA-Z0-9_]+$
-        is_active:
-          type: boolean
-          description: Designates whether this category is active.
-        parent:
-          type: integer
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Date Category Created
-          description: 'Format: Y-m-d H:M:S'
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Date Category Updated
-          description: 'Format: Y-m-d H:M:S'
-      required:
-      - created_at
-      - id
-      - name
-      - slug
-      - updated_at
-    ChangePassword:
-      type: object
-      properties:
-        old_password:
-          type: string
-          writeOnly: true
-        new_password:
-          type: string
-          writeOnly: true
-        new_password2:
-          type: string
-          writeOnly: true
-      required:
-      - new_password
-      - new_password2
-      - old_password
-    Disable2FA:
-      type: object
-      properties:
-        password:
-          type: string
-          writeOnly: true
-      required:
-      - password
-    EmailTypeEnum:
-      enum:
-      - verification
-      - reset_password
-      type: string
-      description: |-
-        * `verification` - verification
-        * `reset_password` - reset_password
-    Enable2FA:
-      type: object
-      properties:
-        method:
-          allOf:
-          - $ref: '#/components/schemas/MethodEnum'
-          description: |-
-            Choose between 'email' or 'sms' for 2FA.
-
-            * `email` - email
-            * `sms` - sms
-      required:
-      - method
-    ForgotPassword:
-      type: object
-      properties:
-        email:
-          type: string
-          format: email
-      required:
-      - email
-    GenerateOTP:
-      type: object
-      properties:
-        method:
-          allOf:
-          - $ref: '#/components/schemas/MethodEnum'
-          description: |-
-            Choose 'email' or 'sms' for receiving the OTP.
-
-            * `email` - email
-            * `sms` - sms
-      required:
-      - method
-    Logout:
-      type: object
-      properties:
-        refresh:
-          type: string
-          description: The refresh token to be blacklisted.
-      required:
-      - refresh
     Media:
       type: object
       properties:
@@ -2964,14 +1860,6 @@ components:
       - created_at
       - id
       - updated_at
-    MethodEnum:
-      enum:
-      - email
-      - sms
-      type: string
-      description: |-
-        * `email` - email
-        * `sms` - sms
     PaginatedAdminProductAttributeList:
       type: object
       required:
@@ -3110,29 +1998,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AdminProductType'
-    PaginatedCategoryList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
     PaginatedMediaList:
       type: object
       required:
@@ -3478,55 +2343,6 @@ components:
           description: Unique URL identifier for product type.
           maxLength: 255
           pattern: ^[-a-zA-Z0-9_]+$
-    PatchedCategory:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          title: Category Name
-          description: Required, max 100 characters
-          maxLength: 100
-        slug:
-          type: string
-          title: Category Safe URL
-          description: Required, letters, numbers, underscore, or hyphens
-          maxLength: 150
-          pattern: ^[-a-zA-Z0-9_]+$
-        is_active:
-          type: boolean
-          description: Designates whether this category is active.
-        parent:
-          type: integer
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Date Category Created
-          description: 'Format: Y-m-d H:M:S'
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-          title: Date Category Updated
-          description: 'Format: Y-m-d H:M:S'
-    PatchedUpdateProfile:
-      type: object
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-          format: email
-        first_name:
-          type: string
-          maxLength: 150
-        last_name:
-          type: string
-          maxLength: 150
     Product:
       type: object
       properties:
@@ -3860,118 +2676,6 @@ components:
       - id
       - name
       - slug
-    Register:
-      type: object
-      properties:
-        username:
-          type: string
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
-          maxLength: 150
-        email:
-          type: string
-          format: email
-          title: Email address
-          maxLength: 254
-        password:
-          type: string
-          writeOnly: true
-        password2:
-          type: string
-          writeOnly: true
-      required:
-      - password
-      - password2
-      - username
-    ResendEmail:
-      type: object
-      properties:
-        email:
-          type: string
-          format: email
-        email_type:
-          $ref: '#/components/schemas/EmailTypeEnum'
-      required:
-      - email
-      - email_type
-    ResetPassword:
-      type: object
-      properties:
-        new_password:
-          type: string
-          writeOnly: true
-        new_password2:
-          type: string
-          writeOnly: true
-      required:
-      - new_password
-      - new_password2
-    TokenObtainPair:
-      type: object
-      properties:
-        username:
-          type: string
-          writeOnly: true
-        password:
-          type: string
-          writeOnly: true
-        access:
-          type: string
-          readOnly: true
-        refresh:
-          type: string
-          readOnly: true
-      required:
-      - access
-      - password
-      - refresh
-      - username
-    TokenRefresh:
-      type: object
-      properties:
-        access:
-          type: string
-          readOnly: true
-        refresh:
-          type: string
-      required:
-      - access
-      - refresh
-    TokenVerify:
-      type: object
-      properties:
-        token:
-          type: string
-          writeOnly: true
-      required:
-      - token
-    UpdateProfile:
-      type: object
-      properties:
-        username:
-          type: string
-        email:
-          type: string
-          format: email
-        first_name:
-          type: string
-          maxLength: 150
-        last_name:
-          type: string
-          maxLength: 150
-      required:
-      - email
-      - username
-    VerifyOTP:
-      type: object
-      properties:
-        otp:
-          type: string
-          description: Enter the 6-digit OTP you received.
-          maxLength: 6
-      required:
-      - otp
   securitySchemes:
     jwtAuth:
       type: http
