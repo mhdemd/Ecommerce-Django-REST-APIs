@@ -209,6 +209,9 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "This is the API documentation for my project.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "POSTPROCESSING_HOOKS": [
+        "RadinGalleryAPI.utils.remove_empty_tags",  # Call the function to clean empty tags
+    ],
     "TAGS": [
         # Authentication Group
         {
