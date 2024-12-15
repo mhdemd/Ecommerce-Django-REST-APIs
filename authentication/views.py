@@ -6,12 +6,11 @@ from django.shortcuts import get_object_or_404
 from django.urls import include, path
 from django.utils.crypto import get_random_string
 from drf_spectacular.utils import extend_schema
+from drf_spectacular.views import SpectacularAPIView
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import GenericAPIView
-from rest_framework.renderers import OpenAPIRenderer
 from rest_framework.response import Response
-from rest_framework.schemas import get_schema_view
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -56,15 +55,7 @@ from .utils_otp_and_tokens import (
 logger = logging.getLogger(__name__)
 
 # ---------------------------- Create schema for swagger ----------------------------
-auth_schema_view = get_schema_view(
-    title="Authentication API",
-    description="API schema for the authentication app",
-    version="1.0.0",
-    patterns=[
-        path("auth/", include("auth.urls")),
-    ],
-    renderer_classes=[OpenAPIRenderer],
-)
+auth_schema_view = SpectacularAPIView.as_view(urlconf="authentication.urls")
 
 
 # ---------------------------- JWT endpoints ----------------------------

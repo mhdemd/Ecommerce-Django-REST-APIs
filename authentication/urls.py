@@ -20,6 +20,7 @@ from .views import (
     UpdateProfileView,
     VerifyEmailView,
     VerifyOTPView,
+    auth_schema_view,
 )
 
 urlpatterns = [
@@ -55,4 +56,6 @@ urlpatterns = [
         LogoutAllSessionsView.as_view(),
         name="logout_all_sessions",
     ),
+    # Create schema for swagger
+    path("schema/", auth_schema_view, name="auth-schema"),
 ]
