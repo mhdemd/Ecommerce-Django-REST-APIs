@@ -2682,22 +2682,6 @@ components:
       scheme: bearer
       bearerFormat: JWT
 tags:
-- name: Auth - Registration
-  description: Endpoints related to user registration and email verification.
-- name: Auth - Token
-  description: Endpoints related to obtaining, refreshing, and verifying JWT tokens.
-- name: Auth - Logout
-  description: Endpoints for user logout operations.
-- name: Auth - Password
-  description: Endpoints for managing user passwords, including reset and change.
-- name: Auth - Profile
-  description: Endpoints for fetching and updating user profile information.
-- name: Auth - OTP
-  description: Endpoints for managing two-factor authentication (2FA), including OTP
-    generation and verification.
-- name: Auth - Session
-  description: Endpoints for managing user sessions, including session listing, deletion,
-    and logout of all sessions.
 - name: Product - List
   description: Endpoints for listing products and retrieving product details.
 - name: Product - Media
@@ -2718,11 +2702,3 @@ tags:
   description: Admin endpoints for managing product types.
 - name: Admin - Product Attributes
   description: Admin endpoints for managing product attributes and their values.
-- name: Category - List
-  description: Endpoints for listing all active categories accessible to users.
-- name: Category - Detail
-  description: Endpoint for retrieving the details of a single active category by
-    pk.
-- name: Admin - Category
-  description: Admin endpoints for managing categories, including listing, creating,
-    updating, and deleting categories.

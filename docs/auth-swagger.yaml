@@ -799,20 +799,15 @@ components:
           writeOnly: true
       required:
       - password
-    EmailTypeEnum:
-      enum:
-      - verification
-      - reset_password
-      type: string
-      description: |-
-        * `verification` - verification
-        * `reset_password` - reset_password
     Enable2FA:
       type: object
       properties:
         method:
-          allOf:
-          - $ref: '#/components/schemas/MethodEnum'
+          enum:
+          - email
+          - sms
+          type: string
+          x-spec-enum-id: a718e613965537ee
           description: |-
             Choose between 'email' or 'sms' for 2FA.
 
@@ -832,8 +827,11 @@ components:
       type: object
       properties:
         method:
-          allOf:
-          - $ref: '#/components/schemas/MethodEnum'
+          enum:
+          - email
+          - sms
+          type: string
+          x-spec-enum-id: a718e613965537ee
           description: |-
             Choose 'email' or 'sms' for receiving the OTP.
 
@@ -849,14 +847,6 @@ components:
           description: The refresh token to be blacklisted.
       required:
       - refresh
-    MethodEnum:
-      enum:
-      - email
-      - sms
-      type: string
-      description: |-
-        * `email` - email
-        * `sms` - sms
     PatchedUpdateProfile:
       type: object
       properties:
@@ -902,7 +892,14 @@ components:
           type: string
           format: email
         email_type:
-          $ref: '#/components/schemas/EmailTypeEnum'
+          enum:
+          - verification
+          - reset_password
+          type: string
+          description: |-
+            * `verification` - verification
+            * `reset_password` - reset_password
+          x-spec-enum-id: e42bbd7e2c4516e6
       required:
       - email
       - email_type
@@ -1005,31 +1002,3 @@ tags:
 - name: Auth - Session
   description: Endpoints for managing user sessions, including session listing, deletion,
     and logout of all sessions.
-- name: Product - List
-  description: Endpoints for listing products and retrieving product details.
-- name: Product - Media
-  description: Endpoints for managing product media, such as images and videos.
-- name: Product - Inventory
-  description: Endpoints for managing product inventory information.
-- name: Product - Types
-  description: Endpoints for managing product types and their details.
-- name: Product - Attributes
-  description: Endpoints for managing product attributes and their values.
-- name: Admin - Product
-  description: Admin endpoints for managing products and their details.
-- name: Admin - Product Media
-  description: Admin endpoints for managing product media such as images and videos.
-- name: Admin - Product Inventory
-  description: Admin endpoints for managing product inventory.
-- name: Admin - Product Types
-  description: Admin endpoints for managing product types.
-- name: Admin - Product Attributes
-  description: Admin endpoints for managing product attributes and their values.
-- name: Category - List
-  description: Endpoints for listing all active categories accessible to users.
-- name: Category - Detail
-  description: Endpoint for retrieving the details of a single active category by
-    pk.
-- name: Admin - Category
-  description: Admin endpoints for managing categories, including listing, creating,
-    updating, and deleting categories.
