@@ -23,6 +23,7 @@ from .views import (
     ProductMediaListView,
     ProductTypeDetailView,
     ProductTypeListView,
+    products_schema_view,
 )
 
 urlpatterns = [
@@ -120,4 +121,6 @@ urlpatterns = [
         AdminProductAttributeValueDetailView.as_view(),
         name="admin-product-attribute-value-detail",
     ),
+    # Create schema for swagger
+    path("schema/", products_schema_view, name="auth-schema"),
 ]
