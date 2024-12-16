@@ -5,11 +5,10 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 User = get_user_model()
 
+
 # ---------------------------------
 # Common Fixtures
 # ---------------------------------
-
-
 @pytest.fixture
 def api_client():
     """Provides an instance of APIClient."""
@@ -56,8 +55,6 @@ def authenticated_user_client(api_client, user):
 # ---------------------------------
 # Categories Fixtures
 # ---------------------------------
-
-
 @pytest.fixture
 def category_active(db):
     from categories.models import Category
@@ -79,8 +76,6 @@ def category_inactive(db):
 # ---------------------------------
 # Test Settings Overrides
 # ---------------------------------
-
-
 @pytest.fixture(autouse=True)
 def configure_rest_framework_settings(settings):
     """Overrides REST framework settings for testing."""
