@@ -4,6 +4,8 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 
+from categories.models import Category
+
 User = get_user_model()
 
 
@@ -54,6 +56,13 @@ def authenticated_user_client(api_client, user):
 
 
 @pytest.fixture
+def admin_api_client(admin_user, api_client):
+    """Provides an API client authenticated as admin using force_authenticate."""
+    api_client.force_authenticate(user=admin_user)
+    return api_client
+
+
+@pytest.fixture
 def verify_email_setup(db):
     """Setup user and URL for verify email tests."""
     user = User.objects.create(
@@ -63,6 +72,25 @@ def verify_email_setup(db):
     )
     verify_email_url = reverse("verify_email")
     return user, verify_email_url
+
+
+# ---------------------------------
+# Categories Fixtures
+# ---------------------------------
+@pytest.fixture
+def category_active(db):
+    """Creates an active category."""
+    return Category.objects.create(
+        name="Active Category", slug="active-category", is_active=True
+    )
+
+
+@pytest.fixture
+def category_inactive(db):
+    """Creates an inactive category."""
+    return Category.objects.create(
+        name="Inactive Category", slug="inactive-category", is_active=False
+    )
 
 
 # ---------------------------------
