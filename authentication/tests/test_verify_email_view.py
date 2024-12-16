@@ -1,51 +1,45 @@
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.urls import reverse
+import pytest
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from authentication.utils_otp_and_tokens import store_verification_token
 
-User = get_user_model()
 
+@pytest.mark.django_db
+class TestVerifyEmailView:
+    """Group all tests for the Verify Email View."""
 
-class VerifyEmailViewTest(APITestCase):
-
-    def setUp(self):
-        # Create a user for testing
-        self.user = User.objects.create(
-            username="testuser",
-            email="test@example.com",
-            is_active=False,
-        )
-        self.verify_email_url = reverse("verify_email")
-
-    def test_verify_email_success(self):
+    def test_verify_email_success(self, api_client, verify_email_setup):
         """Test verifying email successfully."""
+        user, verify_email_url = verify_email_setup
         token = "valid_token"
+
         store_verification_token(
-            token, self.user.id, ttl=3600
+            token, user.id, ttl=3600
         )  # Store a valid token in Redis
 
-        response = self.client.get(f"{self.verify_email_url}?token={token}")
+        response = api_client.get(f"{verify_email_url}?token={token}")
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["message"], "Email verified successfully.")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["message"] == "Email verified successfully."
 
         # Check user status change
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.is_active)
+        user.refresh_from_db()
+        assert user.is_active
 
-    def test_verify_email_invalid_token(self):
+    def test_verify_email_invalid_token(self, api_client, verify_email_setup):
         """Test verifying email with an invalid token."""
-        response = self.client.get(f"{self.verify_email_url}?token=invalid_token")
+        _, verify_email_url = verify_email_setup
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid token.")
+        response = api_client.get(f"{verify_email_url}?token=invalid_token")
 
-    def test_verify_email_missing_token(self):
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["error"] == "Invalid token."
+
+    def test_verify_email_missing_token(self, api_client, verify_email_setup):
         """Test verifying email without providing a token."""
-        response = self.client.get(self.verify_email_url)
+        _, verify_email_url = verify_email_setup
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Token is required.")
+        response = api_client.get(verify_email_url)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["error"] == "Token is required."
