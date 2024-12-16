@@ -1,0 +1,358 @@
+openapi: 3.0.3
+info:
+  title: my-APIs
+  version: 1.0.0
+  description: This is the API documentation for 'Ecommerce-Django-REST-APIs'.
+paths:
+  /:
+    get:
+      operationId: root_list
+      description: List of brands (for users) with filtering, searching, and ordering
+      parameters:
+      - in: query
+        name: name
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: slug
+        schema:
+          type: string
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBrandList'
+          description: ''
+  /{id}/:
+    get:
+      operationId: root_retrieve
+      description: Details of a specific brand (for users)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+  /admin/:
+    get:
+      operationId: admin_list
+      description: List and create a brand (admin only) with filtering, searching,
+        and ordering
+      parameters:
+      - in: query
+        name: name
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: slug
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBrandList'
+          description: ''
+    post:
+      operationId: admin_create
+      description: List and create a brand (admin only) with filtering, searching,
+        and ordering
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Brand'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Brand'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Brand'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+  /admin/{id}/:
+    get:
+      operationId: admin_retrieve
+      description: View details, edit or delete brand (admin only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+    put:
+      operationId: admin_update
+      description: View details, edit or delete brand (admin only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Brand'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Brand'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Brand'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+    patch:
+      operationId: admin_partial_update
+      description: View details, edit or delete brand (admin only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBrand'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBrand'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBrand'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+    delete:
+      operationId: admin_destroy
+      description: View details, edit or delete brand (admin only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    Brand:
+      type: object
+      description: Serializer for brand model
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Brand Name
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        slug:
+          type: string
+          title: Brand Slug
+          description: Unique URL identifier for the brand.
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+          nullable: true
+          title: Brand Description
+          description: Optional
+        logo:
+          type: string
+          format: uri
+          nullable: true
+          title: Brand Logo
+          description: Optional
+          pattern: (?:jpg|png|jpeg)$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Brand Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Brand Updated
+          description: 'Format: Y-m-d H:M:S'
+      required:
+      - created_at
+      - id
+      - name
+      - slug
+      - updated_at
+    PaginatedBrandList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Brand'
+    PatchedBrand:
+      type: object
+      description: Serializer for brand model
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Brand Name
+          description: Required, unique, max 255 characters
+          maxLength: 255
+        slug:
+          type: string
+          title: Brand Slug
+          description: Unique URL identifier for the brand.
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+          nullable: true
+          title: Brand Description
+          description: Optional
+        logo:
+          type: string
+          format: uri
+          nullable: true
+          title: Brand Logo
+          description: Optional
+          pattern: (?:jpg|png|jpeg)$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Brand Created
+          description: 'Format: Y-m-d H:M:S'
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date Brand Updated
+          description: 'Format: Y-m-d H:M:S'
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags: []

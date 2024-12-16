@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.views import SpectacularAPIView
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     ListAPIView,
@@ -10,6 +11,9 @@ from rest_framework.permissions import IsAdminUser
 
 from .models import Brand
 from .serializers import BrandSerializer
+
+# ---------------------------- Create schema for swagger ----------------------------
+brands_schema_view = SpectacularAPIView.as_view(urlconf="brands.urls")
 
 
 # ---------------------------------------------------------

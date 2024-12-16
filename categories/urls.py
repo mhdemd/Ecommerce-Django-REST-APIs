@@ -24,5 +24,5 @@ urlpatterns = [
         name="admin-category-detail",
     ),
     # Create schema for swagger
-    path("schema/", category_schema_view, name="category-schema"),
+    path("schema/", category_schema_view, name="categories-schema"),
 ]

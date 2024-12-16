@@ -5,6 +5,7 @@ from .views import (
     AdminBrandListCreateView,
     BrandDetailView,
     BrandListView,
+    brands_schema_view,
 )
 
 urlpatterns = [
@@ -22,4 +23,6 @@ urlpatterns = [
         AdminBrandDetailView.as_view(),
         name="admin-brand-detail",
     ),
+    # Create schema for swagger
+    path("schema/", brands_schema_view, name="brands-schema"),
 ]
