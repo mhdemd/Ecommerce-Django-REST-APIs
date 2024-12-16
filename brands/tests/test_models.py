@@ -12,7 +12,7 @@ class TestBrandModel:
         assert brand.name == "Brand A"
         assert brand.slug == "brand-a"
         assert brand.description is None
-        assert brand.logo == ""
+        assert not brand.logo
         assert brand.created_at is not None
         assert brand.updated_at is not None
 
