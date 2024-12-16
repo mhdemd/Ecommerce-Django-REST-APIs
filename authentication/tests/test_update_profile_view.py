@@ -8,23 +8,6 @@ User = get_user_model()
 
 
 @pytest.fixture
-def api_client():
-    return APIClient()
-
-
-@pytest.fixture
-def user():
-    user = User.objects.create_user(
-        username="johndoe",
-        email="johndoe@example.com",
-        password="password123",
-        first_name="John",
-        last_name="Doe",
-    )
-    return user
-
-
-@pytest.fixture
 def another_user():
     user = User.objects.create_user(
         username="janedoe",

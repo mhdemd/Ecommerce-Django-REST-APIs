@@ -5,15 +5,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework.test import APIClient
 
 from authentication.models import SessionInfo
-
-
-@pytest.fixture
-def api_client():
-    """Fixture to provide API client."""
-    return APIClient()
 
 
 @pytest.fixture
