@@ -9,16 +9,16 @@ from .views import (
 
 urlpatterns = [
     # User Endpoints (Brands)
-    path("brands/", BrandListView.as_view(), name="brand-list"),
-    path("brands/<int:pk>/", BrandDetailView.as_view(), name="brand-detail"),
+    path("", BrandListView.as_view(), name="brand-list"),
+    path("<int:pk>/", BrandDetailView.as_view(), name="brand-detail"),
     # Admin Endpoints (Brands)
     path(
-        "admin/brands/",
+        "admin/",
         AdminBrandListCreateView.as_view(),
         name="admin-brand-list-create",
     ),
     path(
-        "admin/brands/<int:pk>/",
+        "admin/<int:pk>/",
         AdminBrandDetailView.as_view(),
         name="admin-brand-detail",
     ),

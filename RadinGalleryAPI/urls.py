@@ -16,7 +16,7 @@ urlpatterns = [
     path("auth/", include("authentication.urls")),
     # Applications
     path("products/", include("products.urls")),
-    # path("brands/", include("brands.urls")),
+    path("brands/", include("brands.urls")),
     path("categories/", include("categories.urls")),
     # path("wishlist/", include("wishlist.urls")),
     # path("reviews/", include("reviews.urls")),
