@@ -55,5 +55,6 @@ class TestLogoutView:
             "authentication.views.LogoutView.post",
             side_effect=Exception("An error occurred during logout"),
         )
-        response = self.client.post(self.logout_url, {"refresh": "somevalidtoken"})
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+
+        with pytest.raises(Exception, match="An error occurred during logout"):
+            self.client.post(self.logout_url, {"refresh": "somevalidtoken"})
