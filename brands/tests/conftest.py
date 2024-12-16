@@ -25,3 +25,12 @@ def authenticated_admin_client(api_client, admin_user):
     token = AccessToken.for_user(admin_user)
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {str(token)}")
     return api_client
+
+
+@pytest.fixture
+def authenticated_user_client(api_client, django_user_model):
+    user = django_user_model.objects.create_user(
+        username="user", password="testpassword"
+    )
+    api_client.force_authenticate(user=user)
+    return api_client
