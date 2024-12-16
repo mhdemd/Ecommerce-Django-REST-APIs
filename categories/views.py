@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
-from rest_framework import generics, permissions
+from rest_framework import filters, generics, permissions
 
 from .models import Category
 from .serializers import CategorySerializer
@@ -18,6 +19,15 @@ class CategoryListView(generics.ListAPIView):
 
     serializer_class = CategorySerializer
     queryset = Category.objects.filter(is_active=True)
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_fields = ["name", "parent"]  # Fields available for filtering
+    search_fields = ["name"]  # Fields available for search
+    ordering_fields = ["name", "created_at"]  # Fields available for ordering
+    ordering = ["name"]  # Default ordering
 
 
 @extend_schema(tags=["Category - Detail"])
@@ -49,6 +59,15 @@ class AdminCategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     permission_classes = [permissions.IsAdminUser]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_fields = ["name", "is_active", "parent"]  # Fields available for filtering
+    search_fields = ["name"]  # Fields available for search
+    ordering_fields = ["name", "created_at"]  # Fields available for ordering
+    ordering = ["-created_at"]  # Default ordering
 
     def perform_create(self, serializer):
         serializer.save()
@@ -64,3 +83,12 @@ class AdminCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
     permission_classes = [permissions.IsAdminUser]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_fields = ["name", "is_active", "parent"]  # Fields available for filtering
+    search_fields = ["name"]  # Fields available for search
+    ordering_fields = ["name", "created_at"]  # Fields available for ordering
+    ordering = ["-created_at"]  # Default ordering
