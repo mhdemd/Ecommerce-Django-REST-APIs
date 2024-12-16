@@ -23,14 +23,6 @@ def create_user(db):
     return _create_user
 
 
-@pytest.fixture
-def api_client():
-    """Fixture to provide API client."""
-    from rest_framework.test import APIClient
-
-    return APIClient()
-
-
 @pytest.mark.django_db
 class TestResendEmailView:
     @pytest.fixture(autouse=True)
