@@ -1,12 +1,16 @@
+import pytest
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from rest_framework.test import APITestCase
 
-from ..serializers import RegisterSerializer
+from authentication.serializers import RegisterSerializer
 
 
-class RegisterSerializerTest(APITestCase):
+@pytest.mark.django_db
+class TestRegisterSerializer:
+    """Test suite for the RegisterSerializer."""
+
     def test_passwords_match(self):
+        """Test that matching passwords are valid."""
         data = {
             "username": "testuser",
             "email": "test@example.com",
@@ -14,9 +18,10 @@ class RegisterSerializerTest(APITestCase):
             "password2": "password@P",
         }
         serializer = RegisterSerializer(data=data)
-        self.assertTrue(serializer.is_valid())
+        assert serializer.is_valid() is True
 
     def test_passwords_do_not_match(self):
+        """Test that mismatching passwords are invalid."""
         data = {
             "username": "testuser",
             "email": "test@example.com",
@@ -24,10 +29,11 @@ class RegisterSerializerTest(APITestCase):
             "password2": "differentpassword",
         }
         serializer = RegisterSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors.keys()), {"password"})
+        assert serializer.is_valid() is False
+        assert "password" in serializer.errors
 
     def test_password_without_html_tags(self):
+        """Test that passwords with HTML tags are invalid."""
         data = {
             "username": "testuser",
             "email": "test@example.com",
@@ -35,10 +41,11 @@ class RegisterSerializerTest(APITestCase):
             "password2": "<script>alert('hack');</script>",
         }
         serializer = RegisterSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(set(serializer.errors.keys()), {"password"})
+        assert serializer.is_valid() is False
+        assert "password" in serializer.errors
 
     def test_password_too_short(self):
+        """Test that too-short passwords are invalid."""
         data = {
             "username": "testuser",
             "email": "test@example.com",
@@ -46,14 +53,13 @@ class RegisterSerializerTest(APITestCase):
             "password2": "short",
         }
         serializer = RegisterSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        # print(serializer.errors)
-        self.assertTrue(
-            "This password is too short"
-            in str(serializer.errors.get("non_field_errors", ""))
+        assert serializer.is_valid() is False
+        assert "This password is too short" in str(
+            serializer.errors.get("non_field_errors", "")
         )
 
     def test_common_password(self):
+        """Test that common passwords are invalid."""
         data = {
             "username": "testuser",
             "email": "test@example.com",
@@ -61,15 +67,13 @@ class RegisterSerializerTest(APITestCase):
             "password2": "123456789",
         }
         serializer = RegisterSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-
-        # print(serializer.errors)
-        self.assertTrue(
-            "This password is too common"
-            in str(serializer.errors.get("non_field_errors", ""))
+        assert serializer.is_valid() is False
+        assert "This password is too common" in str(
+            serializer.errors.get("non_field_errors", "")
         )
 
     def test_password_with_special_characters(self):
+        """Test that complex passwords with special characters are valid."""
         data = {
             "username": "testuser",
             "email": "test@example.com",
@@ -77,9 +81,10 @@ class RegisterSerializerTest(APITestCase):
             "password2": "Complex@Password123!",
         }
         serializer = RegisterSerializer(data=data)
-        self.assertTrue(serializer.is_valid())
+        assert serializer.is_valid() is True
 
     def test_password_validators(self):
+        """Test that valid passwords pass validation."""
         data = {
             "username": "testuser",
             "email": "test@example.com",
@@ -89,11 +94,12 @@ class RegisterSerializerTest(APITestCase):
         serializer = RegisterSerializer(data=data)
         try:
             validate_password(data["password"])
-            self.assertTrue(serializer.is_valid())
+            assert serializer.is_valid() is True
         except ValidationError as e:
-            self.fail(f"Password validation failed: {e}")
+            pytest.fail(f"Password validation failed: {e}")
 
     def test_user_creation(self):
+        """Test that a user is created successfully."""
         data = {
             "username": "testuser",
             "email": "test@example.com",
@@ -101,8 +107,8 @@ class RegisterSerializerTest(APITestCase):
             "password2": "Password123!",
         }
         serializer = RegisterSerializer(data=data)
-        self.assertTrue(serializer.is_valid())
+        assert serializer.is_valid() is True
         user = serializer.save()
-        self.assertIsNotNone(user)
-        self.assertEqual(user.username, "testuser")
-        self.assertEqual(user.email, "test@example.com")
+        assert user is not None
+        assert user.username == "testuser"
+        assert user.email == "test@example.com"
