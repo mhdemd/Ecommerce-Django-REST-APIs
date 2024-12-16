@@ -1,24 +1,30 @@
+import pytest
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from django.test import TestCase
 
-from ..serializers import ForgotPasswordSerializer
+from authentication.serializers import ForgotPasswordSerializer
 
 User = get_user_model()
 
 
-class ForgotPasswordSerializerTest(TestCase):
-    def setUp(self):
+@pytest.mark.django_db
+class TestForgotPasswordSerializer:
+    """Test suite for ForgotPasswordSerializer."""
+
+    @pytest.fixture(autouse=True)
+    def setup_user(self):
+        """Set up test data."""
         User.objects.create_user(
-            username="testuser", email="testuser@example.com", password="password@123"
+            username="testuser",
+            email="testuser@example.com",
+            password="password@123",
         )
 
     def test_valid_email(self):
         """Test that a valid email returns the email as is."""
         data = {"email": "testuser@example.com"}
         serializer = ForgotPasswordSerializer(data=data)
-        self.assertTrue(serializer.is_valid())
-        self.assertEqual(serializer.validated_data["email"], "testuser@example.com")
+        assert serializer.is_valid() is True
+        assert serializer.validated_data["email"] == "testuser@example.com"
 
     def test_email_not_registered(self):
         """Test that an unregistered email returns a validation error."""
@@ -27,21 +33,20 @@ class ForgotPasswordSerializerTest(TestCase):
 
         is_valid = serializer.is_valid(raise_exception=False)
 
-        self.assertFalse(is_valid)
-        self.assertIn("email", serializer.errors)
-
-        self.assertEqual(serializer.errors["email"][0], "This email is not registered.")
+        assert is_valid is False
+        assert "email" in serializer.errors
+        assert serializer.errors["email"][0] == "This email is not registered."
 
     def test_invalid_email_format(self):
         """Test that an invalid email format returns a validation error."""
         data = {"email": "invalidemail.com"}
         serializer = ForgotPasswordSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("email", serializer.errors)
+        assert serializer.is_valid() is False
+        assert "email" in serializer.errors
 
     def test_blank_email(self):
         """Test that a blank email returns a validation error."""
         data = {"email": ""}
         serializer = ForgotPasswordSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("email", serializer.errors)
+        assert serializer.is_valid() is False
+        assert "email" in serializer.errors
