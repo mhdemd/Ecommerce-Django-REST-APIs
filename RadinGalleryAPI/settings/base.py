@@ -297,6 +297,19 @@ SPECTACULAR_SETTINGS = {
             "name": "Admin - Category",
             "description": "Admin endpoints for managing categories, including listing, creating, updating, and deleting categories.",
         },
+        # Brand Group
+        {
+            "name": "Brand - List",
+            "description": "Endpoints for listing brands accessible to users with filtering, searching, and ordering capabilities.",
+        },
+        {
+            "name": "Brand - Detail",
+            "description": "Endpoint for retrieving the details of a specific brand.",
+        },
+        {
+            "name": "Admin - Brand",
+            "description": "Admin endpoints for managing brands, including listing, creating, updating, and deleting brands.",
+        },
     ],
 }
 
