@@ -3,16 +3,10 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils.timezone import now, timedelta
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from authentication.utils_otp_and_tokens import store_password_reset_token
 
 User = get_user_model()
-
-
-@pytest.fixture
-def api_client():
-    return APIClient()
 
 
 @pytest.fixture
