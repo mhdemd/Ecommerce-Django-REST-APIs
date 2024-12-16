@@ -205,7 +205,7 @@ SIMPLE_JWT = {
 # DRF Spectacular (Swagger) Settings
 # ---------------------------------------------------------
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Ecommerce-Django-REST-APIs",
+    "TITLE": "my-APIs",
     "DESCRIPTION": "This is the API documentation for 'Ecommerce-Django-REST-APIs'.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,

@@ -5,6 +5,7 @@ from .views import (  # User Endpoints; Admin Endpoints
     AdminCategoryListCreateView,
     CategoryDetailView,
     CategoryListView,
+    category_schema_view,
 )
 
 urlpatterns = [
@@ -22,4 +23,6 @@ urlpatterns = [
         AdminCategoryDetailView.as_view(),
         name="admin-category-detail",
     ),
+    # Create schema for swagger
+    path("schema/", category_schema_view, name="category-schema"),
 ]

@@ -1,10 +1,14 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
+from drf_spectacular.views import SpectacularAPIView
 from rest_framework import filters, generics, permissions
 
 from .models import Category
 from .serializers import CategorySerializer
+
+# ---------------------------- Create schema for swagger ----------------------------
+category_schema_view = SpectacularAPIView.as_view(urlconf="categories.urls")
 
 
 # -------------------------
