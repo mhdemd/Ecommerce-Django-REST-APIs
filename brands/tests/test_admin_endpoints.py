@@ -1,6 +1,7 @@
 import pytest
-from brand.models import Brand
 from django.urls import reverse
+
+from brands.models import Brand
 
 
 @pytest.mark.django_db
@@ -16,11 +17,13 @@ class TestAdminBrandEndpoints:
         assert response.status_code == 201
         assert Brand.objects.filter(name="Admin Brand").exists()
 
+    @pytest.mark.django_db
     def test_create_brand_admin_unauthenticated(self, api_client):
         data = {"name": "Brand X", "slug": "brand-x"}
         url = reverse("admin-brand-list-create")
+
         response = api_client.post(url, data=data, format="json")
-        assert response.status_code == 403  # Forbidden برای کاربر غیر احراز هویت شده
+        assert response.status_code == 401
 
     def test_update_brand_admin(self, authenticated_admin_client):
         brand = Brand.objects.create(name="Brand Old", slug="brand-old")
