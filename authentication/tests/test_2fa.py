@@ -3,16 +3,9 @@ from unittest.mock import patch
 import pytest
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from authentication.models import User
 from authentication.utils_otp_and_tokens import store_otp_for_user
-
-
-@pytest.fixture
-def api_client():
-    """Fixture to provide a DRF API client."""
-    return APIClient()
 
 
 @pytest.fixture
