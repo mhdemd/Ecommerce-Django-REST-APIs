@@ -18,6 +18,9 @@ You can view the latest API documentation, including the current status of all e
   - Managing task queues as a message broker for Celery.
   - **Storing temporary tokens** for email verification and OTPs for enhanced security and performance.
 
+### Testing
+This project includes a suite of tests to ensure the correct functionality and performance of the API endpoints.
+
 ![Demo](docs/assets/pytest.gif) 
 
 
