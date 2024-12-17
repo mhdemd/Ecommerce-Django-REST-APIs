@@ -77,3 +77,12 @@ class Command(BaseCommand):
                 sale_price=random.uniform(20, 400),
                 weight=random.uniform(1, 10),
             )
+
+        # Create Media
+        for product in products:
+            Media.objects.create(
+                product=product,
+                image=fake.image_url(),
+                is_feature=random.choice([True, False]),
+                ordering=random.randint(1, 10),
+            )
