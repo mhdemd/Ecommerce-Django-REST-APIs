@@ -6,8 +6,9 @@ info:
 paths:
   /:
     get:
-      operationId: root_list
-      description: List of brands (for users) with filtering, searching, and ordering
+      operationId: list_brands_for_users
+      description: Retrieve a list of brands with filtering, searching, and ordering
+        capabilities.
       parameters:
       - in: query
         name: name
@@ -35,6 +36,8 @@ paths:
         name: slug
         schema:
           type: string
+      tags:
+      - Brand - List
       security:
       - jwtAuth: []
       - {}
@@ -47,14 +50,16 @@ paths:
           description: ''
   /{id}/:
     get:
-      operationId: root_retrieve
-      description: Details of a specific brand (for users)
+      operationId: retrieve_brand_detail_for_users
+      description: Retrieve detailed information about a specific brand.
       parameters:
       - in: path
         name: id
         schema:
           type: integer
         required: true
+      tags:
+      - Brand - Detail
       security:
       - jwtAuth: []
       - {}
@@ -67,9 +72,9 @@ paths:
           description: ''
   /admin/:
     get:
-      operationId: admin_list
-      description: List and create a brand (admin only) with filtering, searching,
-        and ordering
+      operationId: admin_list_and_create_brands
+      description: List and create brands with filtering, searching, and ordering
+        capabilities (admin only).
       parameters:
       - in: query
         name: name
@@ -98,7 +103,7 @@ paths:
         schema:
           type: string
       tags:
-      - admin
+      - Admin - Brand
       security:
       - jwtAuth: []
       responses:
@@ -109,11 +114,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedBrandList'
           description: ''
     post:
-      operationId: admin_create
-      description: List and create a brand (admin only) with filtering, searching,
-        and ordering
+      operationId: admin_list_and_create_brands_2
+      description: List and create brands with filtering, searching, and ordering
+        capabilities (admin only).
       tags:
-      - admin
+      - Admin - Brand
       requestBody:
         content:
           application/json:
@@ -137,8 +142,8 @@ paths:
           description: ''
   /admin/{id}/:
     get:
-      operationId: admin_retrieve
-      description: View details, edit or delete brand (admin only)
+      operationId: admin_manage_brand_detail_2
+      description: View, edit, or delete a specific brand (admin only).
       parameters:
       - in: path
         name: id
@@ -146,7 +151,7 @@ paths:
           type: integer
         required: true
       tags:
-      - admin
+      - Admin - Brand
       security:
       - jwtAuth: []
       responses:
@@ -157,8 +162,8 @@ paths:
                 $ref: '#/components/schemas/Brand'
           description: ''
     put:
-      operationId: admin_update
-      description: View details, edit or delete brand (admin only)
+      operationId: admin_manage_brand_detail_4
+      description: View, edit, or delete a specific brand (admin only).
       parameters:
       - in: path
         name: id
@@ -166,7 +171,7 @@ paths:
           type: integer
         required: true
       tags:
-      - admin
+      - Admin - Brand
       requestBody:
         content:
           application/json:
@@ -189,8 +194,8 @@ paths:
                 $ref: '#/components/schemas/Brand'
           description: ''
     patch:
-      operationId: admin_partial_update
-      description: View details, edit or delete brand (admin only)
+      operationId: admin_manage_brand_detail_3
+      description: View, edit, or delete a specific brand (admin only).
       parameters:
       - in: path
         name: id
@@ -198,7 +203,7 @@ paths:
           type: integer
         required: true
       tags:
-      - admin
+      - Admin - Brand
       requestBody:
         content:
           application/json:
@@ -220,8 +225,8 @@ paths:
                 $ref: '#/components/schemas/Brand'
           description: ''
     delete:
-      operationId: admin_destroy
-      description: View details, edit or delete brand (admin only)
+      operationId: admin_manage_brand_detail
+      description: View, edit, or delete a specific brand (admin only).
       parameters:
       - in: path
         name: id
@@ -229,7 +234,7 @@ paths:
           type: integer
         required: true
       tags:
-      - admin
+      - Admin - Brand
       security:
       - jwtAuth: []
       responses:
@@ -355,4 +360,12 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-tags: []
+tags:
+- name: Brand - List
+  description: Endpoints for listing brands accessible to users with filtering, searching,
+    and ordering capabilities.
+- name: Brand - Detail
+  description: Endpoint for retrieving the details of a specific brand.
+- name: Admin - Brand
+  description: Admin endpoints for managing brands, including listing, creating, updating,
+    and deleting brands.
