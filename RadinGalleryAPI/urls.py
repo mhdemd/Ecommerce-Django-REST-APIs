@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import (
@@ -21,3 +22,7 @@ urlpatterns = [
     # path("wishlist/", include("wishlist.urls")),
     # path("reviews/", include("reviews.urls")),
 ]
+
+# Adding Silk only in development mode
+if settings.DEBUG:
+    urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]
