@@ -6,9 +6,8 @@ from faker import Faker
 
 from brands.models import Brand
 from categories.models import Category
-from products.models import Media, Product, ProductInventory
+from products.models import Media, Product, ProductInventory, ProductType
 from reviews.models import ProductReview
-from wishlist.models import Wishlist
 
 User = get_user_model()
 fake = Faker()
@@ -21,39 +20,49 @@ class Command(BaseCommand):
         self.stdout.write("Generating fake data...")
 
         # Create Users
-        for _ in range(20):
+        users = [
             User.objects.create_user(
                 username=fake.user_name(),
                 email=fake.email(),
                 password="password123",
                 is_active=True,
             )
+            for _ in range(20)
+        ]
 
         # Create Brands
-        brands = []
-        for _ in range(10):
-            brand = Brand.objects.create(
+        brands = [
+            Brand.objects.create(
                 name=fake.company(),
                 slug=fake.slug(),
                 description=fake.text(),
                 logo=fake.image_url(),
             )
-            brands.append(brand)
+            for _ in range(10)
+        ]
 
         # Create Categories
-        categories = []
-        for _ in range(5):
-            category = Category.objects.create(
+        categories = [
+            Category.objects.create(
                 name=fake.word(),
                 slug=fake.slug(),
                 is_active=True,
             )
-            categories.append(category)
+            for _ in range(5)
+        ]
+
+        # Create Product Types
+        product_types = [
+            ProductType.objects.create(
+                name=fake.word(),
+                slug=fake.slug(),
+            )
+            for _ in range(5)
+        ]
 
         # Create Products
-        products = []
-        for _ in range(50):
-            product = Product.objects.create(
+        products = [
+            Product.objects.create(
                 web_id=fake.unique.uuid4(),
                 slug=fake.slug(),
                 name=fake.word(),
@@ -62,7 +71,8 @@ class Command(BaseCommand):
                 category=random.choice(categories),
                 is_active=True,
             )
-            products.append(product)
+            for _ in range(50)
+        ]
 
         # Create Product Inventory
         for product in products:
@@ -70,6 +80,9 @@ class Command(BaseCommand):
                 sku=fake.unique.ean(length=13),
                 upc=f"{fake.unique.random_number(digits=12)}",
                 product=product,
+                product_type=random.choice(
+                    product_types
+                ),  # Ensure product_type is assigned
                 stock=random.randint(0, 100),
                 is_active=True,
                 retail_price=random.uniform(50, 500),
@@ -87,11 +100,11 @@ class Command(BaseCommand):
                 ordering=random.randint(1, 10),
             )
 
-        # Create Reviews
+        # Create Product Reviews
         for product in products:
             for _ in range(random.randint(1, 5)):
                 ProductReview.objects.create(
-                    user=random.choice(User.objects.all()),
+                    user=random.choice(users),
                     product=product,
                     title=fake.sentence(),
                     review=fake.paragraph(),
