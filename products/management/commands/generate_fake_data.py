@@ -12,3 +12,19 @@ from wishlist.models import Wishlist
 
 User = get_user_model()
 fake = Faker()
+
+
+class Command(BaseCommand):
+    help = "Generate fake data for the e-commerce project"
+
+    def handle(self, *args, **options):
+        self.stdout.write("Generating fake data...")
+
+        # Create Users
+        for _ in range(20):
+            User.objects.create_user(
+                username=fake.user_name(),
+                email=fake.email(),
+                password="password123",
+                is_active=True,
+            )
