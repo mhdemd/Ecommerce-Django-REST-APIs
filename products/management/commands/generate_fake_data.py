@@ -99,3 +99,5 @@ class Command(BaseCommand):
                     date=fake.date_time_this_year(),
                     is_approved=True,
                 )
+
+        self.stdout.write(self.style.SUCCESS("Fake data generated successfully!"))
