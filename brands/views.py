@@ -20,7 +20,11 @@ brands_schema_view = SpectacularAPIView.as_view(urlconf="brands.urls")
 # ---------------------------------------------------------
 # User Endpoints (Brands)
 # ---------------------------------------------------------
-@extend_schema(tags=["Brand - List"])
+@extend_schema(
+    tags=["Brand - List"],
+    operation_id="list_brands_for_users",
+    description="Retrieve a list of brands with filtering, searching, and ordering capabilities.",
+)
 class BrandListView(ListAPIView):
     """
     List of brands (for users) with filtering, searching, and ordering
@@ -35,7 +39,11 @@ class BrandListView(ListAPIView):
     ordering = ["name"]
 
 
-@extend_schema(tags=["Brand - Detail"])
+@extend_schema(
+    tags=["Brand - Detail"],
+    operation_id="retrieve_brand_detail_for_users",
+    description="Retrieve detailed information about a specific brand.",
+)
 class BrandDetailView(RetrieveAPIView):
     """
     Details of a specific brand (for users)
@@ -48,7 +56,11 @@ class BrandDetailView(RetrieveAPIView):
 # ---------------------------------------------------------
 # Admin Endpoints (Brands)
 # ---------------------------------------------------------
-@extend_schema(tags=["Admin - Brand"])
+@extend_schema(
+    tags=["Admin - Brand"],
+    operation_id="admin_list_and_create_brands",
+    description="List and create brands with filtering, searching, and ordering capabilities (admin only).",
+)
 class AdminBrandListCreateView(ListCreateAPIView):
     """
     List and create a brand (admin only) with filtering, searching, and ordering
@@ -64,7 +76,11 @@ class AdminBrandListCreateView(ListCreateAPIView):
     ordering = ["name"]  # Default ordering
 
 
-@extend_schema(tags=["Admin - Brand"])
+@extend_schema(
+    tags=["Admin - Brand"],
+    operation_id="admin_manage_brand_detail",
+    description="View, edit, or delete a specific brand (admin only).",
+)
 class AdminBrandDetailView(RetrieveUpdateDestroyAPIView):
     """
     View details, edit or delete brand (admin only)
