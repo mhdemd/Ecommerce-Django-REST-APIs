@@ -17,7 +17,8 @@ You can view the latest API documentation, including the current status of all e
   - Storing Django's default session data.
   - Managing task queues as a message broker for Celery.
   - **Storing temporary tokens** for email verification and OTPs for enhanced security and performance.
-  ![Demo](assets/pytest.gif)
+
+![Demo](assets/pytest.gif)
 
 
 ## Security Measures
