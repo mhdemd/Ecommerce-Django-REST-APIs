@@ -68,7 +68,7 @@ class Command(BaseCommand):
         for product in products:
             ProductInventory.objects.create(
                 sku=fake.unique.ean(length=13),
-                upc=fake.unique.ean(length=12),
+                upc=fake.unique.ean(length=13),
                 product=product,
                 stock=random.randint(0, 100),
                 is_active=True,
