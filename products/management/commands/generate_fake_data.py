@@ -28,3 +28,14 @@ class Command(BaseCommand):
                 password="password123",
                 is_active=True,
             )
+
+        # Create Brands
+        brands = []
+        for _ in range(10):
+            brand = Brand.objects.create(
+                name=fake.company(),
+                slug=fake.slug(),
+                description=fake.text(),
+                logo=fake.image_url(),
+            )
+            brands.append(brand)
