@@ -39,3 +39,13 @@ class Command(BaseCommand):
                 logo=fake.image_url(),
             )
             brands.append(brand)
+
+        # Create Categories
+        categories = []
+        for _ in range(5):
+            category = Category.objects.create(
+                name=fake.word(),
+                slug=fake.slug(),
+                is_active=True,
+            )
+            categories.append(category)
