@@ -19,6 +19,8 @@ django-redis-cache==3.0.1
 djangorestframework==3.15.2
 djangorestframework-simplejwt==5.3.1
 drf-spectacular==0.27.2
+factory_boy==3.3.1
+Faker==33.1.0
 inflection==0.5.1
 iniconfig==2.0.0
 jsonschema==4.23.0
@@ -31,7 +33,7 @@ prompt_toolkit==3.0.48
 psycopg2-binary==2.9.10
 PyJWT==2.10.1
 pytest==8.3.3
-pytest-django>=4.5.2
+pytest-django==4.9.0
 pytest-mock==3.14.0
 python-dateutil==2.9.0.post0
 python-decouple==3.8
@@ -43,6 +45,7 @@ rpds-py==0.21.0
 setuptools==75.6.0
 six==1.17.0
 sqlparse==0.5.2
+typing_extensions==4.12.2
 tzdata==2024.2
 uritemplate==4.1.1
 vine==5.1.0
