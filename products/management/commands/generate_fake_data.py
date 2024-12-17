@@ -86,3 +86,16 @@ class Command(BaseCommand):
                 is_feature=random.choice([True, False]),
                 ordering=random.randint(1, 10),
             )
+
+        # Create Reviews
+        for product in products:
+            for _ in range(random.randint(1, 5)):
+                ProductReview.objects.create(
+                    user=random.choice(User.objects.all()),
+                    product=product,
+                    title=fake.sentence(),
+                    review=fake.paragraph(),
+                    rating=random.randint(1, 5),
+                    date=fake.date_time_this_year(),
+                    is_approved=True,
+                )
