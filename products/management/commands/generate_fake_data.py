@@ -49,3 +49,17 @@ class Command(BaseCommand):
                 is_active=True,
             )
             categories.append(category)
+
+        # Create Products
+        products = []
+        for _ in range(50):
+            product = Product.objects.create(
+                web_id=fake.unique.uuid4(),
+                slug=fake.slug(),
+                name=fake.word(),
+                description=fake.text(),
+                brand=random.choice(brands),
+                category=random.choice(categories),
+                is_active=True,
+            )
+            products.append(product)
