@@ -83,9 +83,7 @@ class ProductInventorySerializer(serializers.ModelSerializer):
             "store_price",
             "sale_price",
             "weight",
-            "is_active",
-            "created_at",
-            "updated_at",
+            "attribute_values",
         ]
 
 
