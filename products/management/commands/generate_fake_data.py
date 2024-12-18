@@ -95,7 +95,7 @@ class Command(BaseCommand):
         for product in products:
             Media.objects.create(
                 product=product,
-                image=fake.image_url(),
+                image="images/default.png",
                 is_feature=random.choice([True, False]),
                 ordering=random.randint(1, 10),
             )

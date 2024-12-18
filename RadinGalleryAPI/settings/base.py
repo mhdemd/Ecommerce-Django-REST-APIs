@@ -164,6 +164,9 @@ USE_TZ = True
 # ---------------------------------------------------------
 STATIC_URL = "static/"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = Path(BASE_DIR).parent / "media"
+
 
 # ---------------------------------------------------------
 # Django REST Framework & JWT Settings
