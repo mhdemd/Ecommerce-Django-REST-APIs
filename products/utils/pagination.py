@@ -1,8 +1,7 @@
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination
 
 
-# Remove __count from pagination queryset
-class NoCountPagination(PageNumberPagination):
+class NoCountPagination(LimitOffsetPagination):
     def get_paginated_response(self, data):
         return {
             "results": data,
@@ -11,7 +10,8 @@ class NoCountPagination(PageNumberPagination):
         }
 
     def paginate_queryset(self, queryset, request, view=None):
-        self.limit = self.get_page_size(request)
+        # Calculate pagination without counting the total number of records
+        self.limit = self.get_limit(request)
         self.offset = self.get_offset(request)
         self.request = request
         return list(queryset[self.offset : self.offset + self.limit])
