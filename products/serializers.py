@@ -71,7 +71,17 @@ class MediaSerializer(serializers.ModelSerializer):
         ]
 
 
+class ProductAttributeValueSerializer(serializers.ModelSerializer):
+    attribute = serializers.CharField(source="product_attribute.name")
+
+    class Meta:
+        model = ProductAttributeValue
+        fields = ["id", "attribute", "attribute_value"]
+
+
 class ProductInventorySerializer(serializers.ModelSerializer):
+    attribute_values = ProductAttributeValueSerializer(many=True, read_only=True)
+
     class Meta:
         model = ProductInventory
         fields = [
@@ -109,12 +119,6 @@ class ProductAttributeDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductAttribute
         fields = ["id", "name", "description", "created_at", "updated_at"]
-
-
-class ProductAttributeValueSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductAttributeValue
-        fields = ["id", "attribute_value", "created_at", "updated_at"]
 
 
 class ProductAttributeValueDetailSerializer(serializers.ModelSerializer):
