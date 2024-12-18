@@ -106,7 +106,6 @@ class ProductInventoryListView(ListAPIView):
 
     def get_queryset(self):
         product_id = self.kwargs.get("pk")
-
         queryset = (
             ProductInventory.objects.filter(product__id=product_id)
             .select_related("product")
@@ -120,7 +119,6 @@ class ProductInventoryListView(ListAPIView):
             )
             .order_by("-created_at")
         )
-
         return queryset
 
 
