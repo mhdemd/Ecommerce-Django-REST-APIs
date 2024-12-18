@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -90,12 +91,11 @@ class ProductMediaListView(ListAPIView):
 
     def get_queryset(self):
         product_id = self.kwargs.get("pk")
-        # product = get_object_or_404(Product, pk=product_id, is_active=True)
-        # return product.media.all().order_by("ordering")
 
         queryset = Media.objects.filter(
             product__id=product_id, product__is_active=True
         ).order_by("ordering")
+
         return queryset
 
 
@@ -106,8 +106,23 @@ class ProductInventoryListView(ListAPIView):
 
     def get_queryset(self):
         product_id = self.kwargs.get("pk")
-        product = get_object_or_404(Product, pk=product_id, is_active=True)
-        return ProductInventory.objects.filter(product=product).order_by("created_at")
+
+        queryset = (
+            ProductInventory.objects.filter(product__id=product_id).select_related(
+                "product"
+            )
+            # .prefetch_related(
+            #     Prefetch(
+            #         "attribute_values",
+            #         queryset=ProductAttributeValue.objects.select_related(
+            #             "product_attribute"
+            #         ),
+            #     )
+            # )
+            .order_by("-created_at")
+        )
+
+        return queryset
 
 
 @extend_schema(tags=["Product - Types"])
