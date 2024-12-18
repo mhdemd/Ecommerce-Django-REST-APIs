@@ -64,7 +64,11 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
-        fields = ["id", "image", "is_feature", "ordering", "created_at", "updated_at"]
+        fields = [
+            "id",
+            "image",
+            "ordering",
+        ]
 
 
 class ProductInventorySerializer(serializers.ModelSerializer):

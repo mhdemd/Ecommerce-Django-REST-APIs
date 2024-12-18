@@ -90,9 +90,13 @@ class ProductMediaListView(ListAPIView):
 
     def get_queryset(self):
         product_id = self.kwargs.get("pk")
-        product = get_object_or_404(Product, pk=product_id, is_active=True)
-        # Return all media objects related to this product
-        return product.media.all().order_by("ordering")
+        # product = get_object_or_404(Product, pk=product_id, is_active=True)
+        # return product.media.all().order_by("ordering")
+
+        queryset = Media.objects.filter(
+            product__id=product_id, product__is_active=True
+        ).order_by("ordering")
+        return queryset
 
 
 @extend_schema(tags=["Product - Inventory"])
