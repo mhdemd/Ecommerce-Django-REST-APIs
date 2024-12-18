@@ -162,10 +162,12 @@ class ProductAttributeValueListView(ListAPIView):
 
     def get_queryset(self):
         attribute_id = self.kwargs.get("attribute_id")
-        attribute = get_object_or_404(ProductAttribute, pk=attribute_id)
-        return ProductAttributeValue.objects.filter(
-            product_attribute=attribute
-        ).order_by("id")
+
+        queryset = ProductAttributeValue.objects.filter(
+            product_attribute_id=attribute_id
+        ).select_related("product_attribute")
+
+        return queryset
 
 
 @extend_schema(tags=["Product - Attributes"])
@@ -176,11 +178,11 @@ class ProductAttributeValueDetailView(RetrieveAPIView):
     def get_object(self):
         attribute_id = self.kwargs.get("attribute_id")
         value_id = self.kwargs.get("value_id")
-        # Ensure the attribute exists
-        attribute = get_object_or_404(ProductAttribute, pk=attribute_id)
-        # Then ensure the value belongs to this attribute
+
         return get_object_or_404(
-            ProductAttributeValue, pk=value_id, product_attribute=attribute
+            ProductAttributeValue.objects.select_related("product_attribute"),
+            product_attribute__id=attribute_id,
+            pk=value_id,
         )
 
 
