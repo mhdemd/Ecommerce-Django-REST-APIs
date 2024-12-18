@@ -108,17 +108,16 @@ class ProductInventoryListView(ListAPIView):
         product_id = self.kwargs.get("pk")
 
         queryset = (
-            ProductInventory.objects.filter(product__id=product_id).select_related(
-                "product"
+            ProductInventory.objects.filter(product__id=product_id)
+            .select_related("product")
+            .prefetch_related(
+                Prefetch(
+                    "attribute_values",
+                    queryset=ProductAttributeValue.objects.select_related(
+                        "product_attribute"
+                    ),
+                )
             )
-            # .prefetch_related(
-            #     Prefetch(
-            #         "attribute_values",
-            #         queryset=ProductAttributeValue.objects.select_related(
-            #             "product_attribute"
-            #         ),
-            #     )
-            # )
             .order_by("-created_at")
         )
 
