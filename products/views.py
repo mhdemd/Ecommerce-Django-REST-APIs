@@ -74,6 +74,9 @@ class ProductListView(ListAPIView):
     # Search in name and description
     search_fields = ["name", "description"]
 
+    # use custom pagination class
+    pagination_class = NoCountPagination
+
 
 @extend_schema(tags=["Product - List"])
 class ProductDetailView(RetrieveAPIView):
