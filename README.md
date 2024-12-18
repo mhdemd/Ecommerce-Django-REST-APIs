@@ -68,16 +68,8 @@ This repository incorporates multiple layers of security to protect the applicat
 ## License
 This project is licensed under the [MIT License](./LICENSE.md). By using this software, you agree to the terms and conditions outlined in the License.
 
-## Contribute
-We welcome contributors to help enhance this project! Whether you have ideas for new features, bug fixes, or improvements, your help would be greatly appreciated.
-
-To contribute:
-1. Fork the repository.
-2. Clone your fork to your local machine.
-3. Create a new branch for your changes.
-4. Make your modifications and commit them.
-5. Push your branch to your fork.
-6. Create a pull request.
+## Contributing
+We welcome contributions! Please read our [Contributing Guidelines](./CONTRIBUTING.md) for detailed instructions.
 
 Feel free to reach out or open an issue for discussions and suggestions.
 
