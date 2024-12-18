@@ -76,20 +76,26 @@ class Command(BaseCommand):
 
         # Create Product Inventory
         for product in products:
-            ProductInventory.objects.create(
-                sku=fake.unique.ean(length=13),
-                upc=f"{fake.unique.random_number(digits=12)}",
-                product=product,
-                product_type=random.choice(
-                    product_types
-                ),  # Ensure product_type is assigned
-                stock=random.randint(0, 100),
-                is_active=True,
-                retail_price=random.uniform(50, 500),
-                store_price=random.uniform(30, 450),
-                sale_price=random.uniform(20, 400),
-                weight=random.uniform(1, 10),
-            )
+            number_of_inventories = random.randint(
+                2, 5
+            )  # Between 2 and 5 sub-products for each product
+            for _ in range(number_of_inventories):
+                ProductInventory.objects.create(
+                    sku=fake.unique.ean(length=13),
+                    upc=f"{fake.unique.random_number(digits=12)}",
+                    product=product,
+                    product_type=random.choice(
+                        product_types
+                    ),  # Ensure product_type is assigned
+                    stock=random.randint(0, 100),
+                    is_active=True,
+                    retail_price=round(
+                        random.uniform(50, 500), 2
+                    ),  # Random and rounded prices
+                    store_price=round(random.uniform(30, 450), 2),
+                    sale_price=round(random.uniform(20, 400), 2),
+                    weight=round(random.uniform(1, 10), 2),
+                )
 
         # Create Media
         for product in products:
