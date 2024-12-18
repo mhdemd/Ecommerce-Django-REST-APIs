@@ -35,7 +35,7 @@ You can contribute in the following ways:
 
 ## Setting Up the Project
 
-Follow these steps to set up the project locally:
+Follow these steps to set up the project locally using Docker:
 
 1. **Fork and Clone**  
    Fork the repository and clone it to your local machine:
@@ -44,31 +44,20 @@ Follow these steps to set up the project locally:
    cd Ecommerce-Django-REST-APIs
    ```
 
-2. **Create a Virtual Environment**  
-   ```bash
-   python -m venv env
-   source env/bin/activate  # On Windows: env\Scripts\activate
-   ```
-
-3. **Install Dependencies**  
-   Install all required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set Up Environment Variables**  
-   Copy `.env.example` to `.env` and configure necessary variables.
-
-5. **Run Docker Containers**  
-   Build and run the application using Docker:
+2. **Run Docker Compose**  
+   Build and run the project using Docker Compose:
    ```bash
    docker-compose up --build
    ```
 
-6. **Run Tests**  
-   Run the tests to verify everything is working:
+3. **Access the Application**  
+   - The Django application will be available at `http://localhost:8000/`.
+   - Swagger documentation can be accessed at `http://localhost:8000/swagger/`.
+
+4. **Run Tests**  
+   To run the test suite inside the container:
    ```bash
-   pytest
+   docker exec -it django_app pytest
    ```
 
 ---
@@ -78,7 +67,7 @@ Follow these steps to set up the project locally:
 To submit a Pull Request (PR), please follow these steps:
 
 1. **Create a Branch**  
-   Make a new branch for your feature or fix:
+   Create a new branch for your feature or fix (replace `your-feature-name` with a descriptive name):
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -90,9 +79,9 @@ To submit a Pull Request (PR), please follow these steps:
    ```
 
 3. **Test Your Changes**  
-   Ensure that all tests pass:
+   Ensure that all tests pass using the following command inside the container:
    ```bash
-   pytest
+   docker exec -it django_app pytest
    ```
 
 4. **Push to Your Fork**  
@@ -102,7 +91,7 @@ To submit a Pull Request (PR), please follow these steps:
    ```
 
 5. **Create a Pull Request**  
-   Open a PR on GitHub and describe your changes clearly.
+   Open a PR on GitHub and describe your changes clearly. Be sure to link any relevant issues.
 
 ---
 
