@@ -40,7 +40,7 @@ Follow these steps to set up the project locally using Docker:
 1. **Fork and Clone**  
    Fork the repository and clone it to your local machine:
    ```bash
-   git clone https://github.com/<your-username>/Ecommerce-Django-REST-APIs.git
+   git clone https://github.com/mhdemd/Ecommerce-Django-REST-APIs.git
    cd Ecommerce-Django-REST-APIs
    ```
 
@@ -52,7 +52,8 @@ Follow these steps to set up the project locally using Docker:
 
 3. **Access the Application**  
    - The Django application will be available at `http://localhost:8000/`.
-   - Swagger documentation can be accessed at `http://localhost:8000/swagger/`.
+   - Swagger documentation can be accessed at `http://localhost:8000/docs/`.
+   - ReDoc documentation can be accessed at `http://localhost:8000/redoc/`.
 
 4. **Run Tests**  
    To run the test suite inside the container:
