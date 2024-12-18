@@ -50,7 +50,6 @@ from .serializers import (
     ProductTypeDetailSerializer,
     ProductTypeSerializer,
 )
-from .utils.pagination import NoCountPagination
 
 # ---------------------------- Create schema for swagger ----------------------------
 products_schema_view = SpectacularAPIView.as_view(urlconf="products.urls")
@@ -63,7 +62,7 @@ products_schema_view = SpectacularAPIView.as_view(urlconf="products.urls")
 class ProductListView(ListAPIView):
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
-    queryset = Product.objects.filter(is_active=True).only("id", "name", "description")
+    queryset = Product.objects.filter(is_active=True)
 
     # Filter based on model fields:
     filter_backends = [DjangoFilterBackend, SearchFilter]
@@ -74,17 +73,14 @@ class ProductListView(ListAPIView):
     # Search in name and description
     search_fields = ["name", "description"]
 
-    # use custom pagination class
-    pagination_class = NoCountPagination
-
 
 @extend_schema(tags=["Product - List"])
 class ProductDetailView(RetrieveAPIView):
-    queryset = Product.objects.filter(is_active=True)
+    queryset = Product.objects.filter(is_active=True).select_related(
+        "category", "brand"
+    )
     serializer_class = ProductDetailSerializer
     permission_classes = [AllowAny]
-    # By default, RetrieveAPIView uses 'pk' lookup, so {id} will be interpreted as pk.
-    # If needed, you can specify lookup_field = 'id'.
 
 
 @extend_schema(tags=["Product - Media"])
