@@ -63,7 +63,7 @@ products_schema_view = SpectacularAPIView.as_view(urlconf="products.urls")
 class ProductListView(ListAPIView):
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
-    queryset = Product.objects.filter(is_active=True)
+    queryset = Product.objects.filter(is_active=True).only("id", "name", "description")
 
     # Filter based on model fields:
     filter_backends = [DjangoFilterBackend, SearchFilter]
