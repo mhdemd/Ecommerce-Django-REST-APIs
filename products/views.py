@@ -258,7 +258,12 @@ class AdminProductMediaDetailView(RetrieveUpdateDestroyAPIView):
     summary="List or create product inventories",
 )
 class AdminProductInventoryListCreateView(ListCreateAPIView):
-    queryset = ProductInventory.objects.all()
+    queryset = ProductInventory.objects.prefetch_related(
+        Prefetch(
+            "attribute_values",
+            queryset=ProductAttributeValue.objects.select_related("product_attribute"),
+        )
+    )
     serializer_class = AdminProductInventorySerializer
     permission_classes = [IsAdminUser]
 
