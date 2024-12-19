@@ -34,13 +34,9 @@ To ensure high performance and scalability, RadinGalleryAPI incorporates several
 For a detailed explanation of these techniques, refer to the [Query Optimization Documentation](docs/md-file/query_optimization.md).
 
 ## Testing
-
 This project includes a suite of tests to ensure the correct functionality and performance of the API endpoints.
 
-<p align="center">
-  <img src="docs/assets/pytest.gif" alt="Demo" width="400" />
-</p>
-
+![Demo](docs/assets/pytest.gif) 
 
 ## Security Measures
 For detailed information on the security measures implemented in this project, please refer to the [Security Measures](docs/md-file/security.md) document.
