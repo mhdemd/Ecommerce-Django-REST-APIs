@@ -18,15 +18,32 @@ You can view the latest API documentation, including the current status of all e
   - Managing task queues as a message broker for Celery.
   - **Storing temporary tokens** for email verification and OTPs for enhanced security and performance.
 
+## Performance Optimizations
+To ensure high performance and scalability, RadinGalleryAPI incorporates several optimization techniques:
+
+- **Efficient Database Queries**:
+  - `select_related` for reducing database queries in single-valued relationships.
+  - `prefetch_related` for optimizing many-to-many and reverse foreign key relationships.
+- **Custom Pagination**:
+  - Avoiding expensive `count` queries for large datasets by implementing a custom pagination class.
+- **Indexing and Ordering**:
+  - Optimized indexing and ordering on frequently queried fields for faster data retrieval.
+- **Caching with Redis**:
+  - Leveraging Redis for caching frequently accessed data to reduce database load.
+
+For a detailed explanation of these techniques, refer to the [Query Optimization Documentation](docs/md-file/query_optimization.md).
+
 ## Testing
+
 This project includes a suite of tests to ensure the correct functionality and performance of the API endpoints.
 
-![Demo](docs/assets/pytest.gif) 
+<p align="center">
+  <img src="docs/assets/pytest.gif" alt="Demo" width="400" />
+</p>
 
 
 ## Security Measures
-For detailed information on the security measures implemented in this project, please refer to the [Security Measures](docs/md-file/Security.md) document.
-
+For detailed information on the security measures implemented in this project, please refer to the [Security Measures](docs/md-file/security.md) document.
 
 ## License
 This project is licensed under the [MIT License](./LICENSE.md). By using this software, you agree to the terms and conditions outlined in the License.
