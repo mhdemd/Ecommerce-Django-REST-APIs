@@ -322,14 +322,6 @@ class AdminProductAttributeDetailView(RetrieveUpdateDestroyAPIView):
 @extend_schema(
     tags=["Admin - Product Attributes"],
     summary="List or create attribute values for a specific product attribute",
-    parameters=[
-        OpenApiParameter(
-            name="attribute_id",
-            description="ID of the product attribute",
-            required=True,
-            type=int,
-        )
-    ],
 )
 class AdminProductAttributeValueListCreateView(generics.ListCreateAPIView):
     serializer_class = AdminProductAttributeValueSerializer
@@ -350,20 +342,6 @@ class AdminProductAttributeValueListCreateView(generics.ListCreateAPIView):
 @extend_schema(
     tags=["Admin - Product Attributes"],
     summary="View, update, or delete a specific attribute value",
-    parameters=[
-        OpenApiParameter(
-            name="attribute_id",
-            description="ID of the product attribute",
-            required=True,
-            type=int,
-        ),
-        OpenApiParameter(
-            name="pk",
-            description="ID of the product attribute value",
-            required=True,
-            type=int,
-        ),
-    ],
 )
 class AdminProductAttributeValueDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = AdminProductAttributeValueDetailSerializer
