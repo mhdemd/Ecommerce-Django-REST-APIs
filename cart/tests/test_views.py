@@ -1,4 +1,3 @@
-# cart/tests/test_views.py
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -22,14 +21,11 @@ class TestCartViewSet:
         access = AccessToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
 
-        # Create brand & category, then product
-        self.brand = Brand.objects.create(
-            name="Test Brand", slug="test-brand", is_active=True
-        )
-        self.category = Category.objects.create(
-            name="Test Category", slug="test-cat", is_active=True
-        )
+        # Create brand & category for the product
+        self.brand = Brand.objects.create(name="Test Brand", slug="test-brand")
+        self.category = Category.objects.create(name="Test Category", slug="test-cat")
 
+        # Now create two Product instances
         self.product = Product.objects.create(
             web_id="unique-1",
             slug="test-product",
@@ -37,6 +33,7 @@ class TestCartViewSet:
             description="Some description",
             brand=self.brand,
             category=self.category,
+            # If your Product model has other required fields, add them here
         )
 
         self.product2 = Product.objects.create(
@@ -53,9 +50,7 @@ class TestCartViewSet:
         response = self.client.get(list_url)
         assert response.status_code == 200
         data = response.json()
-        # Should have no items
         assert data["items"] == []
-        # If your view returns 'total_amount' as string, compare accordingly
         assert data["total_amount"] == "0"
 
     def test_add_item(self):
@@ -77,7 +72,6 @@ class TestCartViewSet:
         self.client.post(
             add_url, {"product_id": self.product.id, "quantity": 2}, format="json"
         )
-
         remove_url = reverse("cart-remove-item")
         response = self.client.post(remove_url, {"product_id": self.product.id})
         assert response.status_code == 200
@@ -92,7 +86,6 @@ class TestCartViewSet:
         self.client.post(
             add_url, {"product_id": self.product.id, "quantity": 2}, format="json"
         )
-
         update_url = reverse("cart-update-item")
         response = self.client.post(
             update_url, {"product_id": self.product.id, "quantity": 5}, format="json"
@@ -109,7 +102,6 @@ class TestCartViewSet:
         self.client.post(
             add_url, {"product_id": self.product.id, "quantity": 3}, format="json"
         )
-
         checkout_url = reverse("cart-checkout")
         response = self.client.post(checkout_url, {})
         assert response.status_code == 200
@@ -119,7 +111,6 @@ class TestCartViewSet:
         list_url = reverse("cart-list")
         response = self.client.get(list_url)
         data_after = response.json()
-        # Cart should be empty in Redis
         assert len(data_after["items"]) == 0
 
     def test_checkout_empty_cart(self):

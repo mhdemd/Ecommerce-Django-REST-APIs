@@ -26,10 +26,9 @@ def test_cart_item_model_creation():
     user = User.objects.create_user(
         username="testuser2", email="test2@example.com", password="testpass"
     )
-    brand = Brand.objects.create(name="Test Brand", slug="test-brand", is_active=True)
-    category = Category.objects.create(
-        name="Test Category", slug="test-cat", is_active=True
-    )
+    brand = Brand.objects.create(name="Test Brand", slug="test-brand")
+    category = Category.objects.create(name="Test Category", slug="test-cat")
+
     product = Product.objects.create(
         web_id="unique-1",
         slug="test-product",
@@ -54,10 +53,9 @@ def test_cart_item_unique_together():
     user = User.objects.create_user(
         username="testuser3", email="test3@example.com", password="testpass"
     )
-    brand = Brand.objects.create(name="Test Brand2", slug="test-brand2", is_active=True)
-    category = Category.objects.create(
-        name="Test Category2", slug="test-cat2", is_active=True
-    )
+    brand = Brand.objects.create(name="Test Brand2", slug="test-brand2")
+    category = Category.objects.create(name="Test Category2", slug="test-cat2")
+
     product = Product.objects.create(
         web_id="unique-2",
         slug="another-product",
@@ -68,6 +66,7 @@ def test_cart_item_unique_together():
     )
     cart = Cart.objects.create(user=user)
     CartItem.objects.create(cart=cart, product=product, quantity=1, price=50)
+
     with pytest.raises(IntegrityError):
         # Should raise because cart+product must be unique
         CartItem.objects.create(cart=cart, product=product, quantity=1, price=50)
