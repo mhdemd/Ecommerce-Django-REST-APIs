@@ -32,3 +32,13 @@ class CartService:
             REDIS_CLIENT.hdel(key, product_id)
         else:
             REDIS_CLIENT.hset(key, product_id, quantity)
+
+    @classmethod
+    def get_all_items(cls, user_id):
+        key = cls.get_redis_cart_key(user_id)
+        return REDIS_CLIENT.hgetall(key)  # {product_id: quantity}
+
+    @classmethod
+    def clear_cart(cls, user_id):
+        key = cls.get_redis_cart_key(user_id)
+        REDIS_CLIENT.delete(key)
