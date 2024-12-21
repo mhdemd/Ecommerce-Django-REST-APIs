@@ -121,11 +121,12 @@ class ProductInventoryListView(ListAPIView):
                     ),
                 )
             )
-            .order_by("-created_at")
+            .order_by("id")  # Order by ID for predictable results
         )
 
+        # Check if queryset is empty and raise 404 if needed
         if not queryset.exists():
-            raise NotFound(detail="Product attribute not found.", code=404)
+            raise NotFound(detail="No inventory found for this product.", code=404)
 
         return queryset
 
