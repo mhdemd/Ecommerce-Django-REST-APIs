@@ -169,11 +169,16 @@ class ProductAttributeValueListView(ListAPIView):
     def get_queryset(self):
         attribute_id = self.kwargs.get("attribute_id")
 
+        # Filter ProductAttributeValue and ensure ProductAttribute exists
         queryset = ProductAttributeValue.objects.filter(
             product_attribute_id=attribute_id
         ).select_related("product_attribute")
 
-        if not queryset.exists():
+        # If no ProductAttributeValue exists, ensure the ProductAttribute exists
+        if (
+            not queryset.exists()
+            and not ProductAttribute.objects.filter(pk=attribute_id).exists()
+        ):
             raise NotFound(detail="Product attribute not found.", code=404)
 
         return queryset
@@ -387,14 +392,15 @@ class AdminProductAttributeValueDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = AdminProductAttributeValueDetailSerializer
     permission_classes = [IsAdminUser]
 
+    def get_queryset(self):
+        attribute_id = self.kwargs["attribute_id"]
 
-def get_queryset(self):
-    attribute_id = self.kwargs["attribute_id"]
+        # Filter values and ensure the attribute exists if the queryset is empty
+        queryset = ProductAttributeValue.objects.filter(
+            product_attribute_id=attribute_id
+        )
+        if not queryset.exists():  # Check if there are no values
+            if not ProductAttribute.objects.filter(pk=attribute_id).exists():
+                raise NotFound(detail="Product attribute not found.", code=404)
 
-    # Filter values and ensure the attribute exists if the queryset is empty
-    queryset = ProductAttributeValue.objects.filter(product_attribute_id=attribute_id)
-    if not queryset.exists():  # Check if there are no values
-        if not ProductAttribute.objects.filter(pk=attribute_id).exists():
-            raise NotFound(detail="Product attribute not found.", code=404)
-
-    return queryset
+        return queryset
