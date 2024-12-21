@@ -2,16 +2,15 @@ import pytest
 from django.contrib.auth import get_user_model
 
 from cart.services import CartService
-from products.models import Product
 
 User = get_user_model()
 
 
 @pytest.mark.django_db
 def test_add_item_to_redis(settings):
-    user = User.objects.create_user(email="redis_user@example.com", password="testpass")
-    # Mock or use actual Redis in test environment
-    # For example, using settings.REDIS_INSTANCE directly:
+    user = User.objects.create_user(
+        username="redis_user", email="redis_user@example.com", password="testpass"
+    )
     CartService.clear_cart(user.id)
     initial_data = CartService.get_all_items(user.id)
     assert initial_data == {}
@@ -26,7 +25,7 @@ def test_add_item_to_redis(settings):
 @pytest.mark.django_db
 def test_remove_item_from_redis(settings):
     user = User.objects.create_user(
-        email="redis_user2@example.com", password="testpass"
+        username="redis_user2", email="redis_user2@example.com", password="testpass"
     )
     CartService.clear_cart(user.id)
     CartService.add_item(user.id, product_id=5, quantity=2)
@@ -38,7 +37,7 @@ def test_remove_item_from_redis(settings):
 @pytest.mark.django_db
 def test_set_item_quantity_in_redis(settings):
     user = User.objects.create_user(
-        email="redis_user3@example.com", password="testpass"
+        username="redis_user3", email="redis_user3@example.com", password="testpass"
     )
     CartService.clear_cart(user.id)
     CartService.add_item(user.id, product_id=10, quantity=1)
@@ -50,7 +49,7 @@ def test_set_item_quantity_in_redis(settings):
 @pytest.mark.django_db
 def test_clear_cart_in_redis(settings):
     user = User.objects.create_user(
-        email="redis_user4@example.com", password="testpass"
+        username="redis_user4", email="redis_user4@example.com", password="testpass"
     )
     CartService.add_item(user.id, product_id=7, quantity=4)
     CartService.clear_cart(user.id)

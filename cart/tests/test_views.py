@@ -1,9 +1,12 @@
+# cart/tests/test_views.py
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 
+from brands.models import Brand
+from categories.models import Category
 from products.models import Product
 
 User = get_user_model()
@@ -14,19 +17,45 @@ class TestCartViewSet:
     def setup_method(self):
         self.client = APIClient()
         self.user = User.objects.create_user(
-            email="test@example.com", password="testpass"
+            username="test_username", email="test@example.com", password="testpass"
         )
         access = AccessToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
-        self.product = Product.objects.create(name="Test Product", price=100)
-        self.product2 = Product.objects.create(name="Another Product", price=50)
+
+        # Create brand & category, then product
+        self.brand = Brand.objects.create(
+            name="Test Brand", slug="test-brand", is_active=True
+        )
+        self.category = Category.objects.create(
+            name="Test Category", slug="test-cat", is_active=True
+        )
+
+        self.product = Product.objects.create(
+            web_id="unique-1",
+            slug="test-product",
+            name="Test Product",
+            description="Some description",
+            brand=self.brand,
+            category=self.category,
+        )
+
+        self.product2 = Product.objects.create(
+            web_id="unique-2",
+            slug="another-product",
+            name="Another Product",
+            description="More description",
+            brand=self.brand,
+            category=self.category,
+        )
 
     def test_list_empty_cart(self):
         list_url = reverse("cart-list")
         response = self.client.get(list_url)
         assert response.status_code == 200
         data = response.json()
+        # Should have no items
         assert data["items"] == []
+        # If your view returns 'total_amount' as string, compare accordingly
         assert data["total_amount"] == "0"
 
     def test_add_item(self):
@@ -35,6 +64,7 @@ class TestCartViewSet:
             url, {"product_id": self.product.id, "quantity": 2}, format="json"
         )
         assert response.status_code == 200
+
         list_url = reverse("cart-list")
         response = self.client.get(list_url)
         data = response.json()
@@ -47,9 +77,11 @@ class TestCartViewSet:
         self.client.post(
             add_url, {"product_id": self.product.id, "quantity": 2}, format="json"
         )
+
         remove_url = reverse("cart-remove-item")
         response = self.client.post(remove_url, {"product_id": self.product.id})
         assert response.status_code == 200
+
         list_url = reverse("cart-list")
         response = self.client.get(list_url)
         data = response.json()
@@ -60,11 +92,13 @@ class TestCartViewSet:
         self.client.post(
             add_url, {"product_id": self.product.id, "quantity": 2}, format="json"
         )
+
         update_url = reverse("cart-update-item")
         response = self.client.post(
             update_url, {"product_id": self.product.id, "quantity": 5}, format="json"
         )
         assert response.status_code == 200
+
         list_url = reverse("cart-list")
         response = self.client.get(list_url)
         data = response.json()
@@ -75,15 +109,17 @@ class TestCartViewSet:
         self.client.post(
             add_url, {"product_id": self.product.id, "quantity": 3}, format="json"
         )
+
         checkout_url = reverse("cart-checkout")
         response = self.client.post(checkout_url, {})
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "completed"
-        # Check that Redis is cleared
+
         list_url = reverse("cart-list")
         response = self.client.get(list_url)
         data_after = response.json()
+        # Cart should be empty in Redis
         assert len(data_after["items"]) == 0
 
     def test_checkout_empty_cart(self):
