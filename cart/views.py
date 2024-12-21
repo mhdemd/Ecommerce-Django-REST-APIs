@@ -9,3 +9,7 @@ from products.models import Product
 from .models import Cart, CartItem, CartStatus
 from .serializers import CartItemSerializer, CartSerializer
 from .services import CartService
+
+
+class CartViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
