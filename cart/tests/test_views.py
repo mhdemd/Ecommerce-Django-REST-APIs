@@ -54,3 +54,18 @@ class TestCartViewSet:
         response = self.client.get(list_url)
         data = response.json()
         assert data["items"] == []
+
+    def test_update_item_quantity(self):
+        add_url = reverse("cart-add-item")
+        self.client.post(
+            add_url, {"product_id": self.product.id, "quantity": 2}, format="json"
+        )
+        update_url = reverse("cart-update-item")
+        response = self.client.post(
+            update_url, {"product_id": self.product.id, "quantity": 5}, format="json"
+        )
+        assert response.status_code == 200
+        list_url = reverse("cart-list")
+        response = self.client.get(list_url)
+        data = response.json()
+        assert data["items"][0]["quantity"] == 5
