@@ -19,3 +19,16 @@ class CartService:
             quantity += int(current_qty)
         REDIS_CLIENT.hset(key, product_id, quantity)
         return quantity
+
+    @classmethod
+    def remove_item(cls, user_id, product_id):
+        key = cls.get_redis_cart_key(user_id)
+        REDIS_CLIENT.hdel(key, product_id)
+
+    @classmethod
+    def set_item_quantity(cls, user_id, product_id, quantity):
+        key = cls.get_redis_cart_key(user_id)
+        if quantity <= 0:
+            REDIS_CLIENT.hdel(key, product_id)
+        else:
+            REDIS_CLIENT.hset(key, product_id, quantity)
