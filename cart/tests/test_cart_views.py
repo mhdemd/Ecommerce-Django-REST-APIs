@@ -5,10 +5,9 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 
 from brands.models import Brand
+from cart.services import CartService
 from categories.models import Category
 from products.models import Product
-
-from .test_services import CartService
 
 User = get_user_model()
 

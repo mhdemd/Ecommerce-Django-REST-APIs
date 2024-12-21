@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from cart.models import Cart, CartItem, CartStatus
@@ -14,6 +15,8 @@ from .services import get_active_price
 
 
 class CartViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
     def list(self, request):
         redis_items = CartService.get_all_items(request.user.id)
         products = Product.objects.filter(id__in=redis_items.keys())
