@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from products.models import Product
 
 from .models import Cart, CartItem, CartStatus
-from .serializers import CartItemSerializer, CartSerializer
+from .serializers import CartSerializer
 from .services import CartService
 
 
@@ -95,3 +95,31 @@ class CartViewSet(viewsets.ViewSet):
 
         CartService.set_item_quantity(request.user.id, product_id, quantity)
         return Response({"detail": "Item quantity updated"}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"])
+    def checkout(self, request):
+        # In the Checkout phase, we transfer data from Redis to PostgreSQL
+        redis_items = CartService.get_all_items(request.user.id)
+        if not redis_items:
+            return Response(
+                {"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        products = Product.objects.filter(id__in=redis_items.keys())
+
+        with transaction.atomic():
+            cart = Cart.objects.create(user=request.user, status=CartStatus.CHECKOUT)
+            total_amount = 0
+            for p in products:
+                qty = int(redis_items[str(p.id)])
+                price = p.price
+                CartItem.objects.create(cart=cart, product=p, quantity=qty, price=price)
+                total_amount += price * qty
+            cart.total_amount = total_amount
+            cart.status = CartStatus.COMPLETED
+            cart.save()
+
+        # Clear Redis
+        CartService.clear_cart(request.user.id)
+
+        return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
