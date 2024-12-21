@@ -85,3 +85,10 @@ class TestCartViewSet:
         response = self.client.get(list_url)
         data_after = response.json()
         assert len(data_after["items"]) == 0
+
+    def test_checkout_empty_cart(self):
+        checkout_url = reverse("cart-checkout")
+        response = self.client.post(checkout_url, {})
+        assert response.status_code == 400
+        data = response.json()
+        assert data["detail"] == "Cart is empty"
