@@ -69,3 +69,19 @@ class TestCartViewSet:
         response = self.client.get(list_url)
         data = response.json()
         assert data["items"][0]["quantity"] == 5
+
+    def test_checkout(self):
+        add_url = reverse("cart-add-item")
+        self.client.post(
+            add_url, {"product_id": self.product.id, "quantity": 3}, format="json"
+        )
+        checkout_url = reverse("cart-checkout")
+        response = self.client.post(checkout_url, {})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "completed"
+        # Check that Redis is cleared
+        list_url = reverse("cart-list")
+        response = self.client.get(list_url)
+        data_after = response.json()
+        assert len(data_after["items"]) == 0
