@@ -41,3 +41,16 @@ class TestCartViewSet:
         assert len(data["items"]) == 1
         assert data["items"][0]["quantity"] == 2
         assert data["items"][0]["product_name"] == self.product.name
+
+    def test_remove_item(self):
+        add_url = reverse("cart-add-item")
+        self.client.post(
+            add_url, {"product_id": self.product.id, "quantity": 2}, format="json"
+        )
+        remove_url = reverse("cart-remove-item")
+        response = self.client.post(remove_url, {"product_id": self.product.id})
+        assert response.status_code == 200
+        list_url = reverse("cart-list")
+        response = self.client.get(list_url)
+        data = response.json()
+        assert data["items"] == []
