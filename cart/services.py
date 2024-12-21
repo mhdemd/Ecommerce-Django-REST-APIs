@@ -4,6 +4,26 @@ import json
 from django.conf import settings
 
 REDIS_CLIENT = settings.REDIS_INSTANCE
+from decimal import Decimal
+
+from products.models.inventory import ProductInventory
+
+
+def get_active_price(product):
+    """
+    Returns the price for the given product by looking up its
+    first active ProductInventory entry.
+    If you want sale_price over store_price, handle that logic here.
+    """
+    inventory = product.product_inventory.filter(is_active=True).first()
+    if not inventory:
+        # If there's no inventory, define how you want to handle this scenario
+        return Decimal("0")
+
+    # Example logic: if there's a sale_price, use it; otherwise use store_price
+    if inventory.sale_price:
+        return inventory.sale_price
+    return inventory.store_price
 
 
 class CartService:

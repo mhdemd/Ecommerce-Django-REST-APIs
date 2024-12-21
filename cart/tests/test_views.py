@@ -8,6 +8,8 @@ from brands.models import Brand
 from categories.models import Category
 from products.models import Product
 
+from .test_services import CartService
+
 User = get_user_model()
 
 
@@ -18,6 +20,9 @@ class TestCartViewSet:
         self.user = User.objects.create_user(
             username="test_username", email="test@example.com", password="testpass"
         )
+        # Clear the user’s cart in Redis
+        CartService.clear_cart(self.user.id)
+
         access = AccessToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
 
