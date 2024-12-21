@@ -92,3 +92,9 @@ class TestCartViewSet:
         assert response.status_code == 400
         data = response.json()
         assert data["detail"] == "Cart is empty"
+
+    def test_unauthorized_access(self):
+        client_unauthorized = APIClient()
+        list_url = reverse("cart-list")
+        response = client_unauthorized.get(list_url)
+        assert response.status_code == 401
