@@ -64,3 +64,13 @@ class CartViewSet(viewsets.ViewSet):
 
         CartService.add_item(request.user.id, product_id, quantity)
         return Response({"detail": "Item added to cart"}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"])
+    def remove_item(self, request):
+        product_id = request.data.get("product_id")
+        if not product_id:
+            return Response(
+                {"detail": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        CartService.remove_item(request.user.id, product_id)
+        return Response({"detail": "Item removed from cart"}, status=status.HTTP_200_OK)
