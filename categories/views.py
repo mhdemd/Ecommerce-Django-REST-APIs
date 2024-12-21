@@ -22,8 +22,10 @@ class CategoryListView(generics.ListAPIView):
     """
 
     serializer_class = CategorySerializer
-    queryset = Category.objects.filter(is_active=True).select_related(
-        "parent", "children"
+    queryset = (
+        Category.objects.filter(is_active=True)
+        .select_related("parent")
+        .prefetch_related("children")
     )
 
     filter_backends = [
