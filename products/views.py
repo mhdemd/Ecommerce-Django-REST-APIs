@@ -110,8 +110,13 @@ class ProductInventoryListView(ListAPIView):
 
     def get_queryset(self):
         product_id = self.kwargs.get("pk")
+
+        # Use get_object_or_404 to ensure product exists and is active
+        product = get_object_or_404(Product, id=product_id, is_active=True)
+
+        # Return the inventory queryset
         queryset = (
-            ProductInventory.objects.filter(product__id=product_id)
+            ProductInventory.objects.filter(product=product)
             .select_related("product")
             .prefetch_related(
                 Prefetch(
@@ -121,13 +126,8 @@ class ProductInventoryListView(ListAPIView):
                     ),
                 )
             )
-            .order_by("id")  # Order by ID for predictable results
+            .order_by("id")  # Order results by ID for predictability
         )
-
-        # Check if queryset is empty and raise 404 if needed
-        if not queryset.exists():
-            raise NotFound(detail="No inventory found for this product.", code=404)
-
         return queryset
 
 
