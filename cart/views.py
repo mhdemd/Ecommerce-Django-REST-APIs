@@ -74,3 +74,24 @@ class CartViewSet(viewsets.ViewSet):
             )
         CartService.remove_item(request.user.id, product_id)
         return Response({"detail": "Item removed from cart"}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"])
+    def update_item(self, request):
+        product_id = request.data.get("product_id")
+        quantity = request.data.get("quantity")
+        if not product_id or quantity is None:
+            return Response(
+                {"detail": "product_id and quantity are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            quantity = int(quantity)
+        except ValueError:
+            return Response(
+                {"detail": "quantity must be an integer"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        CartService.set_item_quantity(request.user.id, product_id, quantity)
+        return Response({"detail": "Item quantity updated"}, status=status.HTTP_200_OK)
