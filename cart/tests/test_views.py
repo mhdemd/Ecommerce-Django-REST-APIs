@@ -28,3 +28,16 @@ class TestCartViewSet:
         data = response.json()
         assert data["items"] == []
         assert data["total_amount"] == "0"
+
+    def test_add_item(self):
+        url = reverse("cart-add-item")
+        response = self.client.post(
+            url, {"product_id": self.product.id, "quantity": 2}, format="json"
+        )
+        assert response.status_code == 200
+        list_url = reverse("cart-list")
+        response = self.client.get(list_url)
+        data = response.json()
+        assert len(data["items"]) == 1
+        assert data["items"][0]["quantity"] == 2
+        assert data["items"][0]["product_name"] == self.product.name
