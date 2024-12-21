@@ -44,3 +44,23 @@ class CartViewSet(viewsets.ViewSet):
             "updated_at": None,
         }
         return Response(data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"])
+    def add_item(self, request):
+        product_id = request.data.get("product_id")
+        quantity = int(request.data.get("quantity", 1))
+        if not product_id:
+            return Response(
+                {"detail": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Product review
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response(
+                {"detail": "Product not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        CartService.add_item(request.user.id, product_id, quantity)
+        return Response({"detail": "Item added to cart"}, status=status.HTTP_200_OK)
