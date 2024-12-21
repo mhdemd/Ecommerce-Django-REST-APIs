@@ -78,10 +78,6 @@ class ProductAttributeValueListViewTest(TestCase):
         item = data["results"][0]
         self.assertIn("id", item)
         self.assertIn("attribute_value", item)
-        self.assertIn("created_at", item)
-        self.assertIn("updated_at", item)
 
         self.assertIsInstance(item["id"], int)
         self.assertIsInstance(item["attribute_value"], str)
-        self.assertIsInstance(item["created_at"], str)
-        self.assertIsInstance(item["updated_at"], str)

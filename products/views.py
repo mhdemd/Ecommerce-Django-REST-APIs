@@ -4,6 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from drf_spectacular.views import SpectacularAPIView
 from rest_framework import generics, permissions
+from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
     ListAPIView,
@@ -96,6 +97,9 @@ class ProductMediaListView(ListAPIView):
             product__id=product_id, product__is_active=True
         ).order_by("ordering")
 
+        if not queryset.exists():
+            raise NotFound(detail="Product attribute not found.", code=404)
+
         return queryset
 
 
@@ -119,6 +123,10 @@ class ProductInventoryListView(ListAPIView):
             )
             .order_by("-created_at")
         )
+
+        if not queryset.exists():
+            raise NotFound(detail="Product attribute not found.", code=404)
+
         return queryset
 
 
@@ -164,6 +172,9 @@ class ProductAttributeValueListView(ListAPIView):
         queryset = ProductAttributeValue.objects.filter(
             product_attribute_id=attribute_id
         ).select_related("product_attribute")
+
+        if not queryset.exists():
+            raise NotFound(detail="Product attribute not found.", code=404)
 
         return queryset
 
@@ -231,10 +242,21 @@ class AdminProductMediaListCreateView(ListCreateAPIView):
 
     def get_queryset(self):
         product_id = self.kwargs.get("id")
-        return Media.objects.filter(product_id=product_id)
+
+        # Check if any Media exists for the given product_id
+        queryset = Media.objects.filter(product_id=product_id)
+        if not Product.objects.filter(pk=product_id).exists():
+            raise NotFound(detail="Product not found.", code=404)
+
+        return queryset
 
     def perform_create(self, serializer):
         product_id = self.kwargs.get("id")
+
+        # Ensure the product exists before creating media
+        if not Product.objects.filter(pk=product_id).exists():
+            raise NotFound(detail="Product not found.", code=404)
+
         product = Product.objects.get(pk=product_id)
         serializer.save(product=product)
 
@@ -250,7 +272,16 @@ class AdminProductMediaDetailView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         product_id = self.kwargs.get("product_id")
-        return Media.objects.filter(product_id=product_id)
+
+        # Filter Media and ensure product exists in a single query
+        queryset = Media.objects.filter(product__id=product_id)
+
+        # Check if queryset is empty (product doesn't exist or no media linked)
+        if not queryset.exists():
+            if not Product.objects.filter(pk=product_id).exists():
+                raise NotFound(detail="Product not found.", code=404)
+
+        return queryset
 
 
 @extend_schema(
@@ -329,9 +360,18 @@ class AdminProductAttributeValueListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         attribute_id = self.kwargs.get("attribute_id")
-        return ProductAttributeValue.objects.filter(
+
+        # Filter and ensure the attribute exists in one optimized step
+        queryset = ProductAttributeValue.objects.filter(
             product_attribute_id=attribute_id
         ).order_by("id")
+
+        # Check if the attribute exists only if the queryset is empty
+        if not queryset.exists():
+            if not ProductAttribute.objects.filter(pk=attribute_id).exists():
+                raise NotFound(detail="Product attribute not found.", code=404)
+
+        return queryset
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -347,6 +387,14 @@ class AdminProductAttributeValueDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = AdminProductAttributeValueDetailSerializer
     permission_classes = [IsAdminUser]
 
-    def get_queryset(self):
-        attribute_id = self.kwargs["attribute_id"]
-        return ProductAttributeValue.objects.filter(product_attribute_id=attribute_id)
+
+def get_queryset(self):
+    attribute_id = self.kwargs["attribute_id"]
+
+    # Filter values and ensure the attribute exists if the queryset is empty
+    queryset = ProductAttributeValue.objects.filter(product_attribute_id=attribute_id)
+    if not queryset.exists():  # Check if there are no values
+        if not ProductAttribute.objects.filter(pk=attribute_id).exists():
+            raise NotFound(detail="Product attribute not found.", code=404)
+
+    return queryset
