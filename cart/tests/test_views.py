@@ -20,3 +20,11 @@ class TestCartViewSet:
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
         self.product = Product.objects.create(name="Test Product", price=100)
         self.product2 = Product.objects.create(name="Another Product", price=50)
+
+    def test_list_empty_cart(self):
+        list_url = reverse("cart-list")
+        response = self.client.get(list_url)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["items"] == []
+        assert data["total_amount"] == "0"
