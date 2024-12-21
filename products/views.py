@@ -93,14 +93,11 @@ class ProductMediaListView(ListAPIView):
     def get_queryset(self):
         product_id = self.kwargs.get("pk")
 
-        queryset = Media.objects.filter(
-            product__id=product_id, product__is_active=True
-        ).order_by("ordering")
+        # Ensure the product exists and is active
+        product = get_object_or_404(Product, id=product_id, is_active=True)
 
-        if not queryset.exists():
-            raise NotFound(detail="Product attribute not found.", code=404)
-
-        return queryset
+        # Return the media for the product
+        return Media.objects.filter(product=product).order_by("ordering")
 
 
 @extend_schema(tags=["Product - Inventory"])
