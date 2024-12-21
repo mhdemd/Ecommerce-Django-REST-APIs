@@ -26,3 +26,16 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"Cart {self.pk} - {self.user.email} - {self.status}"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = ("cart", "product")
+
+    def __str__(self):
+        return f"{self.product.name} x {self.quantity} in Cart {self.cart_id}"
