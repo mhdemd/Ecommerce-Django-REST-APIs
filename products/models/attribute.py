@@ -70,6 +70,7 @@ class ProductAttributeValue(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        ordering = ["id"]
         unique_together = ("product_attribute", "attribute_value")
         verbose_name = _("Product Attribute Value")
         verbose_name_plural = _("Product Attribute Values")
