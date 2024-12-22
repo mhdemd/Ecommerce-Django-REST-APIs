@@ -1,0 +1,304 @@
+openapi: 3.0.3
+info:
+  title: my-APIs
+  version: 1.0.0
+  description: This is the API documentation for 'Ecommerce-Django-REST-APIs'.
+paths:
+  /:
+    get:
+      operationId: root_retrieve
+      description: Retrieve all items in the user's cart, along with total price.
+      summary: Get current user's cart items
+      tags:
+      - Cart - Management
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+  /add-item/:
+    post:
+      operationId: add_item_create
+      description: Add a product to the user's cart by providing product ID and quantity.
+      summary: Add an item to the cart
+      parameters:
+      - in: query
+        name: product_id
+        schema:
+          type: integer
+        description: ID of the product to add
+        required: true
+      - in: query
+        name: quantity
+        schema:
+          type: integer
+        description: Quantity to add (default is 1)
+      tags:
+      - Cart - Management
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                detail: Item added to cart
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                detail: Validation errors
+          description: ''
+  /admin/carts/:
+    get:
+      operationId: admin_carts_list
+      description: Retrieve a list of all user carts, including details about their
+        status and total amount.
+      summary: List all user carts
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Admin - Cart
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCartList'
+          description: ''
+  /admin/carts/{id}/:
+    get:
+      operationId: admin_carts_retrieve
+      description: Retrieve detailed information about a specific user's cart, including
+        items and total amount.
+      summary: Retrieve details of a specific cart
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Cart
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+  /checkout/:
+    post:
+      operationId: checkout_create
+      description: Complete the checkout process for the current user's cart.
+      summary: Checkout the cart
+      tags:
+      - Cart - Checkout
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                detail: Cart is empty
+          description: ''
+  /remove-item/:
+    post:
+      operationId: remove_item_create
+      description: Remove a product from the user's cart by providing product ID.
+      summary: Remove an item from the cart
+      parameters:
+      - in: query
+        name: product_id
+        schema:
+          type: integer
+        description: ID of the product to remove
+        required: true
+      tags:
+      - Cart - Management
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                detail: Item removed from cart
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                detail: Validation errors
+          description: ''
+  /update-item/:
+    post:
+      operationId: update_item_create
+      description: Update the quantity of a specific product in the user's cart.
+      summary: Update item quantity in the cart
+      parameters:
+      - in: query
+        name: product_id
+        schema:
+          type: integer
+        description: ID of the product to update
+        required: true
+      - in: query
+        name: quantity
+        schema:
+          type: integer
+        description: New quantity of the product
+        required: true
+      tags:
+      - Cart - Management
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                detail: Item quantity updated
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                detail: Validation errors
+          description: ''
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          enum:
+          - active
+          - checkout
+          - completed
+          - canceled
+          type: string
+          description: |-
+            * `active` - Active
+            * `checkout` - Checkout
+            * `completed` - Completed
+            * `canceled` - Canceled
+          x-spec-enum-id: 57ed2cb943419e0e
+          readOnly: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - items
+      - status
+      - total_amount
+      - updated_at
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product_id:
+          type: integer
+          writeOnly: true
+        product_name:
+          type: string
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        product_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - id
+      - product_id
+      - product_name
+      - product_price
+    PaginatedCartList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cart'
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Cart - Management
+  description: Endpoints for managing user carts, including adding, updating, and
+    removing items.
+- name: Cart - Checkout
+  description: Endpoints for processing cart checkout and order creation.
+- name: Admin - Cart
+  description: Admin endpoints for viewing and managing all user carts.
