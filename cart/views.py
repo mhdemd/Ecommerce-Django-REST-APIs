@@ -164,3 +164,41 @@ class CartUpdateItemView(generics.GenericAPIView):
 
         CartService.set_item_quantity(request.user.id, product_id, quantity)
         return Response({"detail": "Item quantity updated"}, status=status.HTTP_200_OK)
+
+
+class CartCheckoutView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Checkout the cart",
+        description="Complete the checkout process for the current user's cart.",
+        tags=["Cart"],
+        responses={
+            200: CartSerializer,
+            400: {"detail": "Cart is empty"},
+        },
+    )
+    def post(self, request):
+        redis_items = CartService.get_all_items(request.user.id)
+        if not redis_items:
+            return Response(
+                {"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        products = Product.objects.filter(id__in=redis_items.keys())
+
+        with transaction.atomic():
+            cart = Cart.objects.create(user=request.user, status=CartStatus.CHECKOUT)
+            total_amount = Decimal("0")
+            for p in products:
+                qty = int(redis_items[str(p.id)])
+                price = get_active_price(p)
+                CartItem.objects.create(cart=cart, product=p, quantity=qty, price=price)
+                total_amount += price * qty
+
+            cart.total_amount = total_amount
+            cart.status = CartStatus.COMPLETED
+            cart.save()
+
+        CartService.clear_cart(request.user.id)
+        return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
