@@ -240,7 +240,7 @@ class CartCheckoutView(GenericAPIView):
     )
 )
 class AdminCartListView(ListAPIView):
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.all().order_by("-created_at")
     serializer_class = CartSerializer
     permission_classes = [IsAdminUser]
 
