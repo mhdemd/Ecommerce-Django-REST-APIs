@@ -94,3 +94,32 @@ class CartAddItemView(generics.GenericAPIView):
 
         CartService.add_item(request.user.id, product_id, quantity)
         return Response({"detail": "Item added to cart"}, status=status.HTTP_200_OK)
+
+
+class CartRemoveItemView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Remove an item from the cart",
+        description="Remove a product from the user's cart by providing product ID.",
+        tags=["Cart"],
+        parameters=[
+            OpenApiParameter(
+                name="product_id", type=int, required=True, description="Product ID"
+            ),
+        ],
+        responses={
+            200: {"detail": "Item removed from cart"},
+            400: {"detail": "Validation errors"},
+        },
+    )
+    def post(self, request):
+        product_id = request.data.get("product_id")
+
+        if not product_id:
+            return Response(
+                {"detail": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        CartService.remove_item(request.user.id, product_id)
+        return Response({"detail": "Item removed from cart"}, status=status.HTTP_200_OK)
