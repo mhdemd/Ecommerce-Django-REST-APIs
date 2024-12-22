@@ -3,8 +3,8 @@ from decimal import Decimal
 from django.db import transaction
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import status
-from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from cart.models import Cart, CartItem, CartStatus
@@ -15,6 +15,9 @@ from products.models import Product
 from .services import get_active_price
 
 
+# -------------------------
+# User Endpoints
+# -------------------------
 @extend_schema_view(
     get=extend_schema(
         tags=["Cart - Management"],
@@ -224,3 +227,32 @@ class CartCheckoutView(GenericAPIView):
 
         CartService.clear_cart(request.user.id)
         return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+
+
+# -------------------------
+# Admin Endpoints
+# -------------------------
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Admin - Cart"],
+        summary="List all user carts",
+        description="Retrieve a list of all user carts, including details about their status and total amount.",
+    )
+)
+class AdminCartListView(ListAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [IsAdminUser]
+
+
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Admin - Cart"],
+        summary="Retrieve details of a specific cart",
+        description="Retrieve detailed information about a specific user's cart, including items and total amount.",
+    )
+)
+class AdminCartDetailView(RetrieveAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    permission_classes = [IsAdminUser]
