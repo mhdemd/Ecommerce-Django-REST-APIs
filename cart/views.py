@@ -179,6 +179,14 @@ class CartViewSet(viewsets.ViewSet):
         CartService.set_item_quantity(request.user.id, product_id, quantity)
         return Response({"detail": "Item quantity updated"}, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        summary="Checkout the cart",
+        description="Complete the checkout process for the current user's cart.",
+        responses={
+            200: CartSerializer,
+            400: {"detail": "Cart is empty"},
+        },
+    )
     @action(detail=False, methods=["post"], url_path="checkout", url_name="checkout")
     def checkout(self, request):
         redis_items = CartService.get_all_items(request.user.id)
