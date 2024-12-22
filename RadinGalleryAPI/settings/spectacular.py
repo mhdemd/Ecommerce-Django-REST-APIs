@@ -104,5 +104,18 @@ SPECTACULAR_SETTINGS = {
             "name": "Admin - Brand",
             "description": "Admin endpoints for managing brands, including listing, creating, updating, and deleting brands.",
         },
+        # Cart Group
+        {
+            "name": "Cart - Management",
+            "description": "Endpoints for managing user carts, including adding, updating, and removing items.",
+        },
+        {
+            "name": "Cart - Checkout",
+            "description": "Endpoints for processing cart checkout and order creation.",
+        },
+        {
+            "name": "Admin - Cart",
+            "description": "Admin endpoints for viewing and managing all user carts.",
+        },
     ],
 }
