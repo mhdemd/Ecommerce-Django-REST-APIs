@@ -132,6 +132,28 @@ class CartViewSet(viewsets.ViewSet):
         CartService.remove_item(request.user.id, product_id)
         return Response({"detail": "Item removed from cart"}, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        summary="Update item quantity in the cart",
+        description="Update the quantity of a specific product in the user's cart.",
+        parameters=[
+            OpenApiParameter(
+                name="product_id",
+                type=int,
+                required=True,
+                description="ID of the product to update",
+            ),
+            OpenApiParameter(
+                name="quantity",
+                type=int,
+                required=True,
+                description="New quantity of the product",
+            ),
+        ],
+        responses={
+            200: {"detail": "Item quantity updated"},
+            400: {"detail": "Validation errors"},
+        },
+    )
     @action(
         detail=False, methods=["post"], url_path="update-item", url_name="update-item"
     )
