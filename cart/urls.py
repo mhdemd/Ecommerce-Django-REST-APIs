@@ -8,6 +8,7 @@ from .views import (
     CartListView,
     CartRemoveItemView,
     CartUpdateItemView,
+    cart_schema_view,
 )
 
 urlpatterns = [
@@ -26,4 +27,8 @@ urlpatterns = [
     path(
         "admin/carts/<int:pk>/", AdminCartDetailView.as_view(), name="admin-cart-detail"
     ),
+    # -------------------------
+    # Create schema for swagger
+    # -------------------------
+    path("schema/", cart_schema_view, name="cart-schema"),
 ]

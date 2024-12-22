@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.db import transaction
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
+from drf_spectacular.views import SpectacularAPIView
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -13,6 +14,9 @@ from cart.services import CartService
 from products.models import Product
 
 from .services import get_active_price
+
+# ---------------------------- Create schema for swagger ----------------------------
+cart_schema_view = SpectacularAPIView.as_view(urlconf="cart.urls")
 
 
 # -------------------------
