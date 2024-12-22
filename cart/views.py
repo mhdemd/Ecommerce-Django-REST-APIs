@@ -123,3 +123,44 @@ class CartRemoveItemView(generics.GenericAPIView):
 
         CartService.remove_item(request.user.id, product_id)
         return Response({"detail": "Item removed from cart"}, status=status.HTTP_200_OK)
+
+
+class CartUpdateItemView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Update item quantity in the cart",
+        description="Update the quantity of a specific product in the user's cart.",
+        tags=["Cart"],
+        parameters=[
+            OpenApiParameter(
+                name="product_id", type=int, required=True, description="Product ID"
+            ),
+            OpenApiParameter(
+                name="quantity", type=int, required=True, description="New Quantity"
+            ),
+        ],
+        responses={
+            200: {"detail": "Item quantity updated"},
+            400: {"detail": "Validation errors"},
+        },
+    )
+    def post(self, request):
+        product_id = request.data.get("product_id")
+        quantity = request.data.get("quantity")
+
+        if not product_id or quantity is None:
+            return Response(
+                {"detail": "product_id and quantity are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            quantity = int(quantity)
+        except ValueError:
+            return Response(
+                {"detail": "quantity must be an integer"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        CartService.set_item_quantity(request.user.id, product_id, quantity)
+        return Response({"detail": "Item quantity updated"}, status=status.HTTP_200_OK)
