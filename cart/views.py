@@ -1,8 +1,9 @@
 from decimal import Decimal
 
 from django.db import transaction
-from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import generics, status
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -14,18 +15,17 @@ from products.models import Product
 from .services import get_active_price
 
 
-class CartListView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
+@extend_schema_view(
+    get=extend_schema(
+        tags=["Cart - Management"],
         summary="Get current user's cart items",
         description="Retrieve all items in the user's cart, along with total price.",
-        tags=["Cart"],
-        responses={
-            200: CartSerializer,
-            401: {"detail": "Authentication credentials were not provided."},
-        },
+        responses={200: CartSerializer},
     )
+)
+class CartListView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         redis_items = CartService.get_all_items(request.user.id)
         products = Product.objects.filter(id__in=redis_items.keys())
@@ -52,19 +52,23 @@ class CartListView(generics.GenericAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class CartAddItemView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
+@extend_schema_view(
+    post=extend_schema(
+        tags=["Cart - Management"],
         summary="Add an item to the cart",
         description="Add a product to the user's cart by providing product ID and quantity.",
-        tags=["Cart"],
         parameters=[
             OpenApiParameter(
-                name="product_id", type=int, required=True, description="Product ID"
+                name="product_id",
+                type=int,
+                required=True,
+                description="ID of the product to add",
             ),
             OpenApiParameter(
-                name="quantity", type=int, required=False, description="Quantity"
+                name="quantity",
+                type=int,
+                required=False,
+                description="Quantity to add (default is 1)",
             ),
         ],
         responses={
@@ -72,6 +76,10 @@ class CartAddItemView(generics.GenericAPIView):
             400: {"detail": "Validation errors"},
         },
     )
+)
+class CartAddItemView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         product_id = request.data.get("product_id")
         quantity = request.data.get("quantity", 1)
@@ -80,6 +88,7 @@ class CartAddItemView(generics.GenericAPIView):
             return Response(
                 {"detail": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST
             )
+
         try:
             quantity = int(quantity)
         except ValueError:
@@ -87,6 +96,7 @@ class CartAddItemView(generics.GenericAPIView):
                 {"detail": "quantity must be an integer"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
         if quantity <= 0:
             return Response(
                 {"detail": "quantity must be > 0"}, status=status.HTTP_400_BAD_REQUEST
@@ -96,16 +106,17 @@ class CartAddItemView(generics.GenericAPIView):
         return Response({"detail": "Item added to cart"}, status=status.HTTP_200_OK)
 
 
-class CartRemoveItemView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
+@extend_schema_view(
+    post=extend_schema(
+        tags=["Cart - Management"],
         summary="Remove an item from the cart",
         description="Remove a product from the user's cart by providing product ID.",
-        tags=["Cart"],
         parameters=[
             OpenApiParameter(
-                name="product_id", type=int, required=True, description="Product ID"
+                name="product_id",
+                type=int,
+                required=True,
+                description="ID of the product to remove",
             ),
         ],
         responses={
@@ -113,9 +124,12 @@ class CartRemoveItemView(generics.GenericAPIView):
             400: {"detail": "Validation errors"},
         },
     )
+)
+class CartRemoveItemView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         product_id = request.data.get("product_id")
-
         if not product_id:
             return Response(
                 {"detail": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST
@@ -125,19 +139,23 @@ class CartRemoveItemView(generics.GenericAPIView):
         return Response({"detail": "Item removed from cart"}, status=status.HTTP_200_OK)
 
 
-class CartUpdateItemView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
+@extend_schema_view(
+    post=extend_schema(
+        tags=["Cart - Management"],
         summary="Update item quantity in the cart",
         description="Update the quantity of a specific product in the user's cart.",
-        tags=["Cart"],
         parameters=[
             OpenApiParameter(
-                name="product_id", type=int, required=True, description="Product ID"
+                name="product_id",
+                type=int,
+                required=True,
+                description="ID of the product to update",
             ),
             OpenApiParameter(
-                name="quantity", type=int, required=True, description="New Quantity"
+                name="quantity",
+                type=int,
+                required=True,
+                description="New quantity of the product",
             ),
         ],
         responses={
@@ -145,6 +163,10 @@ class CartUpdateItemView(generics.GenericAPIView):
             400: {"detail": "Validation errors"},
         },
     )
+)
+class CartUpdateItemView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         product_id = request.data.get("product_id")
         quantity = request.data.get("quantity")
@@ -154,6 +176,7 @@ class CartUpdateItemView(generics.GenericAPIView):
                 {"detail": "product_id and quantity are required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
         try:
             quantity = int(quantity)
         except ValueError:
@@ -166,18 +189,17 @@ class CartUpdateItemView(generics.GenericAPIView):
         return Response({"detail": "Item quantity updated"}, status=status.HTTP_200_OK)
 
 
-class CartCheckoutView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
-
-    @extend_schema(
+@extend_schema_view(
+    post=extend_schema(
+        tags=["Cart - Checkout"],
         summary="Checkout the cart",
         description="Complete the checkout process for the current user's cart.",
-        tags=["Cart"],
-        responses={
-            200: CartSerializer,
-            400: {"detail": "Cart is empty"},
-        },
+        responses={200: CartSerializer, 400: {"detail": "Cart is empty"}},
     )
+)
+class CartCheckoutView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         redis_items = CartService.get_all_items(request.user.id)
         if not redis_items:
