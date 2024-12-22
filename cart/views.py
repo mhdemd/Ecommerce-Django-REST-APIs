@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import transaction
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -17,6 +18,14 @@ from .services import get_active_price
 class CartViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Get current user's cart items",
+        description="Retrieve all items in the user's cart, along with total price.",
+        responses={
+            200: CartSerializer,
+            401: {"detail": "Authentication credentials were not provided."},
+        },
+    )
     def list(self, request):
         redis_items = CartService.get_all_items(request.user.id)
         products = Product.objects.filter(id__in=redis_items.keys())
@@ -43,6 +52,28 @@ class CartViewSet(viewsets.ViewSet):
         }
         return Response(data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        summary="Add an item to the cart",
+        description="Add a product to the user's cart by providing product ID and quantity.",
+        parameters=[
+            OpenApiParameter(
+                name="product_id",
+                type=int,
+                required=True,
+                description="ID of the product to add",
+            ),
+            OpenApiParameter(
+                name="quantity",
+                type=int,
+                required=False,
+                description="Quantity of the product to add (default is 1)",
+            ),
+        ],
+        responses={
+            200: {"detail": "Item added to cart"},
+            400: {"detail": "Validation errors"},
+        },
+    )
     @action(detail=False, methods=["post"], url_path="add-item", url_name="add-item")
     def add_item(self, request):
         product_id = request.data.get("product_id")
@@ -69,6 +100,22 @@ class CartViewSet(viewsets.ViewSet):
         CartService.add_item(request.user.id, product_id, quantity)
         return Response({"detail": "Item added to cart"}, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        summary="Remove an item from the cart",
+        description="Remove a product from the user's cart by providing product ID.",
+        parameters=[
+            OpenApiParameter(
+                name="product_id",
+                type=int,
+                required=True,
+                description="ID of the product to remove",
+            ),
+        ],
+        responses={
+            200: {"detail": "Item removed from cart"},
+            400: {"detail": "Validation errors"},
+        },
+    )
     @action(
         detail=False, methods=["post"], url_path="remove-item", url_name="remove-item"
     )
