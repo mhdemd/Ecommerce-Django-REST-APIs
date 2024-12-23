@@ -269,6 +269,6 @@ class AdminCartListView(ListAPIView):
     )
 )
 class AdminCartDetailView(RetrieveAPIView):
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.prefetch_related("items__product")
     serializer_class = CartSerializer
     permission_classes = [IsAdminUser]
