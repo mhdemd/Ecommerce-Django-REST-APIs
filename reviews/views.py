@@ -60,3 +60,15 @@ class ReviewVoteView(APIView):
             vote.is_upvote = is_upvote
             vote.save()
         return Response({"success": "Vote recorded"}, status=status.HTTP_200_OK)
+
+
+class CommentCreateView(generics.CreateAPIView):
+    """
+    Add a comment to a review
+    """
+
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
