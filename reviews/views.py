@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,7 +20,9 @@ class ReviewListView(generics.ListAPIView):
 
     def get_queryset(self):
         product_id = self.kwargs.get("product_id")
-        return Review.objects.filter(product_id=product_id, is_approved=True)
+        return Review.objects.filter(
+            product_id=product_id, is_approved=True
+        ).select_related("user", "product")
 
 
 class ReviewCreateView(generics.CreateAPIView):
@@ -51,18 +54,31 @@ class ReviewVoteView(APIView):
     Like or dislike a review
     """
 
+    serializer_class = ReviewVoteSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, review_id):
-        is_upvote = request.data.get("is_upvote")
-        review = Review.objects.get(id=review_id)
-        vote, created = ReviewVote.objects.get_or_create(
-            user=request.user, review=review, defaults={"is_upvote": is_upvote}
-        )
-        if not created:
-            vote.is_upvote = is_upvote
-            vote.save()
-        return Response({"success": "Vote recorded"}, status=status.HTTP_200_OK)
+        """
+        Handles creating or updating a vote for a review
+        """
+        review = get_object_or_404(Review, id=review_id)
+        data = {
+            "review": review.id,
+            "is_upvote": request.data.get("is_upvote"),
+        }
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            vote, created = ReviewVote.objects.update_or_create(
+                user=request.user,
+                review=review,
+                defaults={"is_upvote": serializer.validated_data["is_upvote"]},
+            )
+            message = "Vote created" if created else "Vote updated"
+            return Response(
+                {"success": message, "data": self.serializer_class(vote).data},
+                status=status.HTTP_200_OK,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentCreateView(generics.CreateAPIView):
@@ -87,7 +103,9 @@ class CommentListView(generics.ListAPIView):
 
     def get_queryset(self):
         review_id = self.kwargs.get("review_id")
-        return Comment.objects.filter(review_id=review_id)
+        return Comment.objects.filter(review_id=review_id).select_related(
+            "user", "review"
+        )
 
 
 # ----------------------
@@ -102,7 +120,7 @@ class AdminReviewListView(generics.ListAPIView):
     permission_classes = [permissions.IsAdminUser]
 
     def get_queryset(self):
-        return Review.objects.all()
+        return Review.objects.all().select_related("user", "product")
 
 
 class AdminReviewApprovalView(APIView):
@@ -113,8 +131,13 @@ class AdminReviewApprovalView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def post(self, request, review_id):
-        review = Review.objects.get(id=review_id)
-        is_approved = request.data.get("is_approved", False)
+        review = get_object_or_404(Review, id=review_id)
+        is_approved = request.data.get("is_approved")
+        if not isinstance(is_approved, bool):
+            return Response(
+                {"error": "Invalid value for 'is_approved'. Must be true or false."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         review.is_approved = is_approved
         review.save()
         return Response(
