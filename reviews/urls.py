@@ -39,6 +39,14 @@ urlpatterns = [
         "reviews/<int:review_id>/comments/create/",
         CommentCreateView.as_view(),
         name="comment-create",
-    ),    ),
-
+    ),
+    # ------------------------
+    # Admin Routes
+    # ------------------------
+    path("admin/reviews/", AdminReviewListView.as_view(), name="admin-review-list"),
+    path(
+        "admin/reviews/<int:review_id>/approve/",
+        AdminReviewApprovalView.as_view(),
+        name="admin-review-approve",
+    ),
 ]
