@@ -70,3 +70,28 @@ class ReviewVote(models.Model):
 
     def __str__(self):
         return f"Vote by {self.user.username} on {self.review.title}"
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="comments",
+        verbose_name=_("User"),
+    )
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name="comments",
+        verbose_name=_("Review"),
+    )
+    body = models.TextField(verbose_name=_("Comment Body"))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _("Comment")
+        verbose_name_plural = _("Comments")
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.review.title}"
