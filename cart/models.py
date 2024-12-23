@@ -19,7 +19,7 @@ class Cart(models.Model):
     status = models.CharField(
         max_length=20, choices=CartStatus.choices, default=CartStatus.ACTIVE
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     # The final amount may be calculated and saved at the Checkout stage
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)

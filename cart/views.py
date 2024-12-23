@@ -254,7 +254,9 @@ class CartCheckoutView(GenericAPIView):
     )
 )
 class AdminCartListView(ListAPIView):
-    queryset = Cart.objects.all().order_by("-created_at")
+    queryset = (
+        Cart.objects.prefetch_related("items__product").all().order_by("-created_at")
+    )
     serializer_class = CartSerializer
     permission_classes = [IsAdminUser]
 
