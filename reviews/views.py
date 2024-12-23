@@ -72,3 +72,16 @@ class CommentCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class CommentListView(generics.ListAPIView):
+    """
+    List all comments for a specific review
+    """
+
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        review_id = self.kwargs.get("review_id")
+        return Comment.objects.filter(review_id=review_id)
