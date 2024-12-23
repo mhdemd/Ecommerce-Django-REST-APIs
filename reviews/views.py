@@ -17,3 +17,15 @@ class ReviewListView(generics.ListAPIView):
     def get_queryset(self):
         product_id = self.kwargs.get("product_id")
         return Review.objects.filter(product_id=product_id, is_approved=True)
+
+
+class ReviewCreateView(generics.CreateAPIView):
+    """
+    Create a new review for a product
+    """
+
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
