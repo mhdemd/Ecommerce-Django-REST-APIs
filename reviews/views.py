@@ -29,3 +29,15 @@ class ReviewCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class ReviewUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Update or delete a review (only allowed for the review's author)
+    """
+
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Review.objects.filter(user=self.request.user)
