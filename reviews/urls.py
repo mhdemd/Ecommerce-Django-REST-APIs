@@ -22,13 +22,18 @@ urlpatterns = [
     ),
     path(
         "products/<int:product_id>/reviews/create/",
-        ReviewListView.as_view(),
+        ReviewCreateView.as_view(),
         name="review-create",
     ),
     path(
         "reviews/<int:pk>/",
         ReviewUpdateDeleteView.as_view(),
         name="review-detail",
+    ),
+    path(
+        "reviews/<int:review_id>/vote/",
+        ReviewVoteView.as_view(),
+        name="review-vote",
     ),
     path(
         "reviews/<int:review_id>/comments/",
