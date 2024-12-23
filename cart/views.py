@@ -88,8 +88,13 @@ class CartAddItemView(GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        product_id = request.data.get("product_id")
-        quantity = request.data.get("quantity", 1)
+        # Check both request.data and query parameters for product_id
+        product_id = request.data.get("product_id") or request.query_params.get(
+            "product_id"
+        )
+        quantity = request.data.get("quantity") or request.query_params.get(
+            "quantity", 1
+        )
 
         if not product_id:
             return Response(
@@ -136,7 +141,10 @@ class CartRemoveItemView(GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        product_id = request.data.get("product_id")
+        product_id = request.data.get("product_id") or request.query_params.get(
+            "product_id"
+        )
+
         if not product_id:
             return Response(
                 {"detail": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST
@@ -175,8 +183,10 @@ class CartUpdateItemView(GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        product_id = request.data.get("product_id")
-        quantity = request.data.get("quantity")
+        product_id = request.data.get("product_id") or request.query_params.get(
+            "product_id"
+        )
+        quantity = request.data.get("quantity") or request.query_params.get("quantity")
 
         if not product_id or quantity is None:
             return Response(
