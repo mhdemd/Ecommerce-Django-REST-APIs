@@ -30,3 +30,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         Returns the username if show_name is True; otherwise, returns 'Anonymous'
         """
         return obj.user.username if obj.show_name else "Anonymous"
+
+
+class ReviewVoteSerializer(serializers.ModelSerializer):
+    """
+    Serializer for voting on reviews
+    """
+
+    class Meta:
+        model = ReviewVote
+        fields = ["id", "user", "review", "is_upvote"]
+        read_only_fields = ["user"]
