@@ -9,9 +9,10 @@ We appreciate your interest in contributing to this project! Whether you are fix
 1. [Code of Conduct](#code-of-conduct)
 2. [How to Contribute](#how-to-contribute)
 3. [Setting Up the Project](#setting-up-the-project)
-4. [Pull Request Guidelines](#pull-request-guidelines)
-5. [Reporting Issues](#reporting-issues)
-6. [Coding Standards](#coding-standards)
+4. [Loading Fake Data](#loading-fake-data)
+5. [Pull Request Guidelines](#pull-request-guidelines)
+6. [Reporting Issues](#reporting-issues)
+7. [Coding Standards](#coding-standards)
 
 ---
 
@@ -60,6 +61,27 @@ Follow these steps to set up the project locally using Docker:
    ```bash
    docker exec -it django_app pytest
    ```
+
+---
+
+## Loading Fake Data
+
+To populate the database with fake data, follow these steps:
+
+1. **Access the Docker Container**  
+   Open a terminal session inside the running Django container:
+   ```bash
+   docker exec -it django_app /bin/bash
+   ```
+
+2. **Run the Fake Data Command**  
+   Execute the management command to generate fake data:
+   ```bash
+   python manage.py generate_fake_data
+   ```
+
+3. **Verify the Data**  
+   Confirm that the data has been successfully added by accessing the database or using the Django admin interface at `http://localhost:8000/admin/`.
 
 ---
 

@@ -1,12 +1,9 @@
 # This file contains the synchronization logic with Redis.
-import json
 
 from django.conf import settings
 
 REDIS_CLIENT = settings.REDIS_INSTANCE
 from decimal import Decimal
-
-from products.models.inventory import ProductInventory
 
 
 def get_active_price(product):
