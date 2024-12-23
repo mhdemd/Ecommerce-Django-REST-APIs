@@ -6,6 +6,9 @@ from .models import Comment, Review, ReviewVote
 from .serializers import CommentSerializer, ReviewSerializer, ReviewVoteSerializer
 
 
+# ----------------------
+# Views for Regular Users
+# ----------------------
 class ReviewListView(generics.ListAPIView):
     """
     List all approved reviews for a specific product
@@ -85,3 +88,18 @@ class CommentListView(generics.ListAPIView):
     def get_queryset(self):
         review_id = self.kwargs.get("review_id")
         return Comment.objects.filter(review_id=review_id)
+
+
+# ----------------------
+# Views for Admins
+# ----------------------
+class AdminReviewListView(generics.ListAPIView):
+    """
+    List all reviews for moderation
+    """
+
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        return Review.objects.all()
