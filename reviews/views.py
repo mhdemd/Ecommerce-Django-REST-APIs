@@ -103,3 +103,21 @@ class AdminReviewListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Review.objects.all()
+
+
+class AdminReviewApprovalView(APIView):
+    """
+    Approve or reject a review
+    """
+
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, review_id):
+        review = Review.objects.get(id=review_id)
+        is_approved = request.data.get("is_approved", False)
+        review.is_approved = is_approved
+        review.save()
+        return Response(
+            {"success": f"Review {'approved' if is_approved else 'rejected'}"},
+            status=status.HTTP_200_OK,
+        )
