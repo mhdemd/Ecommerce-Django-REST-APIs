@@ -41,3 +41,22 @@ class ReviewUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Review.objects.filter(user=self.request.user)
+
+
+class ReviewVoteView(APIView):
+    """
+    Like or dislike a review
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, review_id):
+        is_upvote = request.data.get("is_upvote")
+        review = Review.objects.get(id=review_id)
+        vote, created = ReviewVote.objects.get_or_create(
+            user=request.user, review=review, defaults={"is_upvote": is_upvote}
+        )
+        if not created:
+            vote.is_upvote = is_upvote
+            vote.save()
+        return Response({"success": "Vote recorded"}, status=status.HTTP_200_OK)
