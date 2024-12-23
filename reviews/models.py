@@ -46,3 +46,27 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.user.username if self.show_name else 'Anonymous'} for {self.product.name}"
+
+
+class ReviewVote(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="review_votes",
+        verbose_name=_("User"),
+    )
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name="votes",
+        verbose_name=_("Review"),
+    )
+    is_upvote = models.BooleanField(verbose_name=_("Is Upvote"))
+
+    class Meta:
+        verbose_name = _("Review Vote")
+        verbose_name_plural = _("Review Votes")
+        unique_together = ("user", "review")  # Each user can vote on a review only once
+
+    def __str__(self):
+        return f"Vote by {self.user.username} on {self.review.title}"
