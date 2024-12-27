@@ -12,9 +12,9 @@ from .views import (
 )
 
 urlpatterns = [
-    # ------------------------
+    # ----------------------
     # Regular User Routes
-    # ------------------------
+    # ----------------------
     path(
         "products/<int:product_id>/reviews/",
         ReviewListView.as_view(),
@@ -45,10 +45,14 @@ urlpatterns = [
         CommentCreateView.as_view(),
         name="comment-create",
     ),
-    # ------------------------
+    # ----------------------
     # Admin Routes
-    # ------------------------
-    path("admin/reviews/", AdminReviewListView.as_view(), name="admin-review-list"),
+    # ----------------------
+    path(
+        "admin/reviews/",
+        AdminReviewListView.as_view(),
+        name="admin-review-list",
+    ),
     path(
         "admin/reviews/<int:review_id>/approve/",
         AdminReviewApprovalView.as_view(),
