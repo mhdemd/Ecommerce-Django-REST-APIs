@@ -37,6 +37,7 @@ class Review(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        ordering = ["created_at"]
         verbose_name = _("Review")
         verbose_name_plural = _("Reviews")
         unique_together = (

@@ -49,5 +49,5 @@ def test_list_approved_reviews(api_client, product, review):
     url = reverse("review-list", kwargs={"product_id": product.id})
     response = api_client.get(url)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    assert response.data[0]["title"] == "Great Product"
+    assert len(response.data["results"]) == 1
+    assert response.data["results"][0]["title"] == "Great Product"
