@@ -83,3 +83,15 @@ def test_delete_review(authenticated_user_client, review):
     response = authenticated_user_client.delete(url)
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert not Review.objects.filter(id=review.id).exists()
+
+
+@pytest.mark.django_db
+def test_vote_review(authenticated_user_client, review):
+    """Test updating a review."""
+    url = reverse("review-vote", kwargs={"review_id": review.id})
+    payload = {"is_upvote": True}
+    response = authenticated_user_client.post(url, payload)
+    assert response.status_code == status.HTTP_200_OK
+    assert ReviewVote.objects.filter(
+        review=review, user=review.user, is_upvote=True
+    ).exists()
