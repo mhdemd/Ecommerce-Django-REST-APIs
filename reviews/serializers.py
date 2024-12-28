@@ -56,17 +56,17 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = [
             "id",
+            "body",
+            "review",
             "user",
             "user_name",
-            "review",
-            "body",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["user", "created_at", "updated_at"]
+        read_only_fields = ["review", "user", "created_at", "updated_at"]
 
     def get_user_name(self, obj):
         """
         Return the username of the commenter
         """
-        return obj.user.username
+        return obj.user.username if obj.user else "Anonymous"

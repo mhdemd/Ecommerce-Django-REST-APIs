@@ -114,3 +114,16 @@ def test_list_comments(api_client, review, comment):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 1
     assert response.data["results"][0]["body"] == "Nice review!"
+
+
+@pytest.mark.django_db
+def test_create_comment(authenticated_user_client, review):
+    """Test creating a comment for a review."""
+    url = reverse("comment-create", kwargs={"review_id": review.id})
+    payload = {"body": "I agree with this review!"}
+    response = authenticated_user_client.post(url, payload)
+    print(response.data)
+    assert response.status_code == status.HTTP_201_CREATED
+    assert Comment.objects.filter(
+        body="I agree with this review!", review=review
+    ).exists()
