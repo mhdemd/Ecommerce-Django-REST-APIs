@@ -63,3 +63,14 @@ def test_create_review(authenticated_user_client, product):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert Review.objects.filter(title="Amazing!", product=product).exists()
+
+
+@pytest.mark.django_db
+def test_update_review(authenticated_user_client, review):
+    """Test update an existing review."""
+    url = reverse("review-detail", kwargs={"pk": review.id})
+    payload = {"title": "Update Title"}
+    response = authenticated_user_client.patch(url, payload)
+    assert response.status_code == status.HTTP_200_OK
+    review.refresh_from_db()
+    assert review.title == "Update Title"
