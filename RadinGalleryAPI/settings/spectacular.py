@@ -117,5 +117,30 @@ SPECTACULAR_SETTINGS = {
             "name": "Admin - Cart",
             "description": "Admin endpoints for viewing and managing all user carts.",
         },
+        # Reviews Group
+        {
+            "name": "Review - List",
+            "description": "Endpoints for listing reviews of a specific product.",
+        },
+        {
+            "name": "Review - Create",
+            "description": "Endpoints for users to create reviews for a product.",
+        },
+        {
+            "name": "Review - Update/Delete",
+            "description": "Endpoints for updating or deleting a user's review.",
+        },
+        {
+            "name": "Review - Vote",
+            "description": "Endpoints for voting (like/dislike) a review.",
+        },
+        {
+            "name": "Review - Comment",
+            "description": "Endpoints for adding comments to reviews and listing them.",
+        },
+        {
+            "name": "Admin - Review",
+            "description": "Admin endpoints for managing and moderating reviews.",
+        },
     ],
 }
