@@ -74,3 +74,12 @@ def test_update_review(authenticated_user_client, review):
     assert response.status_code == status.HTTP_200_OK
     review.refresh_from_db()
     assert review.title == "Update Title"
+
+
+@pytest.mark.django_db
+def test_delete_review(authenticated_user_client, review):
+    """Test deleting an existing review."""
+    url = reverse("review-detail", kwargs={"pk": review.id})
+    response = authenticated_user_client.delete(url)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert not Review.objects.filter(id=review.id).exists()
