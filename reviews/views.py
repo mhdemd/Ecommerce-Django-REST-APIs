@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from drf_spectacular.views import SpectacularAPIView
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ reviews_schema_view = SpectacularAPIView.as_view(urlconf="reviews.urls")
 # ----------------------
 # Views for Regular Users
 # ----------------------
+@extend_schema(tags=["Review - List"])
 class ReviewListView(generics.ListAPIView):
     """
     List all approved reviews for a specific product
@@ -29,6 +31,7 @@ class ReviewListView(generics.ListAPIView):
         ).select_related("user", "product")
 
 
+@extend_schema(tags=["Review - Create"])
 class ReviewCreateView(generics.CreateAPIView):
     """
     Create a new review for a product
@@ -41,6 +44,7 @@ class ReviewCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
+@extend_schema(tags=["Review - Update/Delete"])
 class ReviewUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     """
     Update or delete a review (only allowed for the review's author)
@@ -53,6 +57,7 @@ class ReviewUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         return Review.objects.filter(user=self.request.user)
 
 
+@extend_schema(tags=["Review - Vote"])
 class ReviewVoteView(APIView):
     """
     Like or dislike a review
@@ -85,6 +90,7 @@ class ReviewVoteView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["Review - Comment"])
 class CommentCreateView(generics.CreateAPIView):
     """
     Add a comment to a review
@@ -97,6 +103,7 @@ class CommentCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
+@extend_schema(tags=["Review - Comment"])
 class CommentListView(generics.ListAPIView):
     """
     List all comments for a specific review
@@ -115,6 +122,7 @@ class CommentListView(generics.ListAPIView):
 # ----------------------
 # Views for Admins
 # ----------------------
+@extend_schema(tags=["Admin - Review"])
 class AdminReviewListView(generics.ListAPIView):
     """
     List all reviews for moderation
@@ -127,6 +135,7 @@ class AdminReviewListView(generics.ListAPIView):
         return Review.objects.all().select_related("user", "product")
 
 
+@extend_schema(tags=["Admin - Review"])
 class AdminReviewApprovalView(APIView):
     """
     Approve or reject a review
