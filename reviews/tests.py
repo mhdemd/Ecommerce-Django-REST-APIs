@@ -38,3 +38,16 @@ def review_unapproved(user, product):
 def Comment(user, review):
     """Create a comment for a review by a user."""
     return Comment.objects.create(user=user, review=review, body="Nice review!")
+
+
+# ------------------------
+# Test Cases for Reviews
+# ------------------------
+@pytest.mark.django_db
+def test_list_approved_reviews(api_client, product, review):
+    """Test listing approved reviews for a product."""
+    url = reverse("review-list", kwargs={"product_id": product.id})
+    response = api_client.get(url)
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+    assert response.data[0]["title"] == "Great Product"
