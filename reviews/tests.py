@@ -32,3 +32,9 @@ def review_unapproved(user, product):
         rating=4,
         is_approved=False,
     )
+
+
+@pytest.fixture
+def Comment(user, review):
+    """Create a comment for a review by a user."""
+    return Comment.objects.create(user=user, review=review, body="Nice review!")
