@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -161,3 +163,17 @@ def test_admin_list_reviews(authenticated_admin_client, review, review_unapprove
     print(response.data)
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 2  # Assuming pagination in response
+
+
+@pytest.mark.django_db
+def test_admin_approve_review(authenticated_admin_client, review_unapproved):
+    """Test admin approving a review."""
+    url = reverse("admin-review-approve", kwargs={"review_id": review_unapproved.id})
+    payload = {"is_approved": True}
+    response = authenticated_admin_client.post(
+        url, data=json.dumps(payload), content_type="application/json"  # Use json.dumps
+    )
+    print(response.data)
+    assert response.status_code == status.HTTP_200_OK
+    review_unapproved.refresh_from_db()
+    assert review_unapproved.is_approved is True
