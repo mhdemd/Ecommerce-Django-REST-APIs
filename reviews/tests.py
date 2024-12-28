@@ -1,8 +1,12 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 
+from products.models.product import Product
 from reviews.models import Comment, Review, ReviewVote
+
+User = get_user_model()
 
 
 # ------------------------
@@ -22,28 +26,44 @@ def review(user, product):
 
 
 @pytest.fixture
-def review_unapproved(user, product):
-    """Create an unapproved review for a product by a user."""
+def comment(user, review):
+    """Creates a comment for a review by a user."""
+    return Comment.objects.create(user=user, review=review, body="Nice review!")
+
+
+@pytest.fixture
+def another_product(db, brand, category_active):
+    """Creates a different product."""
+    return Product.objects.create(
+        web_id="56789",
+        slug="test-product-2",
+        name="Test Product 2",
+        description="Another test product",
+        brand=brand,
+        category=category_active,  # Use category_active here
+        is_active=True,
+    )
+
+
+@pytest.fixture
+def another_user(db):
+    """Creates another user."""
+    return User.objects.create_user(
+        username="another_user", email="another@example.com", password="testpassword"
+    )
+
+
+@pytest.fixture
+def review_unapproved(db, another_user, another_product):
+    """Creates an unapproved review for a different product."""
     return Review.objects.create(
-        user=user,
-        product=product,
+        user=another_user,
+        product=another_product,
         title="Pending Review",
         body="Need approval",
         rating=4,
         is_approved=False,
     )
-
-
-@pytest.fixture
-def comment(user, review):
-    """Create a comment for a review by a user."""
-    return Comment.objects.create(user=user, review=review, body="Nice review!")
-
-
-@pytest.fixture
-def comment(user, review):
-    """Creates a comment for a review by a user."""
-    return Comment.objects.create(user=user, review=review, body="Nice review!")
 
 
 # ------------------------
@@ -106,6 +126,7 @@ def test_vote_review(authenticated_user_client, review):
 # ------------------------
 # Test Cases for Comments
 # ------------------------
+@pytest.mark.django_db
 def test_list_comments(api_client, review, comment):
     """Test listing comments for a specific reviwe."""
     url = reverse("comment-list", kwargs={"review_id": review.id})
@@ -127,3 +148,16 @@ def test_create_comment(authenticated_user_client, review):
     assert Comment.objects.filter(
         body="I agree with this review!", review=review
     ).exists()
+
+
+# ---------------------------------
+# Test Cases for Admin Views
+# ---------------------------------
+@pytest.mark.django_db
+def test_admin_list_reviews(authenticated_admin_client, review, review_unapproved):
+    """Test admin listing all reviews for moderation."""
+    url = reverse("admin-review-list")
+    response = authenticated_admin_client.get(url)
+    print(response.data)
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 2  # Assuming pagination in response
