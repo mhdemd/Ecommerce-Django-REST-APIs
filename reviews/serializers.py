@@ -13,7 +13,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "user",
-            "user_name",
             "product",
             "title",
             "body",
