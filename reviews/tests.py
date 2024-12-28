@@ -51,3 +51,15 @@ def test_list_approved_reviews(api_client, product, review):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 1
     assert response.data["results"][0]["title"] == "Great Product"
+
+
+@pytest.mark.django_db
+def test_create_review(authenticated_user_client, product):
+    """Test creating a new review for a product."""
+    url = reverse("review-create", kwargs={"product_id": product.id})
+    payload = {"title": "Amazing!", "body": "Very satisfied!", "rating": 5}
+    response = authenticated_user_client.post(url, payload)
+    print(response.data)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert Review.objects.filter(title="Amazing!", product=product).exists()

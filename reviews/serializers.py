@@ -12,17 +12,20 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = [
             "id",
-            "user",
-            "product",
             "title",
             "body",
             "rating",
-            "is_approved",
-            "show_name",
+            "product",
+            "user",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["user", "is_approved", "created_at", "updated_at"]
+        read_only_fields = [
+            "user",
+            "product",
+            "created_at",
+            "updated_at",
+        ]
 
     def get_user_name(self, obj):
         """

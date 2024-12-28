@@ -5,6 +5,8 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from products.models import Product
+
 from .models import Comment, Review, ReviewVote
 from .serializers import CommentSerializer, ReviewSerializer, ReviewVoteSerializer
 
@@ -41,7 +43,9 @@ class ReviewCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        product_id = self.kwargs.get("product_id")
+        product = get_object_or_404(Product, id=product_id)
+        serializer.save(user=self.request.user, product=product)
 
 
 @extend_schema(tags=["Review - Update/Delete"])
