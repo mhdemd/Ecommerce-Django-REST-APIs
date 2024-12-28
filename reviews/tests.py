@@ -14,6 +14,8 @@ User = get_user_model()
 # ------------------------
 # Review Test Fixtures
 # ------------------------
+
+
 @pytest.fixture
 def review(user, product):
     """Create a review for a product by a user."""
@@ -71,6 +73,8 @@ def review_unapproved(db, another_user, another_product):
 # ------------------------
 # Test Cases for Reviews
 # ------------------------
+
+
 @pytest.mark.django_db
 def test_list_approved_reviews(api_client, product, review):
     """Test listing approved reviews for a product."""
@@ -128,6 +132,8 @@ def test_vote_review(authenticated_user_client, review):
 # ------------------------
 # Test Cases for Comments
 # ------------------------
+
+
 @pytest.mark.django_db
 def test_list_comments(api_client, review, comment):
     """Test listing comments for a specific reviwe."""
@@ -155,6 +161,8 @@ def test_create_comment(authenticated_user_client, review):
 # ---------------------------------
 # Test Cases for Admin Views
 # ---------------------------------
+
+
 @pytest.mark.django_db
 def test_admin_list_reviews(authenticated_admin_client, review, review_unapproved):
     """Test admin listing all reviews for moderation."""

@@ -17,6 +17,8 @@ reviews_schema_view = SpectacularAPIView.as_view(urlconf="reviews.urls")
 # ----------------------
 # Views for Regular Users
 # ----------------------
+
+
 @extend_schema(tags=["Review - List"])
 class ReviewListView(generics.ListAPIView):
     """
@@ -128,6 +130,8 @@ class CommentListView(generics.ListAPIView):
 # ----------------------
 # Views for Admins
 # ----------------------
+
+
 @extend_schema(tags=["Admin - Review"])
 class AdminReviewListView(generics.ListAPIView):
     """
