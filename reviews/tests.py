@@ -35,8 +35,14 @@ def review_unapproved(user, product):
 
 
 @pytest.fixture
-def Comment(user, review):
+def comment(user, review):
     """Create a comment for a review by a user."""
+    return Comment.objects.create(user=user, review=review, body="Nice review!")
+
+
+@pytest.fixture
+def comment(user, review):
+    """Creates a comment for a review by a user."""
     return Comment.objects.create(user=user, review=review, body="Nice review!")
 
 
@@ -95,3 +101,16 @@ def test_vote_review(authenticated_user_client, review):
     assert ReviewVote.objects.filter(
         review=review, user=review.user, is_upvote=True
     ).exists()
+
+
+# ------------------------
+# Test Cases for Comments
+# ------------------------
+def test_list_comments(api_client, review, comment):
+    """Test listing comments for a specific reviwe."""
+    url = reverse("comment-list", kwargs={"review_id": review.id})
+    response = api_client.get(url)
+    print(response.data)
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data["results"]) == 1
+    assert response.data["results"][0]["body"] == "Nice review!"
