@@ -9,6 +9,7 @@ from .views import (
     ReviewListView,
     ReviewUpdateDeleteView,
     ReviewVoteView,
+    reviews_schema_view,
 )
 
 urlpatterns = [
@@ -58,4 +59,8 @@ urlpatterns = [
         AdminReviewApprovalView.as_view(),
         name="admin-review-approve",
     ),
+    # ----------------------
+    # Create schema for swagger
+    # ----------------------
+    path("schema/", reviews_schema_view, name="reviews-schema"),
 ]
