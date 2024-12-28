@@ -4,7 +4,9 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 
+from brands.models import Brand
 from categories.models import Category
+from products.models import Product
 
 User = get_user_model()
 
@@ -72,6 +74,32 @@ def verify_email_setup(db):
     )
     verify_email_url = reverse("verify_email")
     return user, verify_email_url
+
+
+# ---------------------------------
+# Brand Fixtures
+# ---------------------------------
+@pytest.fixture
+def brand(db):
+    """Create a brand for products."""
+    return Brand.objects.create(name="Test Brand", slug="test-brand")
+
+
+# ---------------------------------
+# Product Fixtures
+# ---------------------------------
+@pytest.fixture
+def product(db, brand, category_active):
+    """Create a product for testing."""
+    return Product.objects.create(
+        web_id="12345",
+        slug="test-product",
+        name="Test Product",
+        description="A test product",
+        brand=brand,
+        category=category_active,
+        is_active=True,
+    )
 
 
 # ---------------------------------
