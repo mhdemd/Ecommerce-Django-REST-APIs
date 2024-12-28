@@ -1,10 +1,14 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.views import SpectacularAPIView
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Comment, Review, ReviewVote
 from .serializers import CommentSerializer, ReviewSerializer, ReviewVoteSerializer
+
+# ---------------------------- Create schema for swagger ----------------------------
+reviews_schema_view = SpectacularAPIView.as_view(urlconf="reviews.urls")
 
 
 # ----------------------
