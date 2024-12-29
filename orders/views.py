@@ -16,3 +16,12 @@ class OrderListView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         # Automatically associate the order with the authenticated user
         serializer.save(user=self.request.user)
+
+
+# View for retrieving, updating, and deleting a specific order
+class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        # Ensure only the owner can access the order
+        return Order.objects.filter(user=self.request.user)
