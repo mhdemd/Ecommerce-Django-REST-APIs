@@ -25,3 +25,20 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         # Ensure only the owner can access the order
         return Order.objects.filter(user=self.request.user)
+
+
+# View for listing and creating order items
+class OrderItemListView(generics.ListCreateAPIView):
+    serializer_class = OrderItemSerializer
+
+    def get_queryset(self):
+        # Get the order and ensure it belongs to the authenticated user
+        order_id = self.kwargs.get("order_id")
+        order = get_object_or_404(Order, id=order_id, user=self.request.user)
+        return OrderItem.objects.filter(order=order)
+
+    def perform_create(self, serializer):
+        # Automatically associate the item with the correct order
+        order_id = self.kwargs.get("order_id")
+        order = get_object_or_404(Order, id=order_id, user=self.request.user)
+        serializer.save(order=order)
