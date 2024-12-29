@@ -10,16 +10,16 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    item = OrderItemSerializer(many=True)
+    items = OrderItemSerializer(many=True)
 
     class Meta:
         model = Order
-        field = [
+        fields = [
             "id",
             "user",
             "status",
             "total_amount",
-            "craeted_at",
+            "created_at",
             "updated_at",
             "items",
         ]
