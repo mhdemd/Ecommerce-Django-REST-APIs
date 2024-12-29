@@ -42,3 +42,14 @@ class OrderItemListView(generics.ListCreateAPIView):
         order_id = self.kwargs.get("order_id")
         order = get_object_or_404(Order, id=order_id, user=self.request.user)
         serializer.save(order=order)
+
+
+# View for retrieving, updating, and deleting a specific order item
+class OrderItemDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = OrderItemSerializer
+
+    def get_queryset(self):
+        # Ensure the item belongs to the correct order and user
+        order_id = self.kwargs.get("order_id")
+        order = get_object_or_404(Order, id=order_id, user=self.request.user)
+        return OrderItem.objects.filter(order=order)
