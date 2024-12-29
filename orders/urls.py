@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    AdminOrderListView,
     OrderDetailView,
     OrderItemDetailView,
     OrderItemListView,
@@ -8,6 +9,9 @@ from .views import (
 )
 
 urlpatterns = [
+    # ---------------------------------------------------------
+    # User Endpoints (orders)
+    # ---------------------------------------------------------
     path("", OrderListView.as_view(), name="order-list"),
     path("<int:pk>/", OrderDetailView.as_view(), name="order-detail"),
     path(
@@ -20,4 +24,8 @@ urlpatterns = [
         OrderItemDetailView.as_view(),
         name="order-item-detail",
     ),
+    # ---------------------------------------------------------
+    # Admin Endpoints (orders)
+    # ---------------------------------------------------------
+    path("admin/", AdminOrderListView.as_view(), name="admin-order-list"),
 ]

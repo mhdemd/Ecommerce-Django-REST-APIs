@@ -13,7 +13,7 @@ class OrderStatus(models.TextChoices):
 
 
 class Order(models.Model):
-    useer = models.ForeignKey(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders"
     )
     status = models.CharField(

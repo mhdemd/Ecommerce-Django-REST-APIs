@@ -1,16 +1,17 @@
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics
+from rest_framework.permissions import IsAdminUser
 
 from .models import Order, OrderItem
 from .serializers import OrderItemSerializer, OrderSerializer
 
+# ---------------------------------------------------------
+# User Endpoints (orders)
+# ---------------------------------------------------------
 
-@extend_schema(
-    summary="List and Create Orders",
-    description="Retrieve a list of orders for the authenticated user or create a new order.",
-    responses={200: OrderSerializer, 201: OrderSerializer},
-)
+
+@extend_schema(tags=["Order - List"])
 class OrderListView(generics.ListCreateAPIView):
     serializer_class = OrderSerializer
 
@@ -23,11 +24,7 @@ class OrderListView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 
-@extend_schema(
-    summary="Retrieve, Update, or Delete an Order",
-    description="Retrieve, update, or delete a specific order for the authenticated user.",
-    responses={200: OrderSerializer},
-)
+@extend_schema(tags=["Order - Detail"])
 class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OrderSerializer
 
@@ -36,14 +33,7 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Order.objects.filter(user=self.request.user)
 
 
-@extend_schema(
-    summary="List and Create Order Items",
-    description="Retrieve a list of items for a specific order or add a new item to the order.",
-    parameters=[
-        OpenApiParameter("order_id", int, description="ID of the order"),
-    ],
-    responses={200: OrderItemSerializer, 201: OrderItemSerializer},
-)
+@extend_schema(tags=["Order - Items"])
 class OrderItemListView(generics.ListCreateAPIView):
     serializer_class = OrderItemSerializer
 
@@ -60,15 +50,7 @@ class OrderItemListView(generics.ListCreateAPIView):
         serializer.save(order=order)
 
 
-@extend_schema(
-    summary="Retrieve, Update, or Delete an Order Item",
-    description="Retrieve, update, or delete a specific item within an order.",
-    parameters=[
-        OpenApiParameter("order_id", int, description="ID of the order"),
-        OpenApiParameter("pk", int, description="ID of the order item"),
-    ],
-    responses={200: OrderItemSerializer},
-)
+@extend_schema(tags=["Order - Item Detail"])
 class OrderItemDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OrderItemSerializer
 
@@ -77,3 +59,15 @@ class OrderItemDetailView(generics.RetrieveUpdateDestroyAPIView):
         order_id = self.kwargs.get("order_id")
         order = get_object_or_404(Order, id=order_id, user=self.request.user)
         return OrderItem.objects.filter(order=order)
+
+
+# ---------------------------------------------------------
+# Admin Endpoints (orders)
+# ---------------------------------------------------------
+
+
+@extend_schema(tags=["Admin - Order"])
+class AdminOrderListView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    queryset = Order.objects.all()
+    permission_classes = [IsAdminUser]

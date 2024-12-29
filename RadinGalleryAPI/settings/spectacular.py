@@ -145,15 +145,23 @@ SPECTACULAR_SETTINGS = {
         # Orders Group
         {
             "name": "Order - List",
-            "description": "Endpoints for listing and retrieving orders for the authenticated user.",
+            "description": "Endpoints for listing all orders or creating a new order for the authenticated user.",
+        },
+        {
+            "name": "Order - Detail",
+            "description": "Endpoints for retrieving, updating, or deleting a specific order for the authenticated user.",
         },
         {
             "name": "Order - Items",
-            "description": "Endpoints for managing items within a specific order.",
+            "description": "Endpoints for listing items in a specific order or adding a new item to it.",
+        },
+        {
+            "name": "Order - Item Detail",
+            "description": "Endpoints for retrieving, updating, or deleting a specific item in an order.",
         },
         {
             "name": "Admin - Order",
-            "description": "Admin endpoints for managing all orders and their items.",
+            "description": "Admin endpoints for managing all orders and their associated items.",
         },
     ],
 }
