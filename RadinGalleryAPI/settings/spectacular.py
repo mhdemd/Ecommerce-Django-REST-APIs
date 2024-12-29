@@ -142,5 +142,18 @@ SPECTACULAR_SETTINGS = {
             "name": "Admin - Review",
             "description": "Admin endpoints for managing and moderating reviews.",
         },
+        # Orders Group
+        {
+            "name": "Order - List",
+            "description": "Endpoints for listing and retrieving orders for the authenticated user.",
+        },
+        {
+            "name": "Order - Items",
+            "description": "Endpoints for managing items within a specific order.",
+        },
+        {
+            "name": "Admin - Order",
+            "description": "Admin endpoints for managing all orders and their items.",
+        },
     ],
 }
