@@ -9,7 +9,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        # Return order only for the logged-in user
+        # Return orders only for the logged-in user
         user = self.request.user
         if user.is_authenticated:
             return Order.objects.filter(user=user)
