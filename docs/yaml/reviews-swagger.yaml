@@ -1,0 +1,513 @@
+openapi: 3.0.3
+info:
+  title: my-APIs
+  version: 1.0.0
+  description: This is the API documentation for 'Ecommerce-Django-REST-APIs'.
+paths:
+  /admin/reviews/:
+    get:
+      operationId: admin_reviews_list
+      description: List all reviews for moderation
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Admin - Review
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReviewList'
+          description: ''
+  /admin/reviews/{review_id}/approve/:
+    post:
+      operationId: admin_reviews_approve_create
+      description: Approve or reject a review
+      parameters:
+      - in: path
+        name: review_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Admin - Review
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /products/{product_id}/reviews/:
+    get:
+      operationId: products_reviews_list
+      description: List all approved reviews for a specific product
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: product_id
+        schema:
+          type: integer
+        required: true
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Review - List
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReviewList'
+          description: ''
+  /products/{product_id}/reviews/create/:
+    post:
+      operationId: products_reviews_create_create
+      description: Create a new review for a product
+      parameters:
+      - in: path
+        name: product_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Review - Create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Review'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Review'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+          description: ''
+  /reviews/{id}/:
+    get:
+      operationId: reviews_retrieve
+      description: Update or delete a review (only allowed for the review's author)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Review - Update/Delete
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+          description: ''
+    put:
+      operationId: reviews_update
+      description: Update or delete a review (only allowed for the review's author)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Review - Update/Delete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Review'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Review'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+          description: ''
+    patch:
+      operationId: reviews_partial_update
+      description: Update or delete a review (only allowed for the review's author)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Review - Update/Delete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedReview'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedReview'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedReview'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+          description: ''
+    delete:
+      operationId: reviews_destroy
+      description: Update or delete a review (only allowed for the review's author)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Review - Update/Delete
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /reviews/{review_id}/comments/:
+    get:
+      operationId: reviews_comments_list
+      description: List all comments for a specific review
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: review_id
+        schema:
+          type: integer
+        required: true
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Review - Comment
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCommentList'
+          description: ''
+  /reviews/{review_id}/comments/create/:
+    post:
+      operationId: reviews_comments_create_create
+      description: Add a comment to a review
+      parameters:
+      - in: path
+        name: review_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Review - Comment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /reviews/{review_id}/vote/:
+    post:
+      operationId: reviews_vote_create
+      description: Handles creating or updating a vote for a review
+      parameters:
+      - in: path
+        name: review_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Review - Vote
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewVote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReviewVote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReviewVote'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewVote'
+          description: ''
+components:
+  schemas:
+    Comment:
+      type: object
+      description: Serializer for creating, updating, and retrieving comments
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        body:
+          type: string
+          title: Comment Body
+        review:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - body
+      - created_at
+      - id
+      - review
+      - updated_at
+      - user
+      - user_name
+    PaginatedCommentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+    PaginatedReviewList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+    PatchedReview:
+      type: object
+      description: Serializer for creating, updating, and retrieving reviews
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          title: Review Title
+          maxLength: 255
+        body:
+          type: string
+          title: Review Body
+        rating:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Rating from 1 to 5
+        product:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    Review:
+      type: object
+      description: Serializer for creating, updating, and retrieving reviews
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          title: Review Title
+          maxLength: 255
+        body:
+          type: string
+          title: Review Body
+        rating:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Rating from 1 to 5
+        product:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - body
+      - created_at
+      - id
+      - product
+      - rating
+      - title
+      - updated_at
+      - user
+    ReviewVote:
+      type: object
+      description: Serializer for voting on reviews
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        review:
+          type: integer
+        is_upvote:
+          type: boolean
+      required:
+      - id
+      - is_upvote
+      - review
+      - user
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Review - List
+  description: Endpoints for listing reviews of a specific product.
+- name: Review - Create
+  description: Endpoints for users to create reviews for a product.
+- name: Review - Update/Delete
+  description: Endpoints for updating or deleting a user's review.
+- name: Review - Vote
+  description: Endpoints for voting (like/dislike) a review.
+- name: Review - Comment
+  description: Endpoints for adding comments to reviews and listing them.
+- name: Admin - Review
+  description: Admin endpoints for managing and moderating reviews.
