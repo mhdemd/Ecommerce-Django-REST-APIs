@@ -108,3 +108,15 @@ class TestOrderEndpoints:
         assert response.status_code == 200
         assert response.data["count"] == 1
         assert len(response.data["results"]) == 1
+
+    def test_create_order_item(self, authenticated_user_client, user, product):
+        """Test creating an item for a specific order."""
+        order = Order.objects.create(user=user, total_amount=100)
+        url = reverse("order-item-list", kwargs={"order_id": order.id})
+
+        payload = {"product": product.id, "quantity": 1, "price": 30}
+        response = authenticated_user_client.post(url, payload)
+
+        assert response.status_code == 201
+        assert response.data["quantity"] == 1
+        assert response.data["price"] == "30.00"
