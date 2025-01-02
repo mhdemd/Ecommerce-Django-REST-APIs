@@ -64,3 +64,7 @@ class TestOrderEndpoints:
 
         assert response.status_code == 204
         assert not Order.objects.filter(id=order.id).exists()
+
+    # ---------------------------------
+    # Admin Endpoints
+    # ---------------------------------
