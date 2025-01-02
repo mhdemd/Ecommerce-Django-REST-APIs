@@ -6,6 +6,7 @@ from .views import (
     OrderItemDetailView,
     OrderItemListView,
     OrderListView,
+    orders_schema_view,
 )
 
 urlpatterns = [
@@ -28,4 +29,6 @@ urlpatterns = [
     # Admin Endpoints (orders)
     # ---------------------------------------------------------
     path("admin/", AdminOrderListView.as_view(), name="admin-order-list"),
+    # Create schema for swagger
+    path("schema/", orders_schema_view, name="auth-schema"),
 ]
