@@ -120,3 +120,17 @@ class TestOrderEndpoints:
         assert response.status_code == 201
         assert response.data["quantity"] == 1
         assert response.data["price"] == "30.00"
+
+    def test_update_order_item(self, authenticated_user_client, user, product):
+        """Test updating an order item."""
+        order = Order.objects.create(user=user, total_amount=100)
+        item = OrderItem.objects.create(
+            order=order, product=product, quantity=1, price=20
+        )
+
+        url = reverse("order-item-detail", kwargs={"order_id": order.id, "pk": item.id})
+        payload = {"quantity": 3}
+        response = authenticated_user_client.patch(url, payload)
+
+        assert response.status_code == 200
+        assert response.data["quantity"] == 3
