@@ -92,3 +92,19 @@ class TestOrderEndpoints:
         response = authenticated_user_client.get(url)
 
         assert response.status_code == 403  # Forbidden for non-admins
+
+    # ---------------------------------
+    # Order Items
+    # ---------------------------------
+
+    def test_list_order_items(self, authenticated_user_client, user, product):
+        """Test listing items of a specific order."""
+        order = Order.objects.create(user=user, total_amount=100)
+        OrderItem.objects.create(order=order, product=product, quantity=2, price=50)
+
+        url = reverse("order-item-list", kwargs={"order_id": order.id})
+        response = authenticated_user_client.get(url)
+
+        assert response.status_code == 200
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
