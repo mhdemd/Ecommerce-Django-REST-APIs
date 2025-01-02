@@ -16,7 +16,7 @@ class TestOrderEndpoints:
         Order.objects.create(user=user, total_amount=100)
 
         response = authenticated_user_client.get(url)
-
-        assert response.status_sode == 200
-        assert len(response.data) == 1
-        assert response.data[0]["total_amount"] == "100.00"
+        print(response.data)
+        assert response.status_code == 200
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["total_amount"] == "100.00"
