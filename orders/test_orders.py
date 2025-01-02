@@ -84,3 +84,11 @@ class TestOrderEndpoints:
         assert response.status_code == 200
         assert response.data["count"] == 2  # تعداد کل سفارش‌ها
         assert len(response.data["results"]) == 2  # تعداد آیتم‌های در صفحه
+
+    def test_list_orders_non_admin(self, authenticated_user_client):
+        """Test listing orders for a non-admin user."""
+        url = reverse("admin-order-list")
+
+        response = authenticated_user_client.get(url)
+
+        assert response.status_code == 403  # Forbidden for non-admins
