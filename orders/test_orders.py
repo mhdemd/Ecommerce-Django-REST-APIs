@@ -68,3 +68,19 @@ class TestOrderEndpoints:
     # ---------------------------------
     # Admin Endpoints
     # ---------------------------------
+
+    def test_list_orders_admin(self, authenticated_admin_client, user, admin_user):
+        """Test listing all orders for an admin."""
+        url = reverse("admin-order-list")
+        Order.objects.bulk_create(
+            [
+                Order(user=user, total_amount=100),
+                Order(user=admin_user, total_amount=200),
+            ]
+        )
+
+        response = authenticated_admin_client.get(url)
+
+        assert response.status_code == 200
+        assert response.data["count"] == 2  # تعداد کل سفارش‌ها
+        assert len(response.data["results"]) == 2  # تعداد آیتم‌های در صفحه
