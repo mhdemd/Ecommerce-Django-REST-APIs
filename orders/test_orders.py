@@ -43,3 +43,14 @@ class TestOrderEndpoints:
 
         assert response.status_code == 200
         assert response.data["total_amount"] == "200.00"
+
+    def test_update_order_authenticated_user(self, authenticated_user_client, user):
+        """Test updating an order for the authenticated user."""
+        order = Order.objects.create(user=user, total_amount=300)
+        url = reverse("order-detail", kwargs={"pk": order.id})
+
+        payload = {"status": "paid"}
+        response = authenticated_user_client.patch(url, payload)
+
+        assert response.status_code == 200
+        assert response.data["status"] == "paid"
