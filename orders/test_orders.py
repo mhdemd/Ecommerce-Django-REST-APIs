@@ -33,3 +33,13 @@ class TestOrderEndpoints:
         assert response.status_code == 201
         assert response.data["total_amount"] == "150.00"
         assert response.data["status"] == "pending"
+
+    def test_retrieve_order_authenticated_user(self, authenticated_user_client, user):
+        """Test retrieving a specific order for the authenticated user."""
+        order = Order.objects.create(user=user, total_amount=200)
+        url = reverse("order-detail", kwargs={"pk": order.id})
+
+        response = authenticated_user_client.get(url)
+
+        assert response.status_code == 200
+        assert response.data["total_amount"] == "200.00"
