@@ -54,3 +54,13 @@ class TestOrderEndpoints:
 
         assert response.status_code == 200
         assert response.data["status"] == "paid"
+
+    def test_delete_order_authenticated_user(self, authenticated_user_client, user):
+        """Test deleting an order for the authenticated user."""
+        order = Order.objects.create(user=user, total_amount=300)
+        url = reverse("order-detail", kwargs={"pk": order.id})
+
+        response = authenticated_user_client.delete(url)
+
+        assert response.status_code == 204
+        assert not Order.objects.filter(id=order.id).exists()
