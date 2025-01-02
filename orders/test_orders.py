@@ -20,3 +20,16 @@ class TestOrderEndpoints:
         assert response.status_code == 200
         assert len(response.data["results"]) == 1
         assert response.data["results"][0]["total_amount"] == "100.00"
+
+    def test_creatd_orders_authenticated_user(self, authenticated_user_client):
+        """Test creating an order for an authenticated user."""
+        url = reverse("order-list")
+
+        payload = {"status": "pending", "total_amount": 150}
+        response = authenticated_user_client.post(url, payload)
+
+        print(response.data)
+
+        assert response.status_code == 201
+        assert response.data["total_amount"] == "150.00"
+        assert response.data["status"] == "pending"
