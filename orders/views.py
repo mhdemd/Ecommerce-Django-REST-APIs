@@ -1,10 +1,15 @@
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
+from drf_spectacular.views import SpectacularAPIView
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 
 from .models import Order, OrderItem
 from .serializers import OrderItemSerializer, OrderSerializer
+
+# ---------------------------- Create schema for swagger ----------------------------
+orders_schema_view = SpectacularAPIView.as_view(urlconf="orders.urls")
+
 
 # ---------------------------------------------------------
 # User Endpoints (orders)
