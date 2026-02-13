@@ -48,7 +48,7 @@ referencing==0.35.1
 rpds-py==0.21.0
 setuptools==75.6.0
 six==1.17.0
-sqlparse==0.5.2
+sqlparse==0.5.4
 typing_extensions==4.12.2
 tzdata==2024.2
 uritemplate==4.1.1
